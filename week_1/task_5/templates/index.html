@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Версии моделей · День 5</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<a class="skip" href="#prompt">Перейти к запросу</a>
+<main>
+  <header><a class="brand" href="/">AI ADVENT <span>/ ЛАБОРАТОРИЯ</span></a><span class="day">НЕДЕЛЯ 01 — ДЕНЬ 05</span></header>
+  <section class="intro"><div><p class="eyebrow">ЭКСПЕРИМЕНТ 005</p><h1>Один запрос.<br><em>Три уровня возможностей.</em></h1></div><p class="lead">Что меняется вместе с моделью?<br>Сравните ответы, время и расход токенов<br>у Luna, Terra и Sol.</p></section>
+  <form id="compare-form">
+    <div class="form-top"><label for="prompt">Ваш запрос</label><button class="text-button" type="button" id="example">Подставить пример ↗</button></div>
+    <textarea id="prompt" maxlength="4000" required data-example="{{ prompt }}">{{ prompt }}</textarea>
+    <div class="form-bottom"><div class="settings"><label for="repeats">Прогонов на модель</label><select id="repeats"><option value="1">1 — быстрый запуск</option><option value="3" selected>3 — сравнить медианы</option></select><span>Рассуждение: medium</span></div><button id="submit" type="submit">Сравнить модели <span aria-hidden="true">↗</span></button></div>
+    <p class="hint" id="request-hint">9 платных API-вызовов · последовательно, с чередованием порядка · без кеширования</p>
+  </form>
+  <div class="status-row"><p id="status" role="status" aria-live="polite">Готово к сравнению</p><div class="status-actions"><button type="button" class="text-button" id="restore">Открыть последнее сравнение</button><span id="counter">00 / 09</span></div></div>
+  <p id="error" role="alert" hidden></p>
+  <section class="results" aria-label="Ответы моделей">
+    {% for model in models %}
+    <article class="result" data-model="{{ model.id }}">
+      <div class="card-top"><span class="model-number">0{{ loop.index }}</span><span class="tier">{{ model.tier }}</span></div>
+      <h2>{{ model.name }}<span>GPT-5.6</span></h2>
+      <div class="metrics"><div><span>Время</span><strong data-value="seconds">—</strong></div><div><span>Всего токенов</span><strong data-value="tokens">—</strong></div><div><span>Стоимость</span><strong data-value="cost">—</strong></div></div>
+      <p class="usage">Вход / выход / рассуждение — после ответа</p>
+      <nav class="attempts" aria-label="Прогоны {{ model.name }}"></nav>
+      <p class="card-status">Ожидает запроса</p>
+      <div class="answer" tabindex="0" aria-label="Ответ {{ model.name }}"><p class="placeholder">Здесь появится ответ {{ model.name }} на ваш запрос.</p></div>
+    </article>
+    {% endfor %}
+  </section>
+  <section id="summary" hidden><div class="summary-heading"><h2>Сравнение прогонов</h2><p>Медианы — по завершённым ответам. Стоимость — за все попытки.</p></div><div class="table-wrap"><table><thead><tr><th>Модель</th><th>Завершено</th><th>Медиана времени</th><th>Медиана токенов</th><th>Общая стоимость</th></tr></thead><tbody></tbody></table></div><p class="hint">Рассуждение входит в выходные токены и не прибавляется повторно. Стоимость рассчитана по тарифам, а не получена из счёта провайдера.</p></section>
+  <footer><span>Одинаковые запрос и инструкции. История не передаётся.</span><a href="{{ pricing.source }}" target="_blank" rel="noreferrer">Тарифы OpenAI · {{ pricing.checked_at }} ↗</a></footer>
+</main>
+</body>
+</html>

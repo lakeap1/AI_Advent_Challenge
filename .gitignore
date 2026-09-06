@@ -1,0 +1,50 @@
+# Repository contents: overview, ignore rules and assignment folders.
+/*
+!/README.md
+!/.gitignore
+!/week_1/
+!/week_2/
+!/week_3/
+!/week_4/
+!/week_5/
+!/week_6/
+!/week_7/
+
+# Local secrets and environments.
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+node_modules/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Local agent metadata, planning and capture intermediates.
+AGENTS.md
+.agents/
+.codex/
+.recording-tmp/
+docs/
+demo/
+*.log
+
+# Local video recording tools; application and UI tests stay in Git.
+/week_1/task_[2-5]/scripts/record-demo.cjs
+/week_1/task_[2-5]/scripts/quality-capture.cjs
+/week_1/task_2/tests/test_record_demo.cjs
+
+# Redundant local rules; the root ignore file covers this assignment.
+/week_1/task_1/.gitignore
+
+# Keep only the four source records used by the task 1.3 comparison.
+# Other runs, failed calls and temporary writes remain local.
+/week_1/task_3/results/*
+!/week_1/task_3/results/20260906T215931149665-709f5a65.json
+!/week_1/task_3/results/20260906T220120922902-914ebaf1.json
+!/week_1/task_3/results/20260906T222029388479-b1b77771.json
+!/week_1/task_3/results/20260906T221833626571-56ffd9e8.json
+
+/week_1/task_5/scripts/review-results.cjs
+/week_1/task_3/scripts/smooth-navigation.cjs

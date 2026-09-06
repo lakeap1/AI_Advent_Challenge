@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Температура — AI Advent 04</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<main>
+  <header><span class="brand">AI ADVENT <span>/ 04</span></span><span class="model">{{ model }} · reasoning: none</span></header>
+  <section class="intro"><p class="eyebrow">ОДИН ЗАПРОС · ТРИ ТЕМПЕРАТУРЫ</p><h1>Как меняется ответ?</h1><p>Сравните точность, креативность и разнообразие при одинаковых условиях.</p></section>
+  <form id="form">
+    <div class="label-row"><label for="prompt">Общий запрос</label><button type="button" class="text-button" id="example">Подставить пример</button></div>
+    <textarea id="prompt" name="prompt" required maxlength="4000" placeholder="Введите один запрос для всех трёх вариантов…" data-example="{{ prompt }}">{{ prompt }}</textarea>
+    <div class="actions"><span id="status" role="status" aria-live="polite">Одна отправка — 3 API-вызова</span><div><button id="submit" type="submit">Сравнить ответы <span aria-hidden="true">↗</span></button></div></div>
+  </form>
+  <section class="results" aria-label="Ответы при разных температурах">
+    {% for temperature in ['0', '0.7', '1.2'] %}
+    <article class="result" data-temperature="{{ temperature }}">
+      <div class="column-title"><span>TEMPERATURE</span><strong>{{ temperature }}</strong></div>
+      <p class="state">Ожидает запроса</p>
+      <div class="answer">Здесь появится ответ модели.</div>
+      <p class="error" hidden></p>
+    </article>
+    {% endfor %}
+  </section>
+  <footer>НЕДЕЛЯ 01 / ДЕНЬ 04<span>Ответы показаны без локального переписывания</span></footer>
+</main>
+</body>
+</html>

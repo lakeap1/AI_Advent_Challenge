@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Формат ответа · AI Advent</title>
+  <style>
+    :root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #0c0d12; color: #eeeef5; --muted: #a0a1b1; --accent: #a29bff; --line: #2b2d3b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1540px; margin: auto; padding: 32px; }
+    header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 24px; gap: 24px; }
+    .eyebrow { color: var(--accent); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; margin: 0 0 8px; }
+    h1 { font-size: 36px; line-height: 1.15; letter-spacing: -.04em; margin: 0; }
+    header p { color: var(--muted); margin: 0; }
+    .workspace { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 40px; padding-top: 28px; }
+    h2 { font-size: 18px; margin: 0 0 18px; }
+    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .setting { padding: 20px 0; border-bottom: 1px solid var(--line); }
+    .setting:first-child { padding-top: 0; }
+    .toggle { display: flex; gap: 12px; align-items: center; cursor: pointer; font-weight: 600; }
+    input[type=checkbox] { appearance: none; width: 40px; height: 24px; border-radius: 20px; background: #363847; position: relative; flex-shrink: 0; margin: 0; transition: background .18s; cursor: pointer; }
+    input[type=checkbox]::after { content: ''; position: absolute; left: 4px; top: 4px; width: 16px; height: 16px; background: #d9d9e3; border-radius: 50%; transition: transform .18s; }
+    input[type=checkbox]:checked { background: #7369e3; }
+    input[type=checkbox]:checked::after { transform: translateX(16px); background: white; }
+    input:focus-visible, button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+    input[type=number] { width: 90px; margin: 12px 8px 0 0; padding: 7px 10px; background: #191a24; color: inherit; border: 1px solid #454659; border-radius: 6px; font: inherit; }
+    input:disabled { opacity: .45; }
+    code { font-family: Consolas, monospace; }
+    #active-settings { color: var(--accent); font-size: 14px; min-height: 24px; margin: 0 0 12px; }
+    #history { height: 510px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 0 20px 12px 0; border-bottom: 1px solid var(--line); scroll-behavior: smooth; }
+    .empty { padding: 100px 24px; color: var(--muted); text-align: center; }
+    .empty strong { display: block; color: #eeeef5; font-size: 25px; margin-bottom: 10px; font-weight: 500; }
+    article { padding: 22px 0; border-top: 1px solid var(--line); animation: reveal .25s ease-out; }
+    article:first-child { border-top: 0; padding-top: 0; }
+    .variant { color: var(--accent); margin: 0 0 10px; font-weight: 600; }
+    .question { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+    .answer { white-space: pre-wrap; overflow-wrap: anywhere; font: 15px/1.7 Consolas, monospace; margin: 0; }
+    .metrics { color: var(--muted); font-size: 13px; margin: 16px 0 0; }
+    .warning { color: #ffd395; font-size: 13px; margin: 8px 0 0; }
+    details { margin-top: 12px; font-size: 13px; color: var(--muted); }
+    summary { cursor: pointer; }
+    details pre { overflow-wrap: anywhere; white-space: pre-wrap; }
+    #status { min-height: 24px; color: var(--muted); font-size: 14px; margin: 12px 0; }
+    #status[data-state=error] { color: #ffacac; }
+    #status[data-state=complete] { color: #98d5b2; }
+    .composer { display: flex; align-items: end; gap: 16px; }
+    .composer label { flex: 1; font-size: 13px; color: var(--muted); }
+    textarea { display: block; width: 100%; resize: vertical; min-height: 90px; max-height: 220px; padding: 12px; margin-top: 6px; background: #171821; color: #eeeef5; border: 1px solid #3b3d4c; border-radius: 8px; font: 15px/1.5 system-ui, sans-serif; }
+    button { min-height: 46px; padding: 10px 24px; background: var(--accent); color: #101017; border: 0; border-radius: 7px; font: 600 15px system-ui; cursor: pointer; transition: filter .18s; }
+    button:hover { filter: brightness(1.12); }
+    button:disabled { opacity: .5; cursor: wait; }
+    .footnote { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+    @keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 900px) { main { padding: 20px; } header { align-items: start; flex-direction: column; } .workspace { grid-template-columns: 1fr; gap: 24px; } #history { height: 460px; } .composer { flex-direction: column; align-items: stretch; } }
+    @media (prefers-reduced-motion: reduce) { *, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div><p class="eyebrow">AI Advent · Неделя 1 · Задание 2</p><h1>Формат ответа</h1></div><p>GPT-4.1 mini · Chat Completions API</p></header>
+  <form id="chat-form" class="workspace">
+    <aside>
+      <h2>Управление ответом</h2>
+      <fieldset id="settings">
+        <div class="setting">
+          <label class="toggle"><input id="json-format" type="checkbox">Формат JSON</label>
+          <p class="hint">Объект с полем answer — ровно 3 непустых пункта-строки. Формат задаётся инструкцией; структура проверяется.</p>
+        </div>
+        <div class="setting">
+          <label class="toggle"><input id="limit-enabled" type="checkbox">Ограничение длины</label>
+          <label><input id="max-words" type="number" min="1" max="1000" step="1" value="60" disabled aria-label="Максимум слов в ответе">слов</label>
+          <p class="hint">Инструкция модели, не жёсткая обрезка. В JSON считаются только слова в трёх пунктах, без ключей. Превышение показывается под ответом.</p>
+        </div>
+        <div class="setting">
+          <label class="toggle"><input id="stop-enabled" type="checkbox">Stop sequence</label>
+          <p class="hint"><code>stop=["[КОНЕЦ]"]</code></p>
+          <p class="hint">Модель пишет [КОНЕЦ], когда ответила на все части вопроса. API останавливает генерацию на маркере и не возвращает его.</p>
+          <p class="hint">В режиме JSON маркер запрашивается после закрывающей скобки. После него запрашивается контрольное продолжение — оно не должно прийти.</p>
+        </div>
+      </fieldset>
+      <p class="footnote">История видна только в этой вкладке. Каждый запуск независим: предыдущие ответы модели не отправляются.</p>
+    </aside>
+    <section aria-label="Чат">
+      <p id="active-settings">Без ограничений</p>
+      <div id="history" aria-label="История ответов"><div class="empty"><strong>Один запрос. Разные настройки.</strong>Отправьте запрос, переключите параметры и отправьте его снова.</div></div>
+      <p id="status" role="status" data-state="idle">Готово к запросу</p>
+      <fieldset id="composer">
+        <div class="composer">
+          <label>Запрос<textarea id="prompt" maxlength="4000" required>Объясни, как работает HTTPS, почему он важен и какие риски он не устраняет.</textarea></label>
+          <button id="send-button" type="submit">Отправить</button>
+        </div>
+      </fieldset>
+      <p class="footnote">Одна отправка — один платный API-вызов. Текст ответа не обрезается приложением.</p>
+    </section>
+  </form>
+</main>
+<script>
+const $ = (selector) => document.querySelector(selector);
+const controls = ['#json-format', '#limit-enabled', '#stop-enabled', '#max-words'];
+function options() {
+  return {json_format: $('#json-format').checked, limit_enabled: $('#limit-enabled').checked,
+    stop_enabled: $('#stop-enabled').checked, max_words: Number($('#max-words').value)};
+}
+function label(o) {
+  return [o.json_format && 'JSON · 3 пункта', o.limit_enabled && ('Не более ' + o.max_words + ' слов'),
+    o.stop_enabled && 'Stop [КОНЕЦ]'].filter(Boolean).join(' · ') || 'Без ограничений';
+}
+controls.forEach(selector => $(selector).addEventListener('change', () => {
+  $('#max-words').disabled = !$('#limit-enabled').checked;
+  $('#active-settings').textContent = label(options());
+}));
+function append(parent, tag, className, text) {
+  const node = document.createElement(tag); node.className = className; node.textContent = text; parent.append(node); return node;
+}
+$('#chat-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const snapshot = options(), prompt = $('#prompt').value;
+  $('#settings').disabled = true; $('#composer').disabled = true;
+  $('#status').dataset.state = 'loading'; $('#status').textContent = 'Выполняется запрос к GPT-4.1 mini…';
+  try {
+    const response = await fetch('/api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({prompt, ...snapshot})});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Ошибка запроса');
+    $('#history .empty')?.remove();
+    const article = document.createElement('article');
+    article.dataset.variant = label(snapshot);
+    append(article, 'p', 'variant', label(snapshot));
+    append(article, 'p', 'question', prompt);
+    append(article, 'pre', 'answer', data.text);
+    append(article, 'p', 'metrics', 'Слов: ' + (data.word_count ?? '—') + ' · Токенов: ' + (data.output_tokens ?? '—')
+      + ' · finish_reason: ' + data.finish_reason
+      + (snapshot.json_format ? ' · JSON / 3 пункта: ' + (data.json_ok ? 'корректно' : 'нарушено') : '')
+      + (snapshot.limit_enabled ? ' · Лимит слов: ' + (data.word_limit_ok === null ? 'не проверен' : data.word_limit_ok ? 'соблюдён' : 'превышен') : ''));
+    if (snapshot.limit_enabled && data.word_limit_ok === false) append(article, 'p', 'warning', 'Модель превысила лимит слов. Ответ показан без обрезки.');
+    if (data.finish_reason === 'length') append(article, 'p', 'warning', 'Достигнут лимит токенов: ответ может быть незавершён.');
+    if (snapshot.stop_enabled) append(article, 'p', 'footnote',
+      'Параметр stop передан API. finish_reason=stop означает совпадение маркера либо естественное завершение; сам по себе причину не различает.');
+    const details = append(article, 'details', '', '');
+    append(details, 'summary', '', 'Параметры отправленного API-запроса');
+    append(details, 'pre', '', JSON.stringify(data.request, null, 2));
+    $('#history').append(article);
+    $('#history').scrollTo({top: article.offsetTop - $('#history').offsetTop, behavior: 'smooth'});
+    $('#status').textContent = 'Ответ получен. Измените настройки для следующего запуска.';
+    $('#status').dataset.state = 'complete';
+  } catch (error) {
+    $('#status').textContent = error.message; $('#status').dataset.state = 'error';
+  } finally {
+    $('#settings').disabled = false; $('#composer').disabled = false;
+  }
+});
+</script>
+</body>
+</html>

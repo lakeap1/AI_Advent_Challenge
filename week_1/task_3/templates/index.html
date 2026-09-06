@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Мост · Четыре способа рассуждения</title><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script></head>
+<body>
+<header><span class="brand">МОСТ<span class="dot">●</span></span><span>AI ADVENT / ДЕНЬ 03</span><span>{{ model }}</span></header>
+<main>
+<div class="intro"><p class="eyebrow">ЭКСПЕРИМЕНТ С ПРОМПТАМИ</p><h1>Одна задача.<br>Четыре способа рассуждения.</h1><p>Посмотрите, как меняется решение при разных промптах.</p></div>
+<div class="workspace">
+<aside>
+<h2>Ночная переправа</h2><div class="people"><span>1<small>мин</small></span><span>3<small>мин</small></span><span>6<small>мин</small></span><span>8<small>мин</small></span><span>12<small>мин</small></span></div>
+<p class="condition">{{ task }}</p>
+<button id="run-all" class="primary">Запустить четыре способа <span>↗</span></button>
+<p class="hint">5 запросов к API. Для третьего способа — два запроса. Каждый запуск оплачивается по тарифу API.</p>
+<button id="load" class="text-button">Открыть последние ответы</button>
+<p id="status" role="status" aria-live="polite">Готово к запуску</p>
+
+</aside>
+<section class="answers" aria-label="Ответы модели">
+<nav class="tabs" aria-label="Способы"><button data-mode="direct" aria-pressed="true">01 Прямой</button><button data-mode="step" aria-pressed="false">02 Пошаговый</button><button data-mode="meta" aria-pressed="false">03 Метапромпт</button><button data-mode="experts" aria-pressed="false">04 Эксперты</button></nav>
+<div class="answer-heading"><div><h2 id="mode-title">Прямой ответ</h2><p id="mode-description">Исходное условие без подсказок о способе решения.</p></div><span id="metrics"></span></div>
+<div id="empty"><span>01 — 04</span><h3>Как изменится решение?</h3><p>Запустите эксперимент или откройте сохранённые ответы.<br>Оригинальный текст каждого ответа останется доступен.</p></div>
+<div id="result" hidden><pre id="answer"></pre><details id="prompts"><summary>Точные запросы и промежуточный промпт</summary><div id="calls"></div></details>
+</div>
+</section></div>
+</main><footer>AI ADVENT CHALLENGE <span>01 / 03 — РАЗНЫЕ СПОСОБЫ РАССУЖДЕНИЯ</span></footer>
+</body></html>

@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Luna — локальный LLM-запрос</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: #0b1020;
+      color: #f5f7ff;
+    }
+
+    * { box-sizing: border-box; }
+    html { scrollbar-gutter: stable; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: clamp(48px, 20vh, 216px) 24px 48px;
+      background: radial-gradient(circle at top, #25315d 0, #0b1020 55%);
+    }
+
+    main { width: min(720px, 100%); margin-inline: auto; }
+
+    .eyebrow {
+      color: #93a4ff;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(2rem, 7vw, 4.5rem);
+      line-height: .95;
+    }
+
+    .lead {
+      color: #b8c0dc;
+      line-height: 1.6;
+    }
+
+    form, #answer {
+      margin-top: 24px;
+      padding: 24px;
+      border: 1px solid #394469;
+      border-radius: 18px;
+      background: rgba(14, 20, 39, .88);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      padding: 14px;
+      border: 1px solid #53608a;
+      border-radius: 12px;
+      background: #080d1b;
+      color: inherit;
+      font: inherit;
+    }
+
+    textarea:focus {
+      outline: 3px solid #6478ff55;
+      border-color: #8291ff;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0 16px;
+      color: #919bbd;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #8190ff;
+      color: #091025;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: .55;
+    }
+
+    #status {
+      min-height: 24px;
+      color: #c8ceeb;
+    }
+
+    #answer {
+      white-space: pre-wrap;
+      line-height: 1.65;
+      opacity: 0;
+      overflow-wrap: anywhere;
+      scroll-margin-top: 32px;
+      transition: opacity .35s ease;
+    }
+
+    #answer.is-visible {
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #answer { transition: none; }
+    }
+
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">AI Advent · Week 1</p>
+    <h1>Спросите Luna</h1>
+    <p class="lead">Один запрос через официальный OpenAI API. Ключ остаётся на локальном сервере.</p>
+
+    <form id="prompt-form">
+      <label for="prompt">Ваш запрос</label>
+      <textarea id="prompt" maxlength="4000" required placeholder="Например: объясни LLM API одной фразой"></textarea>
+      <div class="meta"><span id="counter">0 / 4000</span></div>
+      <button id="submit" type="submit">Спросить Luna</button>
+    </form>
+
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="answer" aria-label="Ответ Luna" hidden></section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#prompt-form");
+    const prompt = document.querySelector("#prompt");
+    const submit = document.querySelector("#submit");
+    const status = document.querySelector("#status");
+    const answer = document.querySelector("#answer");
+    const counter = document.querySelector("#counter");
+
+    function revealAnswer(text) {
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const duration = Math.min(7000, Math.max(3500, text.length * 10));
+      answer.hidden = false;
+      answer.classList.remove("is-visible");
+      // Measure once before the first paint so typing cannot reflow the page.
+      answer.style.minHeight = '';
+      answer.textContent = text;
+      answer.style.minHeight = `${answer.offsetHeight}px`;
+      if (reducedMotion) {
+        answer.classList.add('is-visible');
+        return Promise.resolve();
+      }
+      const characters = Array.from(text);
+      answer.textContent = characters[0] || '';
+
+      return new Promise((resolve) => {
+        const startedAt = performance.now();
+
+        function drawFrame(now) {
+          const progress = Math.min(1, (now - startedAt) / duration);
+          const visibleLength = Math.max(1, Math.floor(characters.length * progress));
+          answer.textContent = characters.slice(0, visibleLength).join('');
+
+          if (progress < 1) {
+            requestAnimationFrame(drawFrame);
+          } else {
+            answer.textContent = text;
+            resolve();
+          }
+        }
+
+        requestAnimationFrame(() => {
+          answer.classList.add("is-visible");
+          requestAnimationFrame(drawFrame);
+        });
+      });
+    }
+
+    prompt.addEventListener("input", () => {
+      counter.textContent = `${prompt.value.length} / 4000`;
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      submit.disabled = true;
+      status.textContent = "Luna отвечает…";
+      answer.hidden = true;
+      answer.classList.remove("is-visible");
+
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({prompt: prompt.value}),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Неизвестная ошибка.");
+        }
+
+        status.textContent = "Показываю ответ…";
+        await revealAnswer(data.answer);
+        status.textContent = "Ответ получен.";
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
