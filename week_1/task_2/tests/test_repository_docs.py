@@ -31,7 +31,7 @@ def test_index_exposes_one_chat_and_three_controls():
         assert fragment in html
 
 
-def test_task_readme_documents_a_runnable_assignment_without_fake_video_link():
+def test_task_readme_documents_a_runnable_assignment():
     content = (TASK_ROOT / "README.md").read_text(encoding="utf-8")
 
     for heading in (
@@ -40,7 +40,7 @@ def test_task_readme_documents_a_runnable_assignment_without_fake_video_link():
         "## Подход",
         "## Запуск",
         "## Проверка",
-        "## Материалы для сдачи",
+        "## Файлы проекта",
         "## Ограничения",
     ):
         assert heading in content
