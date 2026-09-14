@@ -28,6 +28,7 @@ AGENTS.md
 .recording-tmp/
 docs/
 demo/
+/notes/
 *.log
 
 # Local video recording tools; application and UI tests stay in Git.
@@ -48,3 +49,10 @@ demo/
 
 /week_1/task_5/scripts/review-results.cjs
 /week_1/task_3/scripts/smooth-navigation.cjs
+
+# Local conversation and request accounting.
+/week_2/task_2/data/
+/week_2/task_3/data/
+
+/week_2/task_4/data/
+/week_2/task_5/data/

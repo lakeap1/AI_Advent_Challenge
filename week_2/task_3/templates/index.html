@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Мастерская игрового арта · День 08</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Мастерская игрового арта — главная"><span class="brand-icon" aria-hidden="true">а.</span>Мастерская игрового арта</a>
+    <span class="edition">AI ADVENT <span>/</span> НЕДЕЛЯ 02</span>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="dot"></span> ДЕНЬ 08 · ТОКЕНЫ И КОНТЕКСТ</p>
+        <h1 id="page-title">От брифа<br><span>к игровому ассету.</span></h1>
+        <p class="lead">Обсуждайте ассет, сохраняйте решения и следите за расходом.<br class="desktop-break"> Чем длиннее разговор, тем больше контекста получает модель.</p>
+      </div>
+      <div class="orbit" aria-hidden="true"><span class="orbit-ring"></span><span class="orbit-core">а</span><span class="orbit-point"></span></div>
+    </section>
+    <div class="workspace">
+      <section class="request-panel" aria-labelledby="request-title">
+        <div class="section-heading"><span class="number">01</span><h2 id="request-title">Ваше сообщение</h2></div>
+        <form id="ask-form" novalidate>
+          <label for="prompt">Что хотите обсудить?</label>
+          <textarea id="prompt" name="prompt" placeholder="Опишите ассет, стиль и ограничения…" spellcheck="false" aria-describedby="input-hint"></textarea>
+          <div class="input-footer"><span id="input-hint">Предыдущие сообщения уже в контексте.</span><span id="count">0 символов</span></div>
+          <p id="token-preview" class="token-preview" aria-live="polite">Введите сообщение для оценки токенов.</p>
+          <label class="brief-label brief-button" for="brief-file">Загрузить текстовый бриф (.txt)</label><input id="brief-file" type="file" accept=".txt,text/plain">
+          <button class="submit" type="submit" id="send" disabled><span id="send-label">Отправить агенту</span><span aria-hidden="true">↗</span></button>
+        </form>
+        <div class="suggestions">
+          <p>МОЖНО НАЧАТЬ С ЭТОГО</p>
+          <button type="button" class="suggestion" data-prompt="Помоги спланировать игровой ассет: стилизованный сундук для мобильной RPG, до 1500 треугольников и текстура 512×512. Ответь кратко.">Спланировать ассет <span aria-hidden="true">↗</span></button>
+          <button type="button" class="suggestion" data-prompt="Кратко напомни, что мы уже обсудили и какие ограничения я назвал.">Вспомнить разговор <span aria-hidden="true">↗</span></button>
+        </div>
+        <section class="chat-summary" aria-labelledby="summary-title">
+          <p class="eyebrow" id="summary-title">РАСХОДЫ ЧАТА</p>
+          <div id="chat-cost" class="chat-cost">—</div>
+          <p id="cost-note">Загружаем сохранённые данные…</p>
+          <p id="history-count" class="token-stat">История: —</p><p id="chat-tokens" class="token-stat">Расход: —</p><p id="context-limits" class="usage-details"></p><p class="privacy-note">Переписка сохраняется на этом компьютере и передаётся модели при следующем сообщении.</p>
+        </section>
+      </section>
+      <section class="answer-panel" id="answer-panel" aria-labelledby="answer-title" aria-busy="false">
+        <div class="answer-top"><div class="section-heading"><span class="number">02</span><h2 id="answer-title">Наш разговор</h2></div><span id="badge" class="badge">Загрузка…</span></div>
+        <div class="session-bar"><span id="memory-status" role="status">Загружаем историю…</span><button id="restore" type="button">Обновить</button></div>
+        <div id="empty" class="empty-state" hidden><span class="empty-mark" aria-hidden="true">✳</span><h3>Начните новую мысль</h3><p>Здесь останутся ваши сообщения<br>и ответы агента.</p></div>
+        <div id="conversation" class="conversation" tabindex="0" aria-label="История диалога"></div>
+        <div id="waiting" class="waiting-state" hidden><span class="loader" aria-hidden="true"></span><p>Агент готовит ответ…</p></div>
+        <p id="notice" class="notice" role="status" aria-live="polite"></p>
+        <div class="answer-foot"><span class="small-star" aria-hidden="true">✳</span><span>Контекст сохраняется между запусками.</span></div>
+      </section>
+    </div>
+    <section class="growth-panel" aria-labelledby="growth-title">
+      <div class="section-heading"><span class="number">03</span><h2 id="growth-title">Как растёт расход</h2></div>
+      <p class="growth-note">Каждый ход повторно передаёт всю историю. «≈» — оценка текста o200k_base без служебной разметки. Вход и ответ API — фактический usage.</p>
+      <div class="table-scroll" tabindex="0" aria-label="Токены и стоимость по ходам"><table><thead><tr><th>Ход</th><th>Новый ≈</th><th>История до ≈</th><th>Вход API</th><th>Ответ API</th><th>Всего за чат</th><th>USD хода</th><th>USD чата</th><th>Результат</th></tr></thead><tbody id="growth-rows"></tbody></table></div>
+      <p class="growth-note">Стоимость — оценка по тарифу. При неизвестном usage или цене накопленный итог показывает известную часть с «+ ?». Вызовы с отклонённым ответом также учитываются.</p>
+    </section>
+    <footer class="footer"><span id="session-info">Локальный чат · Luna</span><span>Проверяйте важные факты: модель может ошибаться.</span></footer>
+  </main>
+</div>
+</body>
+</html>

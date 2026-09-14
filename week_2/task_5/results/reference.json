@@ -1,0 +1,5143 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-14T00:30:16.125406+00:00",
+  "scenario": [
+    "Мой проект «Этюд-427»: работаю в Blender, проверяю в Godot. Текстура 512, акцент бирюзовый, фототекстуры запрещены. Почему силуэт важен? Ответ до 35 слов.",
+    "Чем растровая графика отличается от векторной? До 35 слов.",
+    "Зачем 3D-модели UV-развёртка? До 35 слов.",
+    "Что меняет roughness в материале? До 35 слов.",
+    "Почему нормали влияют на освещение? До 35 слов.",
+    "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+    "Исправление моих условий: теперь текстура 1024, акцент янтарный. Остальное без изменений. Зачем mipmaps? До 35 слов.",
+    "Что такое texel density и зачем её выравнивать? До 35 слов.",
+    "Чем ортографическая камера отличается от перспективной? До 35 слов.",
+    "Почему цветовую текстуру и карту roughness читают в разных цветовых пространствах? До 35 слов.",
+    "Как размер источника света влияет на тень? До 35 слов.",
+    "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай."
+  ],
+  "evaluation": {
+    "version": 3,
+    "note": "Контрольные ответы проверяются независимым EXPECTED; texture допускает int или точную десятичную строку, поскольку тип не задан в промпте."
+  },
+  "conditions": {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "none",
+    "keep_last_messages": 6,
+    "max_output_tokens": 1600,
+    "pricing": {
+      "cache_write_usd_per_million": "0.25",
+      "cached_input_usd_per_million": "0.02",
+      "checked_at": "2026-09-14",
+      "input_usd_per_million": "0.20",
+      "max_input_tokens": 272000,
+      "model": "gpt-5.6-luna",
+      "output_usd_per_million": "1.20",
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+    },
+    "note": "Режимы пройдены последовательно, каждый с пустого чата: Sliding Window, Facts, Branching. Кеш провайдера не контролировался. В таблице по 12 вопросов; дополнительные ветки учтены отдельно.",
+    "configuration_source": {
+      "file": "agent/config.toml",
+      "sha256": "c47f18f6e22a150dec31326dcb543cd352377225492782bbff1bbcd68abcb179",
+      "instructions_sha256": "417c2e2dece69d9ef9a2bb827ecb2b5882fda3d0c8aa369fa041571348e12119",
+      "note": "Reasoning и инструкции сверены с конфигурацией, неизменной на протяжении прогона; usage и стоимость взяты из ответов API."
+    }
+  },
+  "provenance": {
+    "source": "recorded_ui_sessions",
+    "run_id": "rerecord-20260914-01",
+    "chat_ids": {
+      "sliding": "ea8f5881-39a6-4f60-a690-2b3b615a2ee1",
+      "facts": "b94e0f92-ba3c-4425-8575-340d0c353183",
+      "branching": "fd8414c2-102e-43c9-8fa4-8ce5ff0e911c"
+    }
+  },
+  "modes": {
+    "sliding": {
+      "turns": [
+        {
+          "number": 1,
+          "prompt": "Мой проект «Этюд-427»: работаю в Blender, проверяю в Godot. Текстура 512, акцент бирюзовый, фототекстуры запрещены. Почему силуэт важен? Ответ до 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001364",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 1,
+            "status": "ok",
+            "text": "Силуэт мгновенно читается на расстоянии и при слабой детализации, определяя узнаваемость объекта в игре. Он важнее мелких деталей, особенно при текстуре 512 и стилизованной подаче без фототекстур.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 334,
+              "output_tokens": 58,
+              "reasoning_tokens": 0,
+              "total_tokens": 392
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 324,
+            "sent_message_ids": [
+              1
+            ],
+            "sent_messages": 1
+          }
+        },
+        {
+          "number": 2,
+          "prompt": "Чем растровая графика отличается от векторной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001528",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 2,
+            "status": "ok",
+            "text": "Растровая графика состоит из пикселей и теряет чёткость при увеличении. Векторная строится из математических линий и кривых, масштабируется без потери качества, но хуже подходит для сложных фотографических деталей.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 416,
+              "output_tokens": 58,
+              "reasoning_tokens": 0,
+              "total_tokens": 474
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 396,
+            "sent_message_ids": [
+              1,
+              2,
+              3
+            ],
+            "sent_messages": 3
+          }
+        },
+        {
+          "number": 3,
+          "prompt": "Зачем 3D-модели UV-развёртка? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001756",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 3,
+            "status": "ok",
+            "text": "UV-развёртка определяет, как поверхность 3D-модели раскладывается на плоскость. Она позволяет точно наносить текстуры, управлять их масштабом и расположением, избегать искажений и подготавливать модель к экспорту в Godot.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 500,
+              "output_tokens": 63,
+              "reasoning_tokens": 0,
+              "total_tokens": 563
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 470,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "sent_messages": 5
+          }
+        },
+        {
+          "number": 4,
+          "prompt": "Что меняет roughness в материале? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001624",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 4,
+            "status": "ok",
+            "text": "Roughness определяет, насколько поверхность шероховатая: низкие значения дают чёткие отражения и яркие блики, высокие — размытые отражения и мягкий, матовый вид.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 524,
+              "output_tokens": 48,
+              "reasoning_tokens": 0,
+              "total_tokens": 572
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 488,
+            "sent_message_ids": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 5,
+          "prompt": "Почему нормали влияют на освещение? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001824",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 5,
+            "status": "ok",
+            "text": "Нормали задают направление поверхности. По углу между нормалью и направлением света рассчитывается освещённость: правильные нормали создают корректные тени и блики, а неверные — артефакты, затемнение или «вывернутые» полигоны.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 510,
+              "output_tokens": 67,
+              "reasoning_tokens": 0,
+              "total_tokens": 577
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 474,
+            "sent_message_ids": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 6,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001438",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 6,
+            "status": "ok",
+            "text": "{\"project\":null,\"tool\":null,\"engine\":null,\"texture\":null,\"accent\":null,\"ban\":null}",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 545,
+              "output_tokens": 29,
+              "reasoning_tokens": 0,
+              "total_tokens": 574
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": false,
+            "correct_fields": [],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 512,
+              "accent": "бирюзовый",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": null,
+              "tool": null,
+              "engine": null,
+              "texture": null,
+              "accent": null,
+              "ban": null
+            }
+          },
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 509,
+            "sent_message_ids": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 7,
+          "prompt": "Исправление моих условий: теперь текстура 1024, акцент янтарный. Остальное без изменений. Зачем mipmaps? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00017",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 7,
+            "status": "ok",
+            "text": "Mipmaps — это уменьшенные версии текстуры для дальних объектов. Они снижают мерцание и алиасинг, повышают стабильность изображения и часто улучшают производительность, поскольку GPU обрабатывает меньшие изображения.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 532,
+              "output_tokens": 53,
+              "reasoning_tokens": 0,
+              "total_tokens": 585
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 496,
+            "sent_message_ids": [
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 8,
+          "prompt": "Что такое texel density и зачем её выравнивать? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001706",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 8,
+            "status": "ok",
+            "text": "Texel density — количество пикселей текстуры на единицу длины модели. Её выравнивают, чтобы детали разных объектов имели сопоставимую резкость, масштаб и качество при одинаковом разрешении текстур.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 541,
+              "output_tokens": 52,
+              "reasoning_tokens": 0,
+              "total_tokens": 593
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 505,
+            "sent_message_ids": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 9,
+          "prompt": "Чем ортографическая камера отличается от перспективной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001616",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 9,
+            "status": "ok",
+            "text": "Ортографическая камера сохраняет одинаковый размер объектов независимо от расстояния: перспективных искажений нет. Перспективная камера уменьшает удалённые объекты, создавая ощущение глубины и реалистичного пространства.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 496,
+              "output_tokens": 52,
+              "reasoning_tokens": 0,
+              "total_tokens": 548
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 460,
+            "sent_message_ids": [
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 10,
+          "prompt": "Почему цветовую текстуру и карту roughness читают в разных цветовых пространствах? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001686",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 10,
+            "status": "ok",
+            "text": "Цветовую текстуру интерпретируют в sRGB для корректного визуального цвета, а roughness — в линейном пространстве, поскольку это числовой параметр материала, а не цвет. SRGB исказило бы его значения.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 507,
+              "output_tokens": 56,
+              "reasoning_tokens": 0,
+              "total_tokens": 563
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 471,
+            "sent_message_ids": [
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 11,
+          "prompt": "Как размер источника света влияет на тень? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001638",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 11,
+            "status": "ok",
+            "text": "Чем больше источник света, тем мягче и размытее тень; чем меньше — тем резче и чётче. Размер также влияет на ширину полутени и характер перехода между светом и тенью.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 507,
+              "output_tokens": 52,
+              "reasoning_tokens": 0,
+              "total_tokens": 559
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 471,
+            "sent_message_ids": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 12,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001422",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 12,
+            "status": "ok",
+            "text": "{\"project\":null,\"tool\":null,\"engine\":null,\"texture\":null,\"accent\":null,\"ban\":null}",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 537,
+              "output_tokens": 29,
+              "reasoning_tokens": 0,
+              "total_tokens": 566
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": false,
+            "correct_fields": [],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 1024,
+              "accent": "янтарный",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": null,
+              "tool": null,
+              "engine": null,
+              "texture": null,
+              "accent": null,
+              "ban": null
+            }
+          },
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 501,
+            "sent_message_ids": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ],
+            "sent_messages": 6
+          }
+        }
+      ],
+      "summary": {
+        "api_requests": 12,
+        "cost_complete": true,
+        "known_cost_usd": "0.0019302",
+        "unknown_cost_requests": 0
+      },
+      "token_accounting": {
+        "complete": true,
+        "known_input_tokens": 5949,
+        "known_output_tokens": 617,
+        "known_total_tokens": 6566,
+        "unknown_requests": 0
+      },
+      "requests": [
+        {
+          "code": "",
+          "cost_usd": "0.0001364",
+          "id": 1,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 324,
+              "sent_message_ids": [
+                1
+              ],
+              "sent_messages": 1
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 0,
+              "input_text_tokens_estimate": 324,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 55,
+              "sent_messages": 1,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 334,
+            "output_tokens": 58,
+            "reasoning_tokens": 0,
+            "total_tokens": 392
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001528",
+          "id": 2,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 396,
+              "sent_message_ids": [
+                1,
+                2,
+                3
+              ],
+              "sent_messages": 3
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 109,
+              "input_text_tokens_estimate": 396,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 3,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 416,
+            "output_tokens": 58,
+            "reasoning_tokens": 0,
+            "total_tokens": 474
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001756",
+          "id": 3,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 470,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "sent_messages": 5
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 181,
+              "input_text_tokens_estimate": 470,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 20,
+              "sent_messages": 5,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 500,
+            "output_tokens": 63,
+            "reasoning_tokens": 0,
+            "total_tokens": 563
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001624",
+          "id": 4,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 488,
+              "sent_message_ids": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 205,
+              "input_text_tokens_estimate": 488,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 524,
+            "output_tokens": 48,
+            "reasoning_tokens": 0,
+            "total_tokens": 572
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001824",
+          "id": 5,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 474,
+              "sent_message_ids": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 191,
+              "input_text_tokens_estimate": 474,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 510,
+            "output_tokens": 67,
+            "reasoning_tokens": 0,
+            "total_tokens": 577
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001438",
+          "id": 6,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 509,
+              "sent_message_ids": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 194,
+              "input_text_tokens_estimate": 509,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 545,
+            "output_tokens": 29,
+            "reasoning_tokens": 0,
+            "total_tokens": 574
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.00017",
+          "id": 7,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 496,
+              "sent_message_ids": [
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 192,
+              "input_text_tokens_estimate": 496,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 35,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 532,
+            "output_tokens": 53,
+            "reasoning_tokens": 0,
+            "total_tokens": 585
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001706",
+          "id": 8,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 505,
+              "sent_message_ids": [
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 218,
+              "input_text_tokens_estimate": 505,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 541,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 593
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001616",
+          "id": 9,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 460,
+              "sent_message_ids": [
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 175,
+              "input_text_tokens_estimate": 460,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 16,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 496,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 548
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001686",
+          "id": 10,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 471,
+              "sent_message_ids": [
+                14,
+                15,
+                16,
+                17,
+                18,
+                19
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 179,
+              "input_text_tokens_estimate": 471,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 23,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 507,
+            "output_tokens": 56,
+            "reasoning_tokens": 0,
+            "total_tokens": 563
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001638",
+          "id": 11,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 471,
+              "sent_message_ids": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 187,
+              "input_text_tokens_estimate": 471,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 15,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 507,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 559
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001422",
+          "id": 12,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 501,
+              "sent_message_ids": [
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "sliding",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 186,
+              "input_text_tokens_estimate": 501,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 537,
+            "output_tokens": 29,
+            "reasoning_tokens": 0,
+            "total_tokens": 566
+          },
+          "usage_status": "reported"
+        }
+      ]
+    },
+    "facts": {
+      "turns": [
+        {
+          "number": 1,
+          "prompt": "Мой проект «Этюд-427»: работаю в Blender, проверяю в Godot. Текстура 512, акцент бирюзовый, фототекстуры запрещены. Почему силуэт важен? Ответ до 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001494",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 1,
+            "status": "ok",
+            "text": "Силуэт мгновенно считывает форму, функцию и позу объекта даже на расстоянии или в малом размере. Он задаёт узнаваемость, улучшает композицию и помогает избежать визуальной путаницы без фототекстур.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 411,
+              "output_tokens": 56,
+              "reasoning_tokens": 0,
+              "total_tokens": 467
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent_color": "бирюзовый",
+            "phototextures": "запрещены",
+            "project_name": "Этюд-427",
+            "texture_size": "512",
+            "workflow_modeling": "Blender",
+            "workflow_review": "Godot"
+          },
+          "context": {
+            "facts_revision": 1,
+            "input_text_tokens_estimate": 397,
+            "sent_message_ids": [
+              1
+            ],
+            "sent_messages": 2
+          }
+        },
+        {
+          "number": 2,
+          "prompt": "Чем растровая графика отличается от векторной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001666",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 3,
+            "status": "ok",
+            "text": "Растровая графика состоит из пикселей и теряет качество при увеличении. Векторная описывается математическими кривыми, масштабируется без потери резкости и лучше подходит для логотипов, схем и интерфейсных элементов.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 491,
+              "output_tokens": 57,
+              "reasoning_tokens": 0,
+              "total_tokens": 548
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent_color": "бирюзовый",
+            "phototextures": "запрещены",
+            "project_name": "Этюд-427",
+            "texture_size": "512",
+            "workflow_modeling": "Blender",
+            "workflow_review": "Godot"
+          },
+          "context": {
+            "facts_revision": 2,
+            "input_text_tokens_estimate": 467,
+            "sent_message_ids": [
+              1,
+              2,
+              3
+            ],
+            "sent_messages": 4
+          }
+        },
+        {
+          "number": 3,
+          "prompt": "Зачем 3D-модели UV-развёртка? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.000194",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 5,
+            "status": "ok",
+            "text": "UV-развёртка сопоставляет поверхности 3D-модели с двумерными координатами, чтобы корректно разместить текстуры, маски и детали. Она уменьшает растяжения, наложения и облегчает ручную покраску или процедурное текстурирование.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 574,
+              "output_tokens": 66,
+              "reasoning_tokens": 0,
+              "total_tokens": 640
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent_color": "бирюзовый",
+            "phototextures": "запрещены",
+            "project_name": "Этюд-427",
+            "texture_size": "512",
+            "workflow_modeling": "Blender",
+            "workflow_review": "Godot"
+          },
+          "context": {
+            "facts_revision": 3,
+            "input_text_tokens_estimate": 540,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "sent_messages": 6
+          }
+        },
+        {
+          "number": 4,
+          "prompt": "Что меняет roughness в материале? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001898",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 7,
+            "status": "ok",
+            "text": "Roughness определяет шероховатость поверхности: низкие значения дают резкие, яркие отражения, высокие — широкие и размытые. Она влияет на восприятие металла, пластика, стекла, камня и других материалов.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 601,
+              "output_tokens": 58,
+              "reasoning_tokens": 0,
+              "total_tokens": 659
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent_color": "бирюзовый",
+            "phototextures": "запрещены",
+            "project_name": "Этюд-427",
+            "texture_size": "512",
+            "workflow_modeling": "Blender",
+            "workflow_review": "Godot"
+          },
+          "context": {
+            "facts_revision": 4,
+            "input_text_tokens_estimate": 561,
+            "sent_message_ids": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 5,
+          "prompt": "Почему нормали влияют на освещение? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0002002",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 9,
+            "status": "ok",
+            "text": "Нормали задают направление, куда «смотрит» поверхность. Рендер сравнивает его с направлением света, поэтому нормали определяют яркость, тени и блики. Неверные нормали вызывают потемнения, артефакты и неправильное освещение.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 599,
+              "output_tokens": 67,
+              "reasoning_tokens": 0,
+              "total_tokens": 666
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent_color": "бирюзовый",
+            "phototextures": "запрещены",
+            "project_name": "Этюд-427",
+            "texture_size": "512",
+            "workflow_modeling": "Blender",
+            "workflow_review": "Godot"
+          },
+          "context": {
+            "facts_revision": 5,
+            "input_text_tokens_estimate": 559,
+            "sent_message_ids": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 6,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001796",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 11,
+            "status": "ok",
+            "text": "{\"project\":\"Этюд-427\",\"tool\":\"Blender\",\"engine\":\"Godot\",\"texture\":512,\"accent\":\"бирюзовый\",\"ban\":\"фототекстуры запрещены\"}",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 628,
+              "output_tokens": 45,
+              "reasoning_tokens": 0,
+              "total_tokens": 673
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": true,
+            "correct_fields": [
+              "project",
+              "tool",
+              "engine",
+              "texture",
+              "accent",
+              "ban"
+            ],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 512,
+              "accent": "бирюзовый",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 512,
+              "accent": "бирюзовый",
+              "ban": "фототекстуры запрещены"
+            }
+          },
+          "facts": {
+            "accent": "бирюзовый",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "512",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 6,
+            "input_text_tokens_estimate": 588,
+            "sent_message_ids": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 7,
+          "prompt": "Исправление моих условий: теперь текстура 1024, акцент янтарный. Остальное без изменений. Зачем mipmaps? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001832",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 13,
+            "status": "ok",
+            "text": "Mipmaps — уменьшенные версии текстуры для дальних расстояний. Они снижают мерцание, алиасинг и нагрузку на память и выборку, обеспечивая стабильнее изображение при масштабировании.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 628,
+              "output_tokens": 48,
+              "reasoning_tokens": 0,
+              "total_tokens": 676
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 7,
+            "input_text_tokens_estimate": 588,
+            "sent_message_ids": [
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 8,
+          "prompt": "Что такое texel density и зачем её выравнивать? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001844",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 15,
+            "status": "ok",
+            "text": "Texel density — количество текстурных пикселей на единицу длины поверхности. Её выравнивают, чтобы разные объекты имели сопоставимую детализацию, резкость и масштаб визуальных деталей.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 622,
+              "output_tokens": 50,
+              "reasoning_tokens": 0,
+              "total_tokens": 672
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 8,
+            "input_text_tokens_estimate": 582,
+            "sent_message_ids": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 9,
+          "prompt": "Чем ортографическая камера отличается от перспективной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001822",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 17,
+            "status": "ok",
+            "text": "Ортографическая камера сохраняет одинаковый размер объектов независимо от расстояния, без схода параллельных линий. Перспективная уменьшает удалённые объекты и создаёт сход линий, имитируя зрение или объектив.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 575,
+              "output_tokens": 56,
+              "reasoning_tokens": 0,
+              "total_tokens": 631
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 9,
+            "input_text_tokens_estimate": 535,
+            "sent_message_ids": [
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 10,
+          "prompt": "Почему цветовую текстуру и карту roughness читают в разных цветовых пространствах? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001796",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 19,
+            "status": "ok",
+            "text": "Цветовую текстуру читают в sRGB для корректного отображения цвета, а roughness — в линейном пространстве, поскольку это числовой параметр, где важны точные значения, а не визуальная яркость.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 574,
+              "output_tokens": 54,
+              "reasoning_tokens": 0,
+              "total_tokens": 628
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 10,
+            "input_text_tokens_estimate": 534,
+            "sent_message_ids": [
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 11,
+          "prompt": "Как размер источника света влияет на тень? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001706",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 21,
+            "status": "ok",
+            "text": "Чем больше источник света, тем мягче и размытее тень: увеличивается полутень. Маленький источник даёт более жёсткие, резкие границы тени.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 577,
+              "output_tokens": 46,
+              "reasoning_tokens": 0,
+              "total_tokens": 623
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 11,
+            "input_text_tokens_estimate": 537,
+            "sent_message_ids": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 12,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001746",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 23,
+            "status": "ok",
+            "text": "{\"project\":\"Этюд-427\",\"tool\":\"Blender\",\"engine\":\"Godot\",\"texture\":\"1024\",\"accent\":\"янтарный\",\"ban\":\"фототекстуры запрещены\"}",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 603,
+              "output_tokens": 45,
+              "reasoning_tokens": 0,
+              "total_tokens": 648
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": true,
+            "correct_fields": [
+              "project",
+              "tool",
+              "engine",
+              "texture",
+              "accent",
+              "ban"
+            ],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 1024,
+              "accent": "янтарный",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": "1024",
+              "accent": "янтарный",
+              "ban": "фототекстуры запрещены"
+            }
+          },
+          "facts": {
+            "accent": "янтарный",
+            "ban": "фототекстуры запрещены",
+            "engine": "Godot",
+            "project": "Этюд-427",
+            "texture": "1024",
+            "tool": "Blender"
+          },
+          "context": {
+            "facts_revision": 12,
+            "input_text_tokens_estimate": 563,
+            "sent_message_ids": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ],
+            "sent_messages": 7
+          }
+        }
+      ],
+      "summary": {
+        "api_requests": 24,
+        "cost_complete": true,
+        "known_cost_usd": "0.0036538",
+        "unknown_cost_requests": 0
+      },
+      "token_accounting": {
+        "complete": true,
+        "known_input_tokens": 10931,
+        "known_output_tokens": 1223,
+        "known_total_tokens": 12154,
+        "unknown_requests": 0
+      },
+      "requests": [
+        {
+          "code": "",
+          "cost_usd": "0.0001256",
+          "id": 2,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 1,
+            "previous_revision": 0,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 316,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 368
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001494",
+          "id": 1,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 1,
+              "input_text_tokens_estimate": 397,
+              "sent_message_ids": [
+                1
+              ],
+              "sent_messages": 2
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 15,
+              "input_text_tokens_estimate": 339,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 55,
+              "sent_messages": 2,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 411,
+            "output_tokens": 56,
+            "reasoning_tokens": 0,
+            "total_tokens": 467
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001298",
+          "id": 4,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 3,
+            "previous_revision": 1,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 337,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 389
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001666",
+          "id": 3,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 2,
+              "input_text_tokens_estimate": 467,
+              "sent_message_ids": [
+                1,
+                2,
+                3
+              ],
+              "sent_messages": 4
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 180,
+              "input_text_tokens_estimate": 467,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 4,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 491,
+            "output_tokens": 57,
+            "reasoning_tokens": 0,
+            "total_tokens": 548
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001302",
+          "id": 6,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 5,
+            "previous_revision": 2,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 339,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 391
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000194",
+          "id": 5,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 3,
+              "input_text_tokens_estimate": 540,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "sent_messages": 6
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 251,
+              "input_text_tokens_estimate": 540,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 20,
+              "sent_messages": 6,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 574,
+            "output_tokens": 66,
+            "reasoning_tokens": 0,
+            "total_tokens": 640
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000129",
+          "id": 8,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 7,
+            "previous_revision": 3,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 333,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 385
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001898",
+          "id": 7,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 4,
+              "input_text_tokens_estimate": 561,
+              "sent_message_ids": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 278,
+              "input_text_tokens_estimate": 561,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 601,
+            "output_tokens": 58,
+            "reasoning_tokens": 0,
+            "total_tokens": 659
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000129",
+          "id": 10,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 9,
+            "previous_revision": 4,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 333,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 385
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0002002",
+          "id": 9,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 5,
+              "input_text_tokens_estimate": 559,
+              "sent_message_ids": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 276,
+              "input_text_tokens_estimate": 559,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 599,
+            "output_tokens": 67,
+            "reasoning_tokens": 0,
+            "total_tokens": 666
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000127",
+          "id": 12,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 11,
+            "previous_revision": 5,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 365,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 410
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001796",
+          "id": 11,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 6,
+              "input_text_tokens_estimate": 588,
+              "sent_message_ids": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 280,
+              "input_text_tokens_estimate": 595,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 628,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 673
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001234",
+          "id": 14,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 13,
+            "previous_revision": 6,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 347,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 392
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001832",
+          "id": 13,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 7,
+              "input_text_tokens_estimate": 588,
+              "sent_message_ids": [
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 284,
+              "input_text_tokens_estimate": 588,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 35,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 628,
+            "output_tokens": 48,
+            "reasoning_tokens": 0,
+            "total_tokens": 676
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.00012",
+          "id": 16,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 15,
+            "previous_revision": 7,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 330,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 375
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001844",
+          "id": 15,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 8,
+              "input_text_tokens_estimate": 582,
+              "sent_message_ids": [
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 295,
+              "input_text_tokens_estimate": 582,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 622,
+            "output_tokens": 50,
+            "reasoning_tokens": 0,
+            "total_tokens": 672
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001196",
+          "id": 18,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 17,
+            "previous_revision": 8,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 328,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 373
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001822",
+          "id": 17,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 9,
+              "input_text_tokens_estimate": 535,
+              "sent_message_ids": [
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 250,
+              "input_text_tokens_estimate": 535,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 16,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 575,
+            "output_tokens": 56,
+            "reasoning_tokens": 0,
+            "total_tokens": 631
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000121",
+          "id": 20,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 19,
+            "previous_revision": 9,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 335,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 380
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001796",
+          "id": 19,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 10,
+              "input_text_tokens_estimate": 534,
+              "sent_message_ids": [
+                14,
+                15,
+                16,
+                17,
+                18,
+                19
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 242,
+              "input_text_tokens_estimate": 534,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 23,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 574,
+            "output_tokens": 54,
+            "reasoning_tokens": 0,
+            "total_tokens": 628
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001194",
+          "id": 22,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 21,
+            "previous_revision": 10,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 327,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 372
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001706",
+          "id": 21,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 11,
+              "input_text_tokens_estimate": 537,
+              "sent_message_ids": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 253,
+              "input_text_tokens_estimate": 537,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 15,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 577,
+            "output_tokens": 46,
+            "reasoning_tokens": 0,
+            "total_tokens": 623
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001256",
+          "id": 24,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "kind": "facts",
+            "parent_request_id": 23,
+            "previous_revision": 11,
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default"
+          },
+          "output_policy": {
+            "name": "completed_text_and_facts_schema",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 358,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 403
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001746",
+          "id": 23,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 12,
+              "input_text_tokens_estimate": 563,
+              "sent_message_ids": [
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "facts",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": true,
+              "history_tokens_estimate": 248,
+              "input_text_tokens_estimate": 563,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 603,
+            "output_tokens": 45,
+            "reasoning_tokens": 0,
+            "total_tokens": 648
+          },
+          "usage_status": "reported"
+        }
+      ]
+    },
+    "branching": {
+      "turns": [
+        {
+          "number": 1,
+          "prompt": "Мой проект «Этюд-427»: работаю в Blender, проверяю в Godot. Текстура 512, акцент бирюзовый, фототекстуры запрещены. Почему силуэт важен? Ответ до 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001268",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 1,
+            "status": "ok",
+            "text": "Силуэт мгновенно считывает форму объекта, его функцию и позу даже без деталей и текстур. В игре это улучшает узнаваемость, композицию и читаемость персонажа на расстоянии.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 334,
+              "output_tokens": 50,
+              "reasoning_tokens": 0,
+              "total_tokens": 384
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 324,
+            "sent_message_ids": [
+              1
+            ],
+            "sent_messages": 1
+          }
+        },
+        {
+          "number": 2,
+          "prompt": "Чем растровая графика отличается от векторной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001536",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 2,
+            "status": "ok",
+            "text": "Растровая графика состоит из пикселей и теряет качество при увеличении. Векторная строится из математических кривых, поэтому масштабируется без потери чёткости, но хуже подходит для сложных фотоподобных изображений.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 408,
+              "output_tokens": 60,
+              "reasoning_tokens": 0,
+              "total_tokens": 468
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 388,
+            "sent_message_ids": [
+              1,
+              2,
+              3
+            ],
+            "sent_messages": 3
+          }
+        },
+        {
+          "number": 3,
+          "prompt": "Зачем 3D-модели UV-развёртка? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.000166",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 3,
+            "status": "ok",
+            "text": "UV-развёртка переводит поверхность 3D-модели на плоскость, чтобы правильно разместить текстуру. Она контролирует соответствие рисунка геометрии, масштаб деталей, швы и искажения при текстурировании.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 494,
+              "output_tokens": 56,
+              "reasoning_tokens": 0,
+              "total_tokens": 550
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 464,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "sent_messages": 5
+          }
+        },
+        {
+          "number": 4,
+          "prompt": "Что меняет roughness в материале? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0001848",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 4,
+            "status": "ok",
+            "text": "Roughness определяет микронеровности поверхности: низкое значение даёт резкие отражения и глянцевый вид, высокое — размытые отражения и матовость. Daarmee меняется восприятие материала, но не его базовый цвет.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 570,
+              "output_tokens": 59,
+              "reasoning_tokens": 0,
+              "total_tokens": 629
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 530,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "sent_messages": 7
+          }
+        },
+        {
+          "number": 5,
+          "prompt": "Почему нормали влияют на освещение? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.000197",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 5,
+            "status": "ok",
+            "text": "Нормали задают направление, куда «смотрит» поверхность. По ним рассчитывается угол падения света, поэтому меняются яркость, тени, блики и плавность затенения, даже если геометрия остаётся прежней.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 649,
+              "output_tokens": 56,
+              "reasoning_tokens": 0,
+              "total_tokens": 705
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 599,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "sent_messages": 9
+          }
+        },
+        {
+          "number": 6,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0002282",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 6,
+            "status": "ok",
+            "text": "{\n  \"project\": \"Этюд-427\",\n  \"tool\": \"Blender\",\n  \"engine\": \"Godot\",\n  \"texture\": \"512\",\n  \"accent\": \"бирюзовый\",\n  \"ban\": \"фототекстуры запрещены\"\n}",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 757,
+              "output_tokens": 64,
+              "reasoning_tokens": 0,
+              "total_tokens": 821
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": true,
+            "correct_fields": [
+              "project",
+              "tool",
+              "engine",
+              "texture",
+              "accent",
+              "ban"
+            ],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 512,
+              "accent": "бирюзовый",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": "512",
+              "accent": "бирюзовый",
+              "ban": "фототекстуры запрещены"
+            }
+          },
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 697,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "sent_messages": 11
+          }
+        },
+        {
+          "number": 7,
+          "prompt": "Исправление моих условий: теперь текстура 1024, акцент янтарный. Остальное без изменений. Зачем mipmaps? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0002324",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 7,
+            "status": "ok",
+            "text": "Mipmaps — уменьшенные копии текстуры для разных расстояний. Они снижают мерцание и алиасинг, улучшают стабильность изображения и часто повышают производительность при отображении удалённых объектов.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 862,
+              "output_tokens": 50,
+              "reasoning_tokens": 0,
+              "total_tokens": 912
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 792,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "sent_messages": 13
+          }
+        },
+        {
+          "number": 8,
+          "prompt": "Что такое texel density и зачем её выравнивать? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.000264",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 8,
+            "status": "ok",
+            "text": "Texel density — количество пикселей текстуры на единицу площади 3D-поверхности. Её выравнивают, чтобы детали разных объектов имели согласованный масштаб, а материалы не выглядели случайно размытыми или чрезмерно детализированными.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 936,
+              "output_tokens": 64,
+              "reasoning_tokens": 0,
+              "total_tokens": 1000
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 856,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "sent_messages": 15
+          }
+        },
+        {
+          "number": 9,
+          "prompt": "Чем ортографическая камера отличается от перспективной? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.0002656",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 9,
+            "status": "ok",
+            "text": "Ортографическая камера сохраняет одинаковый размер объектов независимо от расстояния, создавая вид без перспективного схождения. Перспективная уменьшает удалённые объекты и передаёт глубину реалистичнее.",
+            "usage": {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 1022,
+              "output_tokens": 51,
+              "reasoning_tokens": 0,
+              "total_tokens": 1073
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 932,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "sent_messages": 17
+          }
+        },
+        {
+          "number": 10,
+          "prompt": "Почему цветовую текстуру и карту roughness читают в разных цветовых пространствах? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00033655",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 10,
+            "status": "ok",
+            "text": "Цветовую текстуру читают в sRGB для корректного визуального цвета, а roughness — в линейном пространстве, поскольку это числовой параметр. Иначе значения шероховатости исказятся.",
+            "usage": {
+              "cache_write_input_tokens": 1099,
+              "cached_input_tokens": 0,
+              "input_tokens": 1102,
+              "output_tokens": 51,
+              "reasoning_tokens": 0,
+              "total_tokens": 1153
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 1002,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ],
+            "sent_messages": 19
+          }
+        },
+        {
+          "number": 11,
+          "prompt": "Как размер источника света влияет на тень? До 35 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00009698",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 11,
+            "status": "ok",
+            "text": "Чем больше источник света, тем мягче и менее резкой становится тень, поскольку увеличивается область направлений света. Маленький источник даёт более жёсткую, чёткую тень.",
+            "usage": {
+              "cache_write_input_tokens": 72,
+              "cached_input_tokens": 1099,
+              "input_tokens": 1174,
+              "output_tokens": 47,
+              "reasoning_tokens": 0,
+              "total_tokens": 1221
+            },
+            "usage_status": "reported"
+          },
+          "check": null,
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 1064,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "sent_messages": 21
+          }
+        },
+        {
+          "number": 12,
+          "prompt": "Напомни текущие условия моего проекта с учётом всех исправлений. Только JSON с ключами project, tool, engine, texture, accent, ban. Неизвестное обозначь null, не угадывай.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00012557",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 12,
+            "status": "ok",
+            "text": "{\n  \"project\": \"Этюд-427\",\n  \"tool\": \"Blender\",\n  \"engine\": \"Godot\",\n  \"texture\": \"1024\",\n  \"accent\": \"янтарный\",\n  \"ban\": \"фототекстуры запрещены\"\n}",
+            "usage": {
+              "cache_write_input_tokens": 99,
+              "cached_input_tokens": 1171,
+              "input_tokens": 1273,
+              "output_tokens": 64,
+              "reasoning_tokens": 0,
+              "total_tokens": 1337
+            },
+            "usage_status": "reported"
+          },
+          "check": {
+            "passed": true,
+            "correct_fields": [
+              "project",
+              "tool",
+              "engine",
+              "texture",
+              "accent",
+              "ban"
+            ],
+            "expected": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": 1024,
+              "accent": "янтарный",
+              "ban": "фототекстуры"
+            },
+            "actual": {
+              "project": "Этюд-427",
+              "tool": "Blender",
+              "engine": "Godot",
+              "texture": "1024",
+              "accent": "янтарный",
+              "ban": "фототекстуры запрещены"
+            }
+          },
+          "facts": {},
+          "context": {
+            "facts_revision": 0,
+            "input_text_tokens_estimate": 1153,
+            "sent_message_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ],
+            "sent_messages": 23
+          }
+        }
+      ],
+      "summary": {
+        "api_requests": 12,
+        "cost_complete": true,
+        "known_cost_usd": "0.00237750",
+        "unknown_cost_requests": 0
+      },
+      "token_accounting": {
+        "complete": true,
+        "known_input_tokens": 9581,
+        "known_output_tokens": 672,
+        "known_total_tokens": 10253,
+        "unknown_requests": 0
+      },
+      "requests": [
+        {
+          "code": "",
+          "cost_usd": "0.0001268",
+          "id": 1,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 324,
+              "sent_message_ids": [
+                1
+              ],
+              "sent_messages": 1
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 0,
+              "input_text_tokens_estimate": 324,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 55,
+              "sent_messages": 1,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 334,
+            "output_tokens": 50,
+            "reasoning_tokens": 0,
+            "total_tokens": 384
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001536",
+          "id": 2,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 388,
+              "sent_message_ids": [
+                1,
+                2,
+                3
+              ],
+              "sent_messages": 3
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 101,
+              "input_text_tokens_estimate": 388,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 3,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 408,
+            "output_tokens": 60,
+            "reasoning_tokens": 0,
+            "total_tokens": 468
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000166",
+          "id": 3,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 464,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "sent_messages": 5
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 175,
+              "input_text_tokens_estimate": 464,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 20,
+              "sent_messages": 5,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 494,
+            "output_tokens": 56,
+            "reasoning_tokens": 0,
+            "total_tokens": 550
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0001848",
+          "id": 4,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 530,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "sent_messages": 7
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 247,
+              "input_text_tokens_estimate": 530,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 7,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 570,
+            "output_tokens": 59,
+            "reasoning_tokens": 0,
+            "total_tokens": 629
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000197",
+          "id": 5,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 599,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "sent_messages": 9
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 316,
+              "input_text_tokens_estimate": 599,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 14,
+              "sent_messages": 9,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 649,
+            "output_tokens": 56,
+            "reasoning_tokens": 0,
+            "total_tokens": 705
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0002282",
+          "id": 6,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 697,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "sent_messages": 11
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 382,
+              "input_text_tokens_estimate": 697,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 11,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 757,
+            "output_tokens": 64,
+            "reasoning_tokens": 0,
+            "total_tokens": 821
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0002324",
+          "id": 7,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 792,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "sent_messages": 13
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 488,
+              "input_text_tokens_estimate": 792,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 35,
+              "sent_messages": 13,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 862,
+            "output_tokens": 50,
+            "reasoning_tokens": 0,
+            "total_tokens": 912
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.000264",
+          "id": 8,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 856,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "sent_messages": 15
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 569,
+              "input_text_tokens_estimate": 856,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 18,
+              "sent_messages": 15,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 936,
+            "output_tokens": 64,
+            "reasoning_tokens": 0,
+            "total_tokens": 1000
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.0002656",
+          "id": 9,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 932,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "sent_messages": 17
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 647,
+              "input_text_tokens_estimate": 932,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 16,
+              "sent_messages": 17,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 0,
+            "input_tokens": 1022,
+            "output_tokens": 51,
+            "reasoning_tokens": 0,
+            "total_tokens": 1073
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.00033655",
+          "id": 10,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 1002,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19
+              ],
+              "sent_messages": 19
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 710,
+              "input_text_tokens_estimate": 1002,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 23,
+              "sent_messages": 19,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 1099,
+            "cached_input_tokens": 0,
+            "input_tokens": 1102,
+            "output_tokens": 51,
+            "reasoning_tokens": 0,
+            "total_tokens": 1153
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.00009698",
+          "id": 11,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 1064,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "sent_messages": 21
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 780,
+              "input_text_tokens_estimate": 1064,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 15,
+              "sent_messages": 21,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 72,
+            "cached_input_tokens": 1099,
+            "input_tokens": 1174,
+            "output_tokens": 47,
+            "reasoning_tokens": 0,
+            "total_tokens": 1221
+          },
+          "usage_status": "reported"
+        },
+        {
+          "code": "",
+          "cost_usd": "0.00012557",
+          "id": 12,
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "metadata": {
+            "actual_model": "gpt-5.6-luna",
+            "actual_service_tier": "default",
+            "branch_id": 1,
+            "context": {
+              "facts_revision": 0,
+              "input_text_tokens_estimate": 1153,
+              "sent_message_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "sent_messages": 23
+            },
+            "kind": "answer",
+            "mode": "branching",
+            "pricing": {
+              "cache_write_usd_per_million": "0.25",
+              "cached_input_usd_per_million": "0.02",
+              "checked_at": "2026-09-14",
+              "input_usd_per_million": "0.20",
+              "max_input_tokens": 272000,
+              "model": "gpt-5.6-luna",
+              "output_usd_per_million": "1.20",
+              "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+            },
+            "requested_model": "gpt-5.6-luna",
+            "requested_service_tier": "default",
+            "token_metrics": {
+              "context_window": 1050000,
+              "encoding": "o200k_base",
+              "facts_update_pending": false,
+              "history_tokens_estimate": 838,
+              "input_text_tokens_estimate": 1153,
+              "instructions_tokens_estimate": 269,
+              "max_output_tokens": 1600,
+              "method": "local_text_estimate",
+              "new_message_tokens_estimate": 46,
+              "sent_messages": 23,
+              "version": "0.14.0"
+            }
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "status": "ok",
+          "text": "",
+          "usage": {
+            "cache_write_input_tokens": 99,
+            "cached_input_tokens": 1171,
+            "input_tokens": 1273,
+            "output_tokens": 64,
+            "reasoning_tokens": 0,
+            "total_tokens": 1337
+          },
+          "usage_status": "reported"
+        }
+      ]
+    }
+  },
+  "branching_experiment": {
+    "checkpoint": {
+      "id": 1,
+      "name": "Два варианта освещения"
+    },
+    "branches": [
+      {
+        "branch": {
+          "id": 2,
+          "name": "Мягкий свет"
+        },
+        "prompt": "В этой ветке выбираю мягкий свет большой площадной лампы. Как получить мягкую тень? До 35 слов.",
+        "result": {
+          "code": "",
+          "cost_usd": "0.00011865",
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "request_id": 13,
+          "status": "ok",
+          "text": "Увеличьте размер площадной лампы и разместите её близко к объекту, сохраняя нужное направление. Настройте мощность для экспозиции, а в Blender включите корректные тени и контактные тени при необходимости.",
+          "usage": {
+            "cache_write_input_tokens": 97,
+            "cached_input_tokens": 1270,
+            "input_tokens": 1370,
+            "output_tokens": 57,
+            "reasoning_tokens": 0,
+            "total_tokens": 1427
+          },
+          "usage_status": "reported"
+        },
+        "probe": {
+          "prompt": "Какой свет выбран именно в этой ветке и каким размером источника он получается? До 25 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00008184",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 15,
+            "status": "ok",
+            "text": "Выбран мягкий свет большой площадной лампы; конкретный размер источника в этой ветке не указан.",
+            "usage": {
+              "cache_write_input_tokens": 86,
+              "cached_input_tokens": 1367,
+              "input_tokens": 1456,
+              "output_tokens": 27,
+              "reasoning_tokens": 0,
+              "total_tokens": 1483
+            },
+            "usage_status": "reported"
+          }
+        }
+      },
+      {
+        "branch": {
+          "id": 3,
+          "name": "Жёсткий свет"
+        },
+        "prompt": "В этой ветке выбираю жёсткий свет маленького источника. Как получить резкую тень? До 35 слов.",
+        "result": {
+          "code": "",
+          "cost_usd": "0.0001129",
+          "input_policy": {
+            "name": "nonempty_text",
+            "status": "accepted"
+          },
+          "output_policy": {
+            "name": "completed_text",
+            "status": "accepted"
+          },
+          "request_id": 14,
+          "status": "ok",
+          "text": "Используйте маленький источник света, расположите его ближе к объекту и уменьшите размер источника или радиус в настройках. Повышайте разрешение shadow map и избегайте сильного рассеянного освещения.",
+          "usage": {
+            "cache_write_input_tokens": 98,
+            "cached_input_tokens": 1270,
+            "input_tokens": 1371,
+            "output_tokens": 52,
+            "reasoning_tokens": 0,
+            "total_tokens": 1423
+          },
+          "usage_status": "reported"
+        },
+        "probe": {
+          "prompt": "Какой свет выбран именно в этой ветке и каким размером источника он получается? До 25 слов.",
+          "result": {
+            "code": "",
+            "cost_usd": "0.00008541",
+            "input_policy": {
+              "name": "nonempty_text",
+              "status": "accepted"
+            },
+            "output_policy": {
+              "name": "completed_text",
+              "status": "accepted"
+            },
+            "request_id": 16,
+            "status": "ok",
+            "text": "Выбран жёсткий свет от маленького источника. Точный размер источника не указан, поэтому определить его значение нельзя.",
+            "usage": {
+              "cache_write_input_tokens": 81,
+              "cached_input_tokens": 1368,
+              "input_tokens": 1452,
+              "output_tokens": 31,
+              "reasoning_tokens": 0,
+              "total_tokens": 1483
+            },
+            "usage_status": "reported"
+          }
+        }
+      }
+    ],
+    "summary_including_common_run": {
+      "api_requests": 16,
+      "cost_complete": true,
+      "known_cost_usd": "0.00277630",
+      "unknown_cost_requests": 0
+    },
+    "token_accounting_including_common_run": {
+      "complete": true,
+      "known_input_tokens": 15230,
+      "known_output_tokens": 839,
+      "known_total_tokens": 16069,
+      "unknown_requests": 0
+    }
+  },
+  "complete": true,
+  "conclusion": "Sliding Window: 0/12 полей памяти. Facts и Branching: 12/12, включая исправленные условия. Это оценка сохранения условий, а не безошибочности всех объяснений.",
+  "quality_notes": [
+    "Качество: в Facts ответ о mipmaps неоднозначно говорит о снижении нагрузки на память. Mipmaps улучшают выборку, но полный набор уровней увеличивает объём хранения обычной 2D-текстуры примерно на треть. В Branching в ответе о roughness появилось постороннее слово «Daarmee». Исходные ответы сохранены.",
+    "В жёсткой ветке совет приблизить источник не обоснован: при неизменном размере площадного источника и положении объекта относительно принимающей поверхности сближение увеличивает угловой размер и обычно смягчает тень. Для жёсткости следует уменьшать угловой размер источника.",
+    "Удобство: Sliding требует повторять забытые условия; Facts показывает актуальные значения, но добавляет вызов перед каждым ответом; Branching сохраняет альтернативы, но требует выбора checkpoint и ветки.",
+    "Ограничения: один сценарий и один прогон на режим, кеш не контролировался. Facts включает все 12 обновлений памяти. По этому опыту нельзя утверждать универсальное превосходство стратегии или экономию на длинном разговоре."
+  ],
+  "quality_sources": [
+    "https://docs.godotengine.org/en/4.3/tutorials/assets_pipeline/importing_images.html#mipmaps-generate"
+  ]
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Первый агент · День 06</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Первый агент — главная"><span class="brand-icon" aria-hidden="true">а.</span>Первый агент</a>
+      <span class="edition">AI ADVENT <span>/</span> НЕДЕЛЯ 02</span>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow"><span class="dot"></span> ДЕНЬ 06 · НАЧАЛО ДИАЛОГА</p>
+          <h1 id="page-title">Вопрос — ваш.<br><span>Следующий шаг — вместе.</span></h1>
+          <p class="lead">Разобраться в сложном, найти идею или составить план.<br class="desktop-break"> Сформулируйте задачу — агент поможет с ответом.</p>
+        </div>
+        <div class="orbit" aria-hidden="true"><span class="orbit-ring"></span><span class="orbit-core">а</span><span class="orbit-point"></span></div>
+      </section>
+
+      <div class="workspace">
+        <section class="request-panel" aria-labelledby="request-title">
+          <div class="section-heading"><span class="number">01</span><h2 id="request-title">Ваш запрос</h2></div>
+          <form id="ask-form" novalidate>
+            <label for="prompt">Что хотите узнать или сделать?</label>
+            <textarea id="prompt" name="prompt" placeholder="Например: объясни разницу между целью и задачей на простом примере." spellcheck="false" aria-describedby="input-hint"></textarea>
+            <div class="input-footer"><span id="input-hint">Добавьте контекст, если он важен.</span><span id="count">0 символов</span></div>
+            <button class="submit" type="submit" id="send"><span id="send-label">Отправить агенту</span><span aria-hidden="true" id="send-icon">↗</span></button>
+          </form>
+          <div class="suggestions">
+            <p>МОЖНО НАЧАТЬ С ЭТОГО</p>
+            <button type="button" class="suggestion" data-prompt="Объясни простыми словами, чем цель отличается от задачи. Приведи один короткий пример.">Объяснить сложное <span aria-hidden="true">↗</span></button>
+            <button type="button" class="suggestion" data-prompt="Предложи три простых способа сосредоточиться на одной учебной задаче. Ответь коротко.">Найти идею <span aria-hidden="true">↗</span></button>
+            <button type="button" class="suggestion" data-prompt="Помоги составить короткий план изучения новой темы за один вечер. У меня два часа.">Составить план <span aria-hidden="true">↗</span></button>
+          </div>
+        </section>
+
+        <section class="answer-panel" id="answer-panel" aria-labelledby="answer-title" aria-busy="false">
+          <div class="answer-top"><div class="section-heading"><span class="number">02</span><h2 id="answer-title">Ответ агента</h2></div><span id="badge" class="badge">Готов к запросу</span></div>
+          <div id="empty" class="empty-state"><span class="empty-mark" aria-hidden="true">✳</span><h3>Всё начинается с вопроса</h3><p>Здесь появится ответ.<br>Выберите пример или напишите свой запрос.</p></div>
+          <div id="waiting" class="waiting-state" hidden><span class="loader" aria-hidden="true"></span><p>Агент готовит ответ<span class="waiting-dots" aria-hidden="true">…</span></p><small>Обычно это занимает несколько секунд.</small></div>
+          <p id="notice" class="notice" role="status" aria-live="polite"></p>
+          <div id="answer" class="answer-text" tabindex="0" aria-label="Текст ответа" hidden></div>
+          <section id="usage-panel" class="usage-panel" aria-label="Токены и стоимость запроса" hidden>
+            <dl class="usage-grid">
+              <div><dt>Вход · input</dt><dd id="input-tokens">—</dd></div>
+              <div><dt>Выход · output</dt><dd id="output-tokens">—</dd></div>
+              <div><dt>Всего токенов</dt><dd id="total-tokens">—</dd></div>
+              <div><dt>Стоимость, USD ≈</dt><dd id="cost-usd">—</dd></div>
+            </dl>
+            <p id="usage-details" class="usage-details"></p>
+          </section>
+          <div class="answer-foot"><span class="small-star" aria-hidden="true">✳</span><span>Каждый запрос независим. Агент не помнит предыдущие сообщения.</span></div>
+        </section>
+      </div>
+      <footer class="footer"><span>Место для вопросов и ясных ответов.</span><span>Проверяйте важные факты: модель может ошибаться.</span></footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Агент с памятью · День 07</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Агент с памятью — главная"><span class="brand-icon" aria-hidden="true">а.</span>Агент с памятью</a>
+    <span class="edition">AI ADVENT <span>/</span> НЕДЕЛЯ 02</span>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="dot"></span> ДЕНЬ 07 · СОХРАНЕНИЕ КОНТЕКСТА</p>
+        <h1 id="page-title">Продолжим<br><span>с того же места.</span></h1>
+        <p class="lead">Расскажите о задаче — агент сохранит разговор.<br class="desktop-break"> Даже после перезапуска можно продолжить с прежним контекстом.</p>
+      </div>
+      <div class="orbit" aria-hidden="true"><span class="orbit-ring"></span><span class="orbit-core">а</span><span class="orbit-point"></span></div>
+    </section>
+    <div class="workspace">
+      <section class="request-panel" aria-labelledby="request-title">
+        <div class="section-heading"><span class="number">01</span><h2 id="request-title">Ваше сообщение</h2></div>
+        <form id="ask-form" novalidate>
+          <label for="prompt">Что хотите обсудить?</label>
+          <textarea id="prompt" name="prompt" placeholder="Расскажите о задаче или продолжите разговор…" spellcheck="false" aria-describedby="input-hint"></textarea>
+          <div class="input-footer"><span id="input-hint">Предыдущие сообщения уже в контексте.</span><span id="count">0 символов</span></div>
+          <button class="submit" type="submit" id="send" disabled><span id="send-label">Отправить агенту</span><span aria-hidden="true">↗</span></button>
+        </form>
+        <div class="suggestions">
+          <p>МОЖНО НАЧАТЬ С ЭТОГО</p>
+          <button type="button" class="suggestion" data-prompt="Помоги составить короткий план изучения новой темы за один вечер. У меня два часа.">Составить план <span aria-hidden="true">↗</span></button>
+          <button type="button" class="suggestion" data-prompt="Кратко напомни, что мы уже обсудили и какие ограничения я назвал.">Вспомнить разговор <span aria-hidden="true">↗</span></button>
+        </div>
+        <section class="chat-summary" aria-labelledby="summary-title">
+          <p class="eyebrow" id="summary-title">РАСХОДЫ ЧАТА</p>
+          <div id="chat-cost" class="chat-cost">—</div>
+          <p id="cost-note">Загружаем сохранённые данные…</p>
+          <p class="privacy-note">Переписка сохраняется на этом компьютере и передаётся модели при следующем сообщении.</p>
+        </section>
+      </section>
+      <section class="answer-panel" id="answer-panel" aria-labelledby="answer-title" aria-busy="false">
+        <div class="answer-top"><div class="section-heading"><span class="number">02</span><h2 id="answer-title">Наш разговор</h2></div><span id="badge" class="badge">Загрузка…</span></div>
+        <div class="session-bar"><span id="memory-status" role="status">Загружаем историю…</span><button id="restore" type="button">Обновить</button></div>
+        <div id="empty" class="empty-state" hidden><span class="empty-mark" aria-hidden="true">✳</span><h3>Начните новую мысль</h3><p>Здесь останутся ваши сообщения<br>и ответы агента.</p></div>
+        <div id="conversation" class="conversation" tabindex="0" aria-label="История диалога"></div>
+        <div id="waiting" class="waiting-state" hidden><span class="loader" aria-hidden="true"></span><p>Агент готовит ответ…</p></div>
+        <p id="notice" class="notice" role="status" aria-live="polite"></p>
+        <div class="answer-foot"><span class="small-star" aria-hidden="true">✳</span><span>Контекст сохраняется между запусками.</span></div>
+      </section>
+    </div>
+    <footer class="footer"><span id="session-info">Локальный чат · Luna</span><span>Проверяйте важные факты: модель может ошибаться.</span></footer>
+  </main>
+</div>
+</body>
+</html>

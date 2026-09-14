@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Мастерская графики и арта · День 10</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Мастерская графики и арта — главная">
+        <span class="brand-icon" aria-hidden="true">а.</span>
+        <span>Мастерская графики и арта</span>
+      </a>
+      <span class="edition">AI ADVENT <span>/</span> НЕДЕЛЯ 02</span>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span> ДЕНЬ 10 · СТРАТЕГИИ КОНТЕКСТА</p>
+          <h1 id="page-title">Один разговор.<br><span>Три способа помнить.</span></h1>
+          <p class="lead">Обсуждайте композицию, свет, материалы, 2D и 3D. Переключайте стратегию памяти и проверяйте, какой контекст действительно получил агент.</p>
+        </div>
+        <div class="orbit" aria-hidden="true">
+          <span class="orbit-ring"></span>
+          <span class="orbit-core">а</span>
+          <span class="orbit-point orbit-point-one"></span>
+          <span class="orbit-point orbit-point-two"></span>
+          <span class="orbit-point orbit-point-three"></span>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <section class="request-panel" aria-labelledby="request-title">
+          <div class="section-heading"><span class="number">01</span><h2 id="request-title">Ваш вопрос</h2></div>
+
+          <label for="context-mode">Стратегия памяти</label>
+          <select id="context-mode">
+            <option value="sliding">Окно · последние 6 реплик</option>
+            <option value="facts">Факты · словарь + последние 6 реплик</option>
+            <option value="branching">Ветки · полный путь разговора</option>
+          </select>
+          <p id="mode-description" class="field-note">У каждого режима свой независимый сохранённый чат.</p>
+
+          <form id="ask-form" novalidate>
+            <label for="prompt">Что хотите разобрать?</label>
+            <textarea id="prompt" name="prompt" placeholder="Например: почему материал выглядит пластиковым при мягком свете?" spellcheck="true" aria-describedby="input-hint token-preview"></textarea>
+            <div class="input-footer">
+              <span id="input-hint">Вопрос войдёт в контекст выбранного режима.</span>
+              <span id="count">0 символов</span>
+            </div>
+            <p id="token-preview" class="token-preview" aria-live="polite">Введите сообщение для оценки контекста.</p>
+            <button class="submit" type="submit" id="send" disabled>
+              <span id="send-label">Отправить агенту</span><span class="send-icon" aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="suggestions">
+            <p>МОЖНО НАЧАТЬ С ЭТОГО</p>
+            <button type="button" class="suggestion" data-prompt="Я делаю портрет в тёплом вечернем свете. Фон холодный, а главный акцент — лицо. Какие три проверки композиции и света сделать сначала?">Разобрать свет и композицию <span aria-hidden="true">↗</span></button>
+            <button type="button" class="suggestion" data-prompt="Для этого материала базовый цвет не синий, а бирюзовый. Запомни исправление и предложи, как согласовать его с медными деталями.">Исправить художественное решение <span aria-hidden="true">↗</span></button>
+          </div>
+
+          <section class="chat-summary" aria-labelledby="summary-title">
+            <p class="eyebrow" id="summary-title">РАСХОД ВСЕГО РЕЖИМА</p>
+            <div class="summary-grid">
+              <div><span>Стоимость</span><strong id="chat-cost">—</strong></div>
+              <div><span>Токены</span><strong id="chat-tokens">—</strong></div>
+              <div><span>API-вызовы</span><strong id="api-requests">—</strong></div>
+            </div>
+            <p id="cost-note" class="field-note">Загружаем сохранённые данные…</p>
+            <p id="accounting-note" class="field-note"></p>
+          </section>
+        </section>
+
+        <section class="answer-panel" id="answer-panel" aria-labelledby="answer-title" aria-busy="false">
+          <div class="answer-top">
+            <div class="section-heading"><span class="number">02</span><h2 id="answer-title">Текущий путь разговора</h2></div>
+            <span id="badge" class="badge">Загрузка…</span>
+          </div>
+          <div class="session-bar">
+            <span id="memory-status" role="status">Загружаем историю…</span>
+            <button id="restore" class="quiet-button" type="button">Обновить</button>
+          </div>
+          <div id="empty" class="empty-state" hidden>
+            <span class="empty-mark" aria-hidden="true">✳</span>
+            <h3>Начните разговор об арте</h3>
+            <p>Здесь появятся полные вопросы и ответы выбранного режима.</p>
+          </div>
+          <div id="conversation" class="conversation" tabindex="0" aria-label="История текущего пути разговора"></div>
+          <div id="waiting" class="waiting-state" hidden>
+            <span class="loader" aria-hidden="true"></span><p>Агент работает с контекстом…</p>
+          </div>
+          <p id="notice" class="notice" role="status" aria-live="polite"></p>
+          <div class="answer-foot"><span aria-hidden="true">✳</span><span>Сообщения и память сохраняются между запусками.</span></div>
+        </section>
+      </div>
+
+      <section class="detail-panel" aria-labelledby="memory-title">
+        <div class="section-heading"><span class="number">03</span><h2 id="memory-title">Что сейчас помнит агент</h2></div>
+        <div class="memory-layout">
+          <div class="memory-overview">
+            <p class="panel-kicker">ВЫБРАННАЯ СТРАТЕГИЯ</p>
+            <h3 id="memory-mode">—</h3>
+            <p id="memory-explanation" class="field-note"></p>
+            <dl class="compact-stats">
+              <div><dt>Сообщений в пути</dt><dd id="path-message-count">—</dd></div>
+              <div><dt>Оценка истории</dt><dd id="history-tokens">—</dd></div>
+              <div><dt>Лимит входа</dt><dd id="input-limit">—</dd></div>
+            </dl>
+            <p id="sent-context" class="context-evidence"></p>
+          </div>
+          <div class="facts-block">
+            <div class="subheading"><h3>Закреплённые факты</h3><span id="facts-revisions" class="pill">0 обновлений</span></div>
+            <dl id="facts-list" class="facts-list"></dl>
+            <p id="facts-empty" class="empty-copy">В этом режиме закреплённых фактов пока нет.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="branch-panel" class="detail-panel" aria-labelledby="branch-title" hidden>
+        <div class="section-heading"><span class="number">04</span><h2 id="branch-title">Checkpoint и независимые ветки</h2></div>
+        <p class="panel-lead">Сохраните текущую точку, создайте от неё две версии разговора и переключайтесь между полными путями.</p>
+        <div class="branch-grid">
+          <form id="checkpoint-form" class="action-card">
+            <span class="step">ШАГ 1</span><h3>Сохранить checkpoint</h3>
+            <label for="checkpoint-name">Название точки</label>
+            <input id="checkpoint-name" type="text" maxlength="80" placeholder="Например: Общая композиция">
+            <button id="create-checkpoint" class="secondary-button" type="submit">Создать checkpoint</button>
+          </form>
+          <form id="branch-form" class="action-card">
+            <span class="step">ШАГ 2</span><h3>Создать ветку</h3>
+            <label for="checkpoint-select">От какой точки</label>
+            <select id="checkpoint-select"></select>
+            <label for="branch-name">Название ветки</label>
+            <input id="branch-name" type="text" maxlength="80" placeholder="Например: Холодный свет">
+            <button id="create-branch" class="secondary-button" type="submit">Создать и открыть</button>
+          </form>
+          <form id="switch-form" class="action-card">
+            <span class="step">ШАГ 3</span><h3>Переключить путь</h3>
+            <label for="branch-select">Ветка разговора</label>
+            <select id="branch-select"></select>
+            <button id="switch-branch" class="secondary-button" type="submit">Открыть ветку</button>
+            <p id="active-branch" class="field-note"></p>
+          </form>
+        </div>
+        <div class="saved-structure">
+          <div><h3>Сохранённые точки</h3><ul id="checkpoint-list" class="plain-list"></ul></div>
+          <div><h3>Доступные ветки</h3><ul id="branch-list" class="plain-list"></ul></div>
+        </div>
+      </section>
+
+      <section class="detail-panel" aria-labelledby="usage-title">
+        <div class="section-heading"><span class="number">05</span><h2 id="usage-title">Все вызовы и расходы</h2></div>
+        <p class="panel-lead">Журнал включает ответы, обновления facts и отклонённые результаты. Для веток каждый реальный API-вызов учитывается один раз, даже если пути имеют общий префикс.</p>
+        <div class="table-scroll" tabindex="0" aria-label="Журнал токенов, политик и стоимости">
+          <table>
+            <thead><tr><th>ID</th><th>Операция</th><th>Статус</th><th>Input</th><th>Output</th><th>Всего</th><th>Cached input</th><th>Reasoning</th><th>USD</th><th>Политики</th></tr></thead>
+            <tbody id="request-rows"></tbody>
+          </table>
+        </div>
+        <p id="requests-empty" class="empty-copy">Вызовов в этом режиме пока нет.</p>
+      </section>
+
+      <section class="detail-panel" id="comparison-panel" aria-labelledby="comparison-title">
+        <div class="section-heading"><span class="number">06</span><h2 id="comparison-title">Сравнение трёх стратегий</h2></div>
+        <p class="panel-lead">Сохранённый общий сценарий показывает качество памяти, фактические токены и стоимость при одинаковых вопросах.</p>
+        <div id="comparison-result" class="comparison-result" aria-live="polite">Загружаем результаты…</div>
+      </section>
+
+      <footer class="footer">
+        <span id="session-info">Локальный помощник · порт 5010</span>
+        <span>Проверяйте важные решения: модель может ошибаться.</span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
