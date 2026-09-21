@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Мастерская графики и арта · Состояние задачи</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Мастерская графики и арта — главная">
+        <span class="brand-mark" aria-hidden="true">а.</span>
+        <span>Мастерская графики и арта</span>
+      </a>
+      <div class="topbar-meta">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="boot-status">Загрузка пространства…</span>
+        <button id="state-refresh" class="icon-button" type="button" aria-label="Обновить состояние" title="Обновить состояние">↻</button>
+      </div>
+    </header>
+
+    <section class="profile-panel panel" aria-labelledby="profile-title">
+      <div class="profile-heading">
+        <div>
+          <p class="eyebrow">ДЕНЬ 13 · СОСТОЯНИЕ ЗАДАЧИ</p>
+          <h1 id="profile-title">Профиль ответа</h1>
+          <p class="panel-lead">Стиль, формат и ограничения сохраняются в выбранном локальном профиле и передаются каждому пользовательскому ответу, даже когда справочные слои памяти выключены.</p>
+        </div>
+        <div class="profile-picker">
+          <label for="profile-select">Выбранный профиль</label>
+          <select id="profile-select" aria-describedby="profile-isolation-note"></select>
+          <p id="profile-isolation-note" class="field-note">У каждого профиля свои задачи, диалоги, память и расходы.</p>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <section class="profile-card current-profile" aria-labelledby="current-profile-title">
+          <div class="profile-card-heading">
+            <div>
+              <p class="eyebrow">ДЕЙСТВУЮЩИЕ НАСТРОЙКИ</p>
+              <h2 id="current-profile-title">Загрузка…</h2>
+            </div>
+            <span id="profile-saved-status" class="lock-badge locked">Сохранено</span>
+          </div>
+          <dl id="profile-summary" class="profile-summary">
+            <div><dt>Стиль</dt><dd>—</dd></div>
+            <div><dt>Формат</dt><dd>—</dd></div>
+            <div><dt>Ограничения</dt><dd>—</dd></div>
+          </dl>
+          <p id="profile-refs" class="profile-refs">Версии настроек: —</p>
+          <p class="profile-caveat">Это инструкции для модели, а не гарантия формы или содержания её ответа. Фактический результат виден в диалоге и трассе.</p>
+        </section>
+
+        <form id="profile-form" class="profile-card profile-form" novalidate>
+          <p class="eyebrow">РЕДАКТОР ВЫБРАННОГО ПРОФИЛЯ</p>
+          <label for="profile-style">Стиль ответа</label>
+          <textarea id="profile-style" name="style" maxlength="1000" placeholder="Например: объясняй термины простыми словами"></textarea>
+          <label for="profile-format">Формат ответа</label>
+          <select id="profile-format" name="format">
+            <option value="plain">Обычный текст</option>
+            <option value="steps">Нумерованные шаги</option>
+            <option value="markdown">Markdown</option>
+          </select>
+          <label for="profile-constraints">Личные ограничения</label>
+          <textarea id="profile-constraints" name="constraints" maxlength="1000" placeholder="Например: используй Blender и Cycles"></textarea>
+          <p class="field-note">Пустые поля допустимы. Имя профиля при сохранении этих настроек не меняется.</p>
+          <button id="save-profile" class="secondary-button" type="submit">Сохранить настройки</button>
+        </form>
+
+        <section class="profile-card profile-create" aria-labelledby="create-profile-title">
+          <p class="eyebrow">НОВЫЙ ПРОФИЛЬ</p>
+          <h2 id="create-profile-title">Начать с нейтрального</h2>
+          <form id="profile-create-form" class="profile-create-form" novalidate>
+            <label for="profile-name">Название</label>
+            <input id="profile-name" name="name" maxlength="80" placeholder="Например, Учебный профиль" required>
+            <button id="create-profile" class="secondary-button" type="submit">Создать и выбрать</button>
+          </form>
+          <div class="profile-examples" aria-labelledby="profile-examples-title">
+            <h3 id="profile-examples-title">Демонстрационные примеры</h3>
+            <p class="field-note">Каждая кнопка создаёт новый профиль с указанными ниже тестовыми настройками. Это не ваши реальные предпочтения.</p>
+            <button class="example-button" type="button" data-profile-example="beginner">
+              <strong>Новичок</strong>
+              <span>Объяснение терминов · ровно 3 шага · Blender/Cycles · без платных аддонов</span>
+            </button>
+            <button class="example-button" type="button" data-profile-example="experienced">
+              <strong>Опытный</strong>
+              <span>Кратко · Markdown · Blender/Cycles · без смены движка и платных ассетов</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="task-state-panel panel" aria-labelledby="task-state-title">
+      <div class="task-state-heading">
+        <div>
+          <p class="eyebrow">ФОРМАЛЬНОЕ СОСТОЯНИЕ ТЕКУЩЕЙ ЗАДАЧИ</p>
+          <h2 id="task-state-title">Где остановились</h2>
+          <p class="panel-lead">Состояние относится к задаче целиком и одинаково во всех её диалогах и ветках. Агент обновляет его автоматически по ходу обычного разговора.</p>
+        </div>
+        <div class="task-state-statuses" aria-live="polite">
+          <span id="task-stage-badge" class="status-badge task-stage-badge">Загрузка</span>
+          <span id="task-pause-badge" class="lock-badge">Активна</span>
+        </div>
+      </div>
+
+      <div class="task-state-grid">
+        <article class="task-state-card saved-task-state" aria-labelledby="saved-task-state-title">
+          <div class="task-state-card-heading">
+            <div>
+              <p class="eyebrow">СОХРАНЕНО В ЗАДАЧЕ</p>
+              <h3 id="saved-task-state-title">Текущее состояние</h3>
+            </div>
+            <span class="lock-badge locked">Только чтение</span>
+          </div>
+          <dl class="task-state-summary">
+            <div><dt>Цель</dt><dd id="saved-task-goal">—</dd></div>
+            <div><dt>Этап</dt><dd id="saved-task-stage">—</dd></div>
+            <div><dt>План и критерии</dt><dd><p id="task-plan-empty">План ещё не составлен</p><ol id="saved-task-plan" hidden></ol></dd></div>
+            <div><dt>Прогресс</dt><dd id="task-progress">—</dd></div>
+            <div><dt>Проверка готовности</dt><dd id="task-validation" aria-live="polite">—</dd></div>
+            <div><dt>Текущий шаг</dt><dd id="saved-task-step">—</dd></div>
+            <div><dt>Ожидаемое действие</dt><dd id="saved-task-action">—</dd></div>
+            <div><dt>Заметки и решения</dt><dd id="saved-task-notes">—</dd></div>
+          </dl>
+        </article>
+
+        <aside class="task-state-card task-state-guidance" aria-labelledby="automatic-state-title">
+          <p class="eyebrow">АВТОМАТИЧЕСКОЕ ВЕДЕНИЕ</p>
+          <h3 id="automatic-state-title">Продолжайте обычным сообщением</h3>
+          <ul class="task-state-guide-list">
+            <li>Опишите цель, следующий шаг, изменение плана или выполненную работу в чате.</li>
+            <li>Отдельная проверка сопоставит результаты с критериями. Переход разрешён только после выполнения всех необходимых условий.</li>
+            <li>Перед выполнением помощник составит план с критериями проверки. Шаги сохранятся в карточке задачи.</li>
+            <li>Для проверки и завершения сообщите фактический результат рендера или другой проверки. Намерение выполнить рендер результатом не считается.</li>
+          </ul>
+          <div class="task-state-actions">
+            <button id="toggle-task-pause" class="ghost-button" type="button">Поставить на паузу</button>
+          </div>
+          <p id="task-state-help" class="field-note" aria-live="polite">Состояние появится после загрузки.</p>
+        </aside>
+      </div>
+    </section>
+
+    <main class="app-main">
+      <aside class="navigation-panel panel" aria-labelledby="dialogues-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">РАБОЧЕЕ ПРОСТРАНСТВО</p>
+            <h2 id="dialogues-title">Диалоги</h2>
+          </div>
+          <span id="dialogue-count" class="count-badge">0</span>
+        </div>
+
+        <label for="dialogue-select">Сохранённый диалог</label>
+        <div class="inline-control">
+          <select id="dialogue-select" aria-describedby="dialogue-note"></select>
+          <button id="open-dialogue" class="compact-button" type="button">Открыть</button>
+        </div>
+        <p id="dialogue-note" class="field-note">Каждый диалог хранит собственную краткосрочную историю.</p>
+
+        <section class="active-context" aria-labelledby="active-title">
+          <p class="eyebrow">СЕЙЧАС ОТКРЫТ</p>
+          <h2 id="active-title">Диалог не загружен</h2>
+          <p id="active-task" class="active-task">—</p>
+          <span id="active-mode" class="mode-badge">—</span>
+        </section>
+
+        <details class="create-block" id="dialogue-create-details">
+          <summary>Новый диалог этой задачи</summary>
+          <form id="dialogue-form" class="stack-form" novalidate>
+            <label for="dialogue-name">Название</label>
+            <input id="dialogue-name" name="name" maxlength="80" placeholder="Например, Свет в портрете" required>
+            <label for="dialogue-mode">Режим контекста</label>
+            <select id="dialogue-mode" name="mode">
+              <option value="sliding">Окно сообщений</option>
+              <option value="facts">Окно + факты диалога</option>
+              <option value="branching">Ветвление разговора</option>
+            </select>
+            <button id="create-dialogue" class="secondary-button" type="submit">Создать диалог</button>
+          </form>
+        </details>
+
+        <details class="create-block new-task-block" id="task-create-details">
+          <summary>Новая независимая задача</summary>
+          <form id="task-form" class="stack-form" novalidate>
+            <p class="field-note">Новая задача начинает пустую рабочую память. Пользовательские записи долгосрочной памяти остаются доступны.</p>
+            <label for="task-name">Название задачи</label>
+            <input id="task-name" name="name" maxlength="80" placeholder="Например, Материал старого металла" required>
+            <label for="task-project">Проект <span class="optional-label">необязательно</span></label>
+            <input id="task-project" name="project" maxlength="80" placeholder="Например, Учебная сцена маяка">
+            <p class="field-note">Если оставить пустым, для задачи будут доступны только долгосрочные записи области user.</p>
+            <label for="task-mode">Режим первого диалога</label>
+            <select id="task-mode" name="mode">
+              <option value="sliding">Окно сообщений</option>
+              <option value="facts">Окно + факты диалога</option>
+              <option value="branching">Ветвление разговора</option>
+            </select>
+            <button id="create-task" class="secondary-button" type="submit">Создать задачу</button>
+          </form>
+        </details>
+
+        <div class="sidebar-note">
+          <span aria-hidden="true">i</span>
+          <p>Границы задач и диалогов меняете только вы. Автоматическое извлечение не создаёт их само.</p>
+        </div>
+      </aside>
+
+      <section class="conversation-panel panel" aria-labelledby="conversation-title">
+        <header class="conversation-header">
+          <div>
+            <p class="eyebrow">АКТИВНЫЙ ДИАЛОГ</p>
+            <h2 id="conversation-title">Разговор об арте</h2>
+          </div>
+          <div class="header-status">
+            <span id="agent-status" class="status-badge">Загрузка</span>
+            <span id="session-info" class="session-info">Локальная сессия</span>
+          </div>
+        </header>
+
+        <div id="conversation" class="conversation" tabindex="0" aria-label="История диалога">
+          <div id="chat-empty" class="empty-state">
+            <span class="empty-symbol" aria-hidden="true">◌</span>
+            <h3>Начните с конкретной задачи</h3>
+            <p>Например, спросите, как отделить форму от материала светом или почему roughness не даёт ожидаемого блика.</p>
+          </div>
+        </div>
+
+        <div id="waiting" class="waiting" role="status" aria-live="polite" hidden>
+          <span class="loader" aria-hidden="true"></span>
+          <span>Сначала распределяем память, затем готовим ответ…</span>
+        </div>
+
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+        <form id="ask-form" class="composer" novalidate>
+          <label class="sr-only" for="prompt">Вопрос помощнику</label>
+          <textarea id="prompt" name="prompt" maxlength="12000" placeholder="Спросите о свете, материалах, композиции, моделировании или арт-теории…" spellcheck="true" aria-describedby="composer-help token-preview"></textarea>
+          <div class="composer-options">
+            <fieldset class="memory-toggles">
+              <legend class="sr-only">Память для этого вопроса</legend>
+              <label class="switch-label" for="use-working">
+                <input id="use-working" type="checkbox" checked>
+                <span>Рабочая память</span>
+              </label>
+              <label class="switch-label" for="use-long-term">
+                <input id="use-long-term" type="checkbox" checked>
+                <span>Долговременная</span>
+              </label>
+            </fieldset>
+            <div class="composer-actions">
+              <span id="prompt-count">0 / 12 000</span>
+              <button id="preview-button" class="ghost-button" type="button">Состав запроса</button>
+              <button id="send" class="send-button" type="submit">Отправить <span aria-hidden="true">↗</span></button>
+            </div>
+          </div>
+          <p id="composer-help" class="composer-help">Переключатели действуют только на справочную память этого ответа. Настройки выбранного профиля передаются всегда; автоматическое извлечение реплики выполняется независимо.</p>
+          <div id="token-preview" class="token-preview" aria-live="polite" hidden></div>
+        </form>
+      </section>
+
+      <aside class="memory-panel panel" aria-labelledby="memory-title">
+        <div class="panel-heading memory-heading">
+          <div>
+            <p class="eyebrow">ЧТО ПОМНИТ АГЕНТ</p>
+            <h2 id="memory-title">Память</h2>
+          </div>
+          <span id="memory-count" class="count-badge">0</span>
+        </div>
+        <p class="panel-lead">Три слоя отделяют разговор от условий задачи и знаний, которые должны пережить диалог.</p>
+
+        <details class="memory-layer" open>
+          <summary>
+            <span><i class="layer-dot short-dot" aria-hidden="true"></i>Краткосрочная</span>
+            <small id="short-count">0</small>
+          </summary>
+          <p class="layer-help">Сообщения открытого диалога. Facts показаны только в режиме «Окно + факты».</p>
+          <div id="memory-short" class="layer-list"></div>
+        </details>
+
+        <details class="memory-layer" open>
+          <summary>
+            <span><i class="layer-dot working-dot" aria-hidden="true"></i>Рабочая</span>
+            <small id="working-count">0</small>
+          </summary>
+          <p class="layer-help">Условия текущей задачи. Доступны в новых диалогах этой задачи.</p>
+          <div id="memory-working" class="layer-list"></div>
+        </details>
+
+        <details class="memory-layer" open>
+          <summary>
+            <span><i class="layer-dot long-dot" aria-hidden="true"></i>Долговременная</span>
+            <small id="long-count">0</small>
+          </summary>
+          <p class="layer-help">Профиль, решения и знания пользователя или проекта.</p>
+          <div id="memory-long" class="layer-list"></div>
+        </details>
+
+        <details id="memory-editor" class="memory-editor">
+          <summary>Добавить или исправить запись</summary>
+          <form id="memory-form" class="stack-form" novalidate>
+            <input id="memory-edit-id" type="hidden">
+            <label for="memory-layer">Слой</label>
+            <select id="memory-layer" name="layer">
+              <option value="working">Рабочая память задачи</option>
+              <option value="long_term">Долговременная память</option>
+            </select>
+            <label for="memory-category">Категория</label>
+            <select id="memory-category" name="category"></select>
+            <label for="memory-scope">Область действия</label>
+            <select id="memory-scope" name="scope"></select>
+            <label for="memory-key">Ключ</label>
+            <input id="memory-key" name="key" maxlength="80" placeholder="lighting_goal" aria-describedby="memory-key-note" required>
+            <p id="memory-key-note" class="field-note">Ключ задаёт идентичность записи и не меняется при исправлении.</p>
+            <label for="memory-value">Значение</label>
+            <textarea id="memory-value" name="value" maxlength="1000" placeholder="Сохранённое условие или знание" required></textarea>
+            <label for="memory-reason">Почему это нужно помнить</label>
+            <textarea id="memory-reason" name="reason" maxlength="300" placeholder="Например: влияет на все следующие советы по свету" required></textarea>
+            <div class="form-actions">
+              <button id="memory-cancel" class="ghost-button" type="button" hidden>Отменить правку</button>
+              <button id="save-memory" class="secondary-button" type="submit">Сохранить и закрепить</button>
+            </div>
+          </form>
+        </details>
+        <p class="memory-footnote">Удаление исключает запись из будущего контекста. Её версии остаются в истории для трассировки прежних запросов.</p>
+      </aside>
+    </main>
+
+    <section class="observability panel" aria-labelledby="observability-title">
+      <div class="observability-header">
+        <div>
+          <p class="eyebrow">НАБЛЮДАЕМОСТЬ</p>
+          <h2 id="observability-title">Контекст и расходы</h2>
+        </div>
+        <p>Стоимость ответа относится к одному вызову. Сумма чата ниже включает все сохранённые вызовы, в том числе извлечение, facts и проверку этапа.</p>
+      </div>
+
+      <dl class="summary-grid">
+        <div><dt>Известная сумма чата</dt><dd id="chat-cost">—</dd></div>
+        <div><dt>Токены известных вызовов</dt><dd id="chat-tokens">—</dd></div>
+        <div><dt>API-вызовы</dt><dd id="chat-calls">—</dd></div>
+        <div><dt>Полнота стоимости</dt><dd id="cost-note">—</dd></div>
+      </dl>
+
+      <div class="observability-grid">
+        <section aria-labelledby="requests-title">
+          <div class="subheading">
+            <h3 id="requests-title">Журнал вызовов</h3>
+            <span id="request-count" class="count-badge">0</span>
+          </div>
+          <div id="request-list" class="request-list"></div>
+        </section>
+        <section id="trace-panel" class="trace-panel" aria-labelledby="trace-title">
+          <div class="subheading">
+            <h3 id="trace-title">Состав выбранного запроса</h3>
+            <span id="trace-status" class="mode-badge">Выберите вызов</span>
+          </div>
+          <div id="trace-content" class="trace-content">
+            <p class="empty-copy">Нажмите «Показать контекст» у вызова ответа, чтобы увидеть версии памяти и сообщения, вошедшие в запрос.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="branch-panel" class="branch-panel panel" aria-labelledby="branch-title" hidden>
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">РЕЖИМ ВЕТВЛЕНИЯ</p>
+          <h2 id="branch-title">Checkpoint и ветки</h2>
+        </div>
+        <span id="active-branch" class="mode-badge">Нет активной ветки</span>
+      </div>
+      <div class="branch-grid">
+        <form id="checkpoint-form" class="action-card" novalidate>
+          <span class="step">01</span>
+          <h3>Сохранить точку</h3>
+          <label for="checkpoint-name">Название checkpoint</label>
+          <input id="checkpoint-name" maxlength="80" placeholder="Перед сменой художественного решения" required>
+          <button id="create-checkpoint" class="secondary-button" type="submit">Сохранить</button>
+        </form>
+        <form id="branch-form" class="action-card" novalidate>
+          <span class="step">02</span>
+          <h3>Создать ветку</h3>
+          <label for="checkpoint-select">Из checkpoint</label>
+          <select id="checkpoint-select"></select>
+          <label for="branch-name">Название ветки</label>
+          <input id="branch-name" maxlength="80" placeholder="Холодный контровой свет" required>
+          <button id="create-branch" class="secondary-button" type="submit">Создать и открыть</button>
+        </form>
+        <form id="switch-form" class="action-card" novalidate>
+          <span class="step">03</span>
+          <h3>Переключить путь</h3>
+          <label for="branch-select">Сохранённая ветка</label>
+          <select id="branch-select"></select>
+          <button id="switch-branch" class="secondary-button" type="submit">Открыть ветку</button>
+        </form>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>День 13 · сохраняемое состояние графической задачи</span>
+      <span>Локальный пользователь · Responses API · SQLite</span>
+    </footer>
+  </div>
+</body>
+</html>
