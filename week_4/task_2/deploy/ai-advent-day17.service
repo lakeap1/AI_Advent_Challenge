@@ -1,0 +1,16 @@
+[Unit]
+Description=AI Advent day 17 graphics knowledge MCP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ai-advent-day17
+ExecStart=%h/ai-advent-day17/.venv/bin/python -m knowledge_server.server
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
