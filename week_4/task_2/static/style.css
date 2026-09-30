@@ -830,14 +830,6 @@ dd {
   margin-top:25px;
   padding-top:15px
 }
-.knowledge-controls {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:4px 20px
-}
-.knowledge-controls>div:nth-child(2),.knowledge-controls>div:nth-child(3) {
-  grid-column:1/-1
-}
 .knowledge-panel {
   margin-top:26px;
   border-top:1px solid var(--line);
@@ -1098,7 +1090,7 @@ dd {
   .dialog-content {
     padding:18px
   }
-  .branch-grid,.knowledge-controls {
+  .branch-grid {
     grid-template-columns:1fr
   }
   .profile-summary>div,.task-state-summary>div {

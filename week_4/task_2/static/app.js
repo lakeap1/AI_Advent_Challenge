@@ -60,11 +60,6 @@ const dom = {
   sessionInfo: $('#session-info'),
   askForm: $('#ask-form'),
   prompt: $('#prompt'),
-  knowledgeSources: $('#knowledge-sources'),
-  knowledgeQuery: $('#knowledge-query'),
-  knowledgeWikiQuery: $('#knowledge-wiki-query'),
-  knowledgeLanguage: $('#knowledge-language'),
-  knowledgeCommunity: $('#knowledge-community'),
   knowledgeResults: $('#knowledge-results'),
   knowledgeCount: $('#knowledge-count'),
   promptCount: $('#prompt-count'),
@@ -106,6 +101,7 @@ const modeNames = {
 
 const requestKinds = {
   answer: 'Ответ',
+  mcp_step: 'Шаг с источниками',
   validation: 'Проверка этапа',
   invariant_input: 'Проверка правил · вход',
   invariant_output: 'Проверка правил · ответ',
@@ -306,12 +302,6 @@ function syncControls() {
   dom.saveInvariants.disabled = !ready || !invariantIdentityValue || !invariantDirty || !invariantDraftState.valid;
   updateTaskStateHelp(taskState);
   dom.prompt.disabled = !ready || taskBlocked;
-  dom.knowledgeSources.disabled = !ready || taskBlocked;
-  const knowledgeOff = dom.knowledgeSources.value === 'off';
-  dom.knowledgeQuery.disabled = !ready || taskBlocked || knowledgeOff;
-  dom.knowledgeWikiQuery.disabled = !ready || taskBlocked || !['both', 'wikipedia'].includes(dom.knowledgeSources.value);
-  dom.knowledgeLanguage.disabled = !ready || taskBlocked || !['both', 'wikipedia'].includes(dom.knowledgeSources.value);
-  dom.knowledgeCommunity.disabled = !ready || taskBlocked || !['both', 'stackexchange'].includes(dom.knowledgeSources.value);
   $('#send').disabled = !ready || !dom.prompt.value.trim() || taskBlocked;
   dom.preview.disabled = !ready || !dom.prompt.value.trim() || taskBlocked;
   dom.checkpointName.disabled = !ready || done;
@@ -928,13 +918,13 @@ function renderKnowledge(records) {
   const list = Array.isArray(records) ? records : [];
   dom.knowledgeCount.textContent = String(list.length);
   const fragment = document.createDocumentFragment();
-  if (!list.length) fragment.append(element('p', 'empty-copy', 'Поиск ещё не выполнялся. Выберите источники перед отправкой вопроса.'));
+  if (!list.length) fragment.append(element('p', 'empty-copy', 'В этом диалоге поиск не выполнялся. Помощник обращается к источникам, когда они нужны для ответа.'));
   for (const record of [...list].reverse()) {
     const batch = element('article', 'knowledge-batch');
     const provider = record.provider === 'wikipedia' ? 'Wikipedia' : 'Stack Exchange';
     batch.append(element('h3', '', provider + ' · запрос #' + record.request_id + ' · ' + record.query));
     if (record.status === 'error') batch.append(element('p', 'notice error', record.error || 'Источник недоступен. Основной ответ не сгенерирован.'));
-    else if (!record.sources?.length) batch.append(element('p', 'empty-copy', 'Материалы не найдены. Попробуйте другую короткую тему.'));
+    else if (!record.sources?.length) batch.append(element('p', 'empty-copy', 'Поиск выполнен, но материалы не найдены.'));
     for (const source of record.sources ?? []) {
       const card = element('div', 'knowledge-card');
       const link = element('a', '', source.title || 'Открыть источник');
@@ -1200,20 +1190,11 @@ dom.askForm.addEventListener('submit', async event => {
   event.preventDefault();
   const prompt = dom.prompt.value.trim();
   if (!prompt) return;
-  const sourceChoice = dom.knowledgeSources.value;
-  const sources = sourceChoice === 'off' ? [] : sourceChoice === 'both' ? ['wikipedia', 'stackexchange'] : [sourceChoice];
-  if (sources.length && !dom.knowledgeQuery.value.trim()) {
-    window.openWorkspacePanel?.('sources');
-    setNotice('Введите короткую тему поиска в панели источников.', 'error');
-    dom.knowledgeQuery.focus();
-    return;
-  }
   const body = await mutation('/api/ask', {
     ...activeRequestIdentity(),
     prompt,
     use_working: true,
     use_long_term: true,
-    retrieval: {sources, query: dom.knowledgeQuery.value.trim(), wikipedia_query: dom.knowledgeWikiQuery.value.trim(), language: dom.knowledgeLanguage.value, community: dom.knowledgeCommunity.value},
   }, 'Агент работает', '', {scroll: true});
   if (body?.status === 'ok') {
     dom.prompt.value = '';
@@ -1264,7 +1245,6 @@ dom.toggleTaskPause.addEventListener('click', async () => {
 });
 
 dom.prompt.addEventListener('input', updatePromptCount);
-dom.knowledgeSources.addEventListener('change', syncControls);
 dom.preview.addEventListener('click', showPreview);
 dom.refresh.addEventListener('click', () => {
   if (!confirmDraftLoss('Обновление состояния')) return;

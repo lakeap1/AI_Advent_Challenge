@@ -83,15 +83,9 @@
     setText('context-preferences', preferences.join('\n'));
     const rules = state.invariants?.rules || [];
     setText('context-rules', rules.length ? 'Обязательных правил задачи: ' + rules.length : 'Особые правила задачи не заданы.');
-    const count = document.getElementById('knowledge-count').textContent;
-    setText('context-sources', count !== '0' ? 'Сохранённых результатов поиска: ' + count : 'Поиск ещё не выполнялся.');
-    updateSourceLabel();
+    const count = Array.isArray(state.retrievals) ? state.retrievals.length : 0;
+    setText('context-sources', count ? 'Сохранённых результатов поиска: ' + count : 'В этом диалоге поиск не выполнялся.');
   });
-  function updateSourceLabel() {
-    const select = document.getElementById('knowledge-sources');
-    setText('source-launch', 'Источники: ' + (select.selectedOptions[0]?.textContent || 'без поиска'));
-  }
-  document.getElementById('knowledge-sources').addEventListener('change', updateSourceLabel);
   document.getElementById('prompt').addEventListener('keydown', event => {
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
@@ -110,5 +104,4 @@
     shell.style.setProperty('--workspace-header-height', bottom + 'px');
   }).observe(document.querySelector('.hud'));
   syncLayout();
-  updateSourceLabel();
 })();

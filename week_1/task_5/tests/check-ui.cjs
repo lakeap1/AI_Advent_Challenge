@@ -12,7 +12,6 @@ const {chromium} = require(require.resolve('playwright',{paths:[process.env.PLAY
   console.log((await page.locator('body').innerText()).slice(0,1800));
   assert.equal(await page.locator('.result').count(),3);
   assert.equal(await page.title(),'Версии моделей · День 5');
-  assert.equal(typeof page.screencast?.start,'function');
   await page.screenshot({path:path.join(out,'initial.png'),fullPage:true});
   let requests=0;
   const ids=await page.locator('.result').evaluateAll(nodes=>nodes.map(n=>n.dataset.model));

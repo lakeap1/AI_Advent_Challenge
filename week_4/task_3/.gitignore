@@ -1,0 +1,11 @@
+data/
+.pytest-tmp/
+.pytest-*/
+pytest-digest/
+.test-tmp-*/
+
+# Publish the portable MCP client; keep local recording and diagnostics private.
+/scripts/*
+!/scripts/digest_client.py
+/deploy/autocollect-only.sh
+/tests/test_current_demo_viewer.cjs

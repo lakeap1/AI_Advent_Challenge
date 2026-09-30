@@ -17,7 +17,8 @@ from .task_state import StateMemoryStore, task_instructions
 from .invariants import InvariantMemoryStore, invariant_instructions
 from .task_protocol import response_contract
 from .task_validation import validation_input, parse_validation
-from .retrieval import MCPRetrievalClient, RetrievalError, normalize_result, reference_messages, validate_request
+from .retrieval import MCPRetrievalClient
+from . import tool_loop
 
 
 class Transport(Protocol):
@@ -125,29 +126,6 @@ class Agent:
         self._validation_output_policy = {'completed_text': completed_text}[config.validation_output_policy]
         self._memory_store, self._task_id, self._dialogue_id = memory_store, task_id, dialogue_id
         self._retrieval_client = retrieval_client if retrieval_client is not None else MCPRetrievalClient()
-
-    def _retrieve(self, selection, request_id):
-        if selection is None:
-            return None, None
-        records = []
-        for provider in selection['sources']:
-            actual_query = (selection.get('wikipedia_query', selection['query'])
-                            if provider == 'wikipedia' else selection['query'])
-            try:
-                raw = self._retrieval_client.fetch(provider, actual_query,
-                                                   selection['language'], selection['community'])
-                found = normalize_result(raw, provider, actual_query)
-                row = dict(**found, status='ok' if found['sources'] else 'empty', error='')
-            except Exception:
-                row = dict(provider=provider, query=actual_query, status='error',
-                           sources=[], metadata={}, error='Не удалось получить выбранный источник. Проверьте MCP-сервис и подключение.')
-                self._store.save_retrieval(request_id, row)
-                records.append(row)
-                return dict(status='error', records=records), row['error']
-            self._store.save_retrieval(request_id, row)
-            records.append(row)
-        return dict(status='ok' if any(row['status'] == 'ok' for row in records) else 'empty',
-                    records=records), None
 
     def _metadata(self, response=None):
         actual = response if isinstance(response, dict) else {}
@@ -390,7 +368,7 @@ class Agent:
         self._store.finish(rid, self._record(result, meta))
         return result, receipt
 
-    def run(self, prompt, *, use_working=True, use_long_term=True, retrieval=None):
+    def run(self, prompt, *, use_working=True, use_long_term=True):
         with self._lock:
             blocked = self._task_blocked()
             if blocked:
@@ -406,31 +384,18 @@ class Agent:
                 result = replace(accepted, input_policy={**ip, 'status': 'rejected'}, output_policy=op)
                 rid = self._store.begin(self._record(result, meta))
                 return replace(result, request_id=rid)
-            try:
-                selection = validate_request(retrieval)
-            except ValueError as exc:
-                result = AgentResult('rejected', str(exc), 'retrieval_invalid', input_policy=ip, output_policy=op)
-                rid = self._store.begin(self._record(result, meta))
-                return replace(result, request_id=rid)
             if self._task_state() is not None:
                 from .guarded import run_guarded
-                return run_guarded(self, accepted, use_working, use_long_term, selection)
+                return run_guarded(self, accepted, use_working, use_long_term)
             meta['token_metrics'] = self.preview(accepted, use_working=use_working, use_long_term=use_long_term)['token_metrics']
             pending = AgentResult('error', 'Ожидается результат.', usage_status='unavailable', input_policy=ip, output_policy=op)
             record = self._record(pending, meta); record['status'] = 'pending'
             rid = self._store.begin(record, accepted)
-            retrieved, retrieval_error = self._retrieve(selection, rid)
-            if retrieval_error:
-                result = AgentResult('error', retrieval_error + ' Основной запрос не отправлен.',
-                                     'retrieval_failed', request_id=rid, input_policy=ip,
-                                     output_policy=op, retrieval=retrieved)
-                self._store.finish(rid, self._record(result, meta))
-                return result
             if self._memory_store is not None:
                 extracted = self._extract(accepted, rid)
                 if extracted.status != 'ok':
                     result = AgentResult('error', extracted.text + ' Основной запрос не отправлен.',
-                        'extraction_failed', request_id=rid, input_policy=ip, output_policy=op, retrieval=retrieved)
+                        'extraction_failed', request_id=rid, input_policy=ip, output_policy=op)
                     meta['extraction_error'] = extracted.code
                     self._store.finish(rid, self._record(result, meta))
                     return result
@@ -438,14 +403,12 @@ class Agent:
                 updated = self._update_facts(accepted, rid)
                 if updated.status != 'ok':
                     result = AgentResult('error', 'Не удалось обновить facts: ' + updated.text + ' Основной запрос не отправлен.',
-                        'facts_failed', request_id=rid, input_policy=ip, output_policy=op, retrieval=retrieved)
+                        'facts_failed', request_id=rid, input_policy=ip, output_policy=op)
                     meta['facts_error'] = updated.code
                     self._store.finish(rid, self._record(result, meta))
                     return result
             history = self._store.state()['messages']
             context = self._context_messages(history, use_working, use_long_term)
-            if retrieved is not None:
-                context[-1:-1] = reference_messages(retrieved['records'])
             meta['context'] = dict(sent_message_ids=[m['id'] for m in self._selected(history)],
                 task_state=self._task_state(),
                 sent_messages=len(context), facts_revision=self._store.memory()['revisions'],
@@ -459,6 +422,7 @@ class Agent:
                     selection=dict(working=use_working, long_term=use_long_term), task_id=self._task_id,
                     dialogue_id=self._dialogue_id)
             self._store.pending_metadata(rid, meta)
-            result = replace(self._invoke(self._payload(context), meta, ip, op), request_id=rid, retrieval=retrieved)
+            result = tool_loop.run(self, context, rid, meta, ip, op)
+            self._store.pending_result(rid, self._record(result, meta))
             self._store.finish(rid, self._record(result, meta), result.text if result.status == 'ok' else None)
             return result

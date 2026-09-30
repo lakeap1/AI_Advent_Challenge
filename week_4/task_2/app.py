@@ -89,7 +89,7 @@ def create_app(agent=None, *, data_dir=None, transport=None):
         check_task(data)
         options = flags(data)
         if 'retrieval' in data:
-            options['retrieval'] = data['retrieval']
+            raise ValueError('Поиск выполняется автоматически. Обновите страницу и отправьте вопрос без настроек источников.')
         result = worker().run(data.get('prompt'), **options)
         return jsonify(**asdict(result), state=snapshot()), (200 if result.status == 'ok' else 400 if result.status == 'rejected' else 502)
 

@@ -1,0 +1,6 @@
+data/
+.pytest-tmp/
+.pytest-*/
+pytest-digest/
+scripts/record-demo.cjs
+scripts/quality-capture.cjs

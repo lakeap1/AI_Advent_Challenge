@@ -41,7 +41,7 @@
 
         <div id="waiting" class="waiting" role="status" aria-live="polite" hidden>
           <span class="loader" aria-hidden="true"></span>
-          <span>Проверяем запрос, ищем материалы и готовим ответ…</span>
+          <span>Проверяем запрос и при необходимости ищем материалы…</span>
         </div>
 
         <div id="notice" class="notice" role="status" aria-live="polite"></div>
@@ -50,7 +50,7 @@
           <label class="sr-only" for="prompt">Вопрос помощнику</label>
           <textarea id="prompt" name="prompt" maxlength="12000" placeholder="Спросите о normal mapping, PBR, освещении или других принципах игровой графики…" spellcheck="true" aria-describedby="composer-help token-preview"></textarea>
           <div class="composer-options">
-<button class="source-launch" type="button" data-panel="sources" id="source-launch">Источники: без поиска</button>
+<button class="source-launch" type="button" data-panel="sources" id="source-launch">Источники ответа</button>
             <div class="composer-actions">
               <span id="prompt-count">0 / 12 000</span>
               <button id="preview-button" class="ghost-button" type="button">Состав запроса</button>
@@ -274,18 +274,12 @@
       </div>
     </section>
 </div>
-<div data-workspace-panel="sources" hidden>          <div class="knowledge-controls">
-            <div><label for="knowledge-sources">Источники для ответа</label><select id="knowledge-sources"><option value="off">Без поиска</option><option value="both">Wikipedia + Stack Exchange</option><option value="wikipedia">Wikipedia</option><option value="stackexchange">Stack Exchange</option></select></div>
-            <div><label for="knowledge-query">Тема поиска</label><input id="knowledge-query" maxlength="256" placeholder="normal map baking seams" aria-describedby="knowledge-help"></div>
-            <div><label for="knowledge-wiki-query">Тема Wikipedia (необязательно)</label><input id="knowledge-wiki-query" maxlength="256" placeholder="normal mapping — иначе общая тема"></div>
-            <div><label for="knowledge-language">Язык Wikipedia</label><select id="knowledge-language"><option value="en">English</option><option value="ru">Русский</option></select></div>
-            <div><label for="knowledge-community">Сообщество</label><select id="knowledge-community"><option value="blender">Blender</option><option value="computergraphics">Computer Graphics</option><option value="gamedev">Game Development</option></select></div>
-          </div>
-          <p id="knowledge-help" class="field-note">Для форума задайте конкретную проблему, для Wikipedia можно указать более общее понятие. Английская тема обычно лучше подходит для Stack Exchange. Вопрос помощнику можно задать по-русски.</p>
+<div data-workspace-panel="sources" hidden>
+      <p class="field-note">Помощник сам решает, нужны ли внешние материалы, и выбирает поиск по Wikipedia или Stack Exchange. Если поиск не нужен, ответ появится без источников.</p>
     <section class="panel knowledge-panel" aria-labelledby="knowledge-title">
       <div class="panel-heading"><div><p class="eyebrow">МАТЕРИАЛЫ ТЕКУЩЕГО ДИАЛОГА</p><h2 id="knowledge-title">Источники ответов</h2></div><span id="knowledge-count" class="count-badge">0</span></div>
       <p class="field-note">Проверьте дату и применимость советов к вашей версии программы. Внешний текст используется как справка; ссылки позволяют проверить оригинал.</p>
-      <div id="knowledge-results" aria-live="polite"><p class="empty-copy">Поиск ещё не выполнялся.</p></div>
+      <div id="knowledge-results" aria-live="polite"><p class="empty-copy">В этом диалоге поиск не выполнялся.</p></div>
     </section>
 
 </div>
@@ -295,7 +289,7 @@
           <p class="eyebrow">НАБЛЮДАЕМОСТЬ</p>
           <h2 id="observability-title">Контекст и расходы</h2>
         </div>
-        <p>Сумма чата включает все сохранённые вызовы: ответ, проверку этапа, извлечение, facts и до двух модельных проверок при активных правилах. Расход каждой проверки этапа показан отдельной записью журнала.</p>
+        <p>Сумма чата включает все сохранённые вызовы: шаги выбора и использования источников, ответ, проверку этапа, извлечение, facts и до двух модельных проверок при активных правилах. Расход каждого вызова показан отдельной записью журнала.</p>
       </div>
 
       <dl class="summary-grid">

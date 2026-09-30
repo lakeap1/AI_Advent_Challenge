@@ -1,0 +1,18 @@
+[Unit]
+Description=AI Advent day 18 scheduled graphics digest MCP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ai-advent-day18
+Environment=DIGEST_DATA_DIR=%h/ai-advent-day18/data/digest
+ExecStart=%h/ai-advent-day18/.venv/bin/python -m digest_server.server
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target

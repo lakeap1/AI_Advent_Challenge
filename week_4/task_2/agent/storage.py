@@ -139,6 +139,34 @@ class SQLiteStore:
         with self._transaction() as connection:
             connection.execute("UPDATE requests SET usage_status='unavailable' WHERE id=? AND status='pending'", (request_id,))
 
+    def record_tool_step(self, parent_id, record, child_id=None):
+        """Charge a tool-selection response once and clear the parent's pending usage."""
+        with self._transaction() as connection:
+            if child_id is None:
+                connection.execute('''INSERT INTO requests
+                    (status,text,code,usage,cost_usd,usage_status,input_policy,output_policy,metadata)
+                    VALUES (?,?,?,?,?,?,?,?,?)''', self._values(record))
+            else:
+                cursor = connection.execute('''UPDATE requests SET
+                    status=?,text=?,code=?,usage=?,cost_usd=?,usage_status=?,input_policy=?,output_policy=?,metadata=?
+                    WHERE id=? AND status='pending' ''', (*self._values(record), child_id))
+                if cursor.rowcount != 1:
+                    raise StorageError('Ожидающий шаг модели отсутствует.')
+            connection.execute("UPDATE requests SET usage=NULL,cost_usd=NULL,usage_status='not_requested' WHERE id=? AND status='pending'", (parent_id,))
+
+    def promote_final_step(self, parent_id, child_id, record):
+        """Transfer final usage to the answer and remove its temporary step atomically."""
+        with self._transaction() as connection:
+            cursor = connection.execute('''UPDATE requests SET
+                usage=?,cost_usd=?,usage_status=?,metadata=? WHERE id=? AND status='pending' ''',
+                (json.dumps(record['usage']) if record['usage'] is not None else None,
+                 record['cost_usd'], record['usage_status'], json.dumps(record['metadata'], ensure_ascii=False), parent_id))
+            if cursor.rowcount != 1:
+                raise StorageError('Ожидающий ответ отсутствует.')
+            cursor = connection.execute("DELETE FROM requests WHERE id=? AND status='pending'", (child_id,))
+            if cursor.rowcount != 1:
+                raise StorageError('Ожидающий шаг модели отсутствует.')
+
     def extraction_committed(self, request_id, metadata):
         """Добавить ссылки после принятия отложенных операций памяти."""
         with self._transaction() as connection:
