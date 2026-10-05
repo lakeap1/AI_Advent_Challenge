@@ -65,10 +65,11 @@ demo/
 /week_5/task_2/data/
 /week_5/task_3/data/
 /week_5/task_4/data/
+/week_5/task_5/data/
 
 # Local recording tools; browser checks remain available.
-/week_5/task_[1-4]/scripts/record*.cjs
-/week_5/task_[1-4]/scripts/quality-capture.cjs
-/week_5/task_4/tests/quality-capture.test.cjs
-/week_5/task_4/scripts/check-chat-evaluation-browser.cjs
-/week_5/task_4/scripts/check-rag-browser.cjs
+/week_5/task_[1-5]/scripts/record*.cjs
+/week_5/task_[1-5]/scripts/quality-capture.cjs
+/week_5/task_[4-5]/tests/quality-capture.test.cjs
+/week_5/task_[4-5]/scripts/check-chat-evaluation-browser.cjs
+/week_5/task_[4-5]/scripts/check-rag-browser.cjs

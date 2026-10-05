@@ -1,0 +1,61 @@
+.chat-evaluation-view {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--bg);
+}
+.chat-evaluation-view .topbar { position: sticky; top: 0; z-index: 2; background: var(--surface); }
+.chat-evaluation-content { max-width: 1800px; margin: auto; padding: 22px clamp(16px, 2.5vw, 40px) 48px; }
+.chat-evaluation-run { display: grid; gap: 18px; min-width: 0; }
+.chat-evaluation-toolbar, .chat-evaluation-run-controls, .chat-evaluation-pickers {
+  display: flex; align-items: end; flex-wrap: wrap; gap: 14px;
+}
+.chat-evaluation-run-controls label, .chat-evaluation-pickers label {
+  display: grid; gap: 6px; min-width: min(100%, 300px); font-size: 13px;
+}
+.chat-evaluation-run select, .chat-evaluation-run textarea {
+  width: 100%; min-width: 0; padding: 10px; color: inherit;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+}
+.chat-evaluation-pickers label:first-child { flex: 1; min-width: min(100%, 400px); }
+.chat-evaluation-mobile-picker { display: none !important; }
+.chat-evaluation-lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-height: 0; align-items: start; }
+.chat-evaluation-lane { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: min(55dvh, 560px); max-height: min(55dvh, 560px); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); }
+.chat-evaluation-lane h3 { margin: 0; padding: 13px 18px; font-size: 17px; border-bottom: 1px solid var(--line); }
+.chat-evaluation-lane[data-mode="rag"] h3 { border-left: 4px solid #72b6a7; }
+.chat-evaluation-lane[data-mode="filter"] h3 { border-left: 4px solid #d69c58; }
+.chat-evaluation-feed { flex: 1; min-height: 0; overflow: auto; padding: 18px; scroll-behavior: smooth; }
+.chat-evaluation-answer { padding: 16px; margin: 0 0 16px; border: 1px solid var(--line); border-radius: 12px; overflow-wrap: anywhere; background: rgba(255,255,255,.035); }
+.chat-evaluation-answer.is-selected { border-color: #d69c58; }
+.chat-evaluation-question-label { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
+.chat-evaluation-answer-text { white-space: pre-wrap; line-height: 1.68; }
+.chat-evaluation-status { color: var(--amber); }
+.chat-evaluation-sources { margin-top: 18px; }
+.chat-evaluation-sources h4 { font-size: 14px; margin-bottom: 10px; }
+.chat-evaluation-source { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; }
+.chat-evaluation-source summary { cursor: pointer; padding: 10px; overflow-wrap: anywhere; }
+.chat-evaluation-verbatim { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.5; padding: 0 12px 12px; }
+.chat-evaluation-composer { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.chat-evaluation-composer label { grid-column: 1 / -1; }
+.chat-evaluation-composer textarea { min-height: 78px; resize: vertical; }
+.chat-evaluation-composer p { grid-column: 1 / -1; margin: 0; }
+.chat-evaluation-report { border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; background: var(--surface); }
+.chat-evaluation-report > summary, .chat-evaluation-assessment > summary { cursor: pointer; font-weight: 600; }
+.chat-evaluation-report-body { padding-top: 14px; }
+.chat-evaluation-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.chat-evaluation-totals > div { border: 1px solid var(--line); padding: 9px; border-radius: 8px; }
+.chat-evaluation-totals dt { color: var(--muted); font-size: 12px; }
+.chat-evaluation-totals dd { margin: 5px 0 0; overflow-wrap: anywhere; }
+.chat-evaluation-mode-summary, .chat-evaluation-assessment { border-top: 1px solid var(--line); padding: 12px 0; }
+.chat-evaluation-verdict { padding: 8px 0; }
+.chat-evaluation-legacy, .chat-evaluation-pending { padding: 12px 16px; border-left: 3px solid var(--amber); background: rgba(214,156,88,.1); }
+.chat-evaluation-run :is(button, select, textarea, summary, .chat-evaluation-feed):focus-visible { outline: 3px solid #f4c378; outline-offset: 2px; }
+@media (max-width: 760px) {
+  .chat-evaluation-content { padding: 12px; }
+  .chat-evaluation-mobile-picker { display: grid !important; }
+  .chat-evaluation-lanes { display: block; }
+  .chat-evaluation-lane.mobile-inactive { display: none; }
+  .chat-evaluation-lane { height: min(53dvh, 500px); max-height: min(53dvh, 500px); }
+  .chat-evaluation-composer { grid-template-columns: 1fr; }
+}

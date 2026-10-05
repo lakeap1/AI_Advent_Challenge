@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "source": "Blender Manual 4.4, fixed before live evaluation",
+  "scenarios": [
+    {
+      "id": "normal_map",
+      "title": "Normal map и запекание в Blender 4.4",
+      "dialogue_kind": "ordinary",
+      "turns": [
+        {
+          "number": 1,
+          "prompt": "Хочу разобраться с normal map в Blender 4.4 для низкополигонального объекта. Моя цель — добавить видимые мелкие детали, не меняя геометрию. Объясни, что делает узел Normal Map.",
+          "supporting_facts": [
+            "RGB карта изменяет нормаль",
+            "Геометрия не меняется"
+          ],
+          "expected_state": {
+            "goal_contains": "детал",
+            "constraints_present": [
+              "геометр"
+            ],
+            "constraints_absent": [],
+            "terms_present": []
+          }
+        },
+        {
+          "number": 2,
+          "prompt": "Почему изображение такой карты надо помечать Non-Color?",
+          "supporting_facts": [
+            "Данные normal map не должны проходить цветовое преобразование"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 3,
+          "prompt": "Для этой задачи фиксирую UV-развёртку с именем UVMap. Что указать в поле UV Map узла и какие координаты подавать на Image Texture?",
+          "supporting_facts": [
+            "Имя UV-карты в узле и координаты текстуры должны совпадать"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "UVMap"
+            ]
+          }
+        },
+        {
+          "number": 4,
+          "prompt": "Карта у меня в tangent space. Почему это пространство подходит для объекта с трансформациями или деформацией?",
+          "supporting_facts": [
+            "Tangent space поддерживает преобразования и деформации"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 5,
+          "prompt": "Хочу запечь normal map в Cycles. Как выбрать изображение, которое станет целью запекания?",
+          "supporting_facts": [
+            "Активный Image Texture с изображением задаёт цель"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 6,
+          "prompt": "Как согласовать пространство нормалей при запекании и в узле материала?",
+          "supporting_facts": [
+            "Пространства bake и Normal Map должны совпадать"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 7,
+          "prompt": "Для чего нужен Margin вокруг UV-островов и как он связан с фильтрацией текстуры?",
+          "supporting_facts": [
+            "Margin предотвращает разрывы на UV-швах при фильтрации и mipmaps"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 8,
+          "prompt": "Что меняется в Selected to Active и когда нужны Cage или Max Ray Distance?",
+          "supporting_facts": [
+            "Лучи идут от low-poly к high-poly",
+            "Max Ray Distance без Cage"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 9,
+          "prompt": "В этом разговоре под «рельефом» я понимаю эффект normal map на нормали, без изменения поверхности. Как её выход подключить к BSDF?",
+          "supporting_facts": [
+            "Выход Normal можно подключить к BSDF"
+          ],
+          "expected_state": {
+            "terms_present": [
+              "рельеф"
+            ]
+          }
+        },
+        {
+          "number": 10,
+          "prompt": "Сначала я планировал Strength 1, но теперь фиксирую Strength 0.5. Что контролирует этот параметр?",
+          "supporting_facts": [
+            "Strength управляет силой normal mapping"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "0.5"
+            ],
+            "constraints_absent": [
+              "Strength 1"
+            ]
+          }
+        },
+        {
+          "number": 11,
+          "prompt": "А если уменьшить его до нуля, что будет с эффектом? Это пока вопрос, не новое зафиксированное значение.",
+          "supporting_facts": [
+            "Strength 0 выключает вклад эффекта"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "0.5"
+            ],
+            "constraints_absent": [
+              "Strength 0"
+            ]
+          }
+        },
+        {
+          "number": 12,
+          "prompt": "Вернись к моей исходной цели: объясни проверку подключения карты с учётом зафиксированных UV и Strength, чтобы сохранить геометрию.",
+          "supporting_facts": [
+            "Normal Map получает Non-Color изображение с совпадающими UV",
+            "Normal подключён к BSDF",
+            "Strength управляет силой эффекта"
+          ],
+          "expected_state": {
+            "goal_contains": "детал",
+            "constraints_present": [
+              "геометр",
+              "UVMap",
+              "0.5"
+            ],
+            "constraints_absent": [
+              "Strength 1"
+            ],
+            "terms_present": [
+              "рельеф"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "studio_lights",
+      "title": "Студийный свет и управление цветом в Blender 4.4",
+      "dialogue_kind": "ordinary",
+      "turns": [
+        {
+          "number": 1,
+          "prompt": "Хочу понять настройки студийного освещения объекта в Blender 4.4. Моя цель — мягкие тени при неизменной геометрии. Пока разрешены только два источника Area. Как работает Area Light?",
+          "supporting_facts": [
+            "Area Light имитирует поверхностный излучатель",
+            "Граница тени мягкая"
+          ],
+          "expected_state": {
+            "goal_contains": "мягк",
+            "constraints_present": [
+              "геометр",
+              "два"
+            ],
+            "constraints_absent": [],
+            "terms_present": []
+          }
+        },
+        {
+          "number": 2,
+          "prompt": "Какие формы доступны у этого источника?",
+          "supporting_facts": [
+            "Rectangle, Square, Disk, Ellipse"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 3,
+          "prompt": "Для прямоугольного варианта что задают Size X и Size Y?",
+          "supporting_facts": [
+            "X и Y определяют размеры Rectangle"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 4,
+          "prompt": "В каких единицах задаётся Power и почему это не электрическая мощность лампочки?",
+          "supporting_facts": [
+            "Power — лучистый поток в ваттах"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 5,
+          "prompt": "Чем размер источника отличается от его Power по назначению?",
+          "supporting_facts": [
+            "Size задаёт геометрию",
+            "Power задаёт мощность излучения"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 6,
+          "prompt": "В этом разговоре «мягкий край» означает край тени, а не край светового конуса. Почему увеличение Spot Blend не решает ту же задачу?",
+          "supporting_facts": [
+            "Spot Blend меняет край конуса, не мягкость тени"
+          ],
+          "expected_state": {
+            "terms_present": [
+              "мягкий край"
+            ]
+          }
+        },
+        {
+          "number": 7,
+          "prompt": "Для просмотра фиксирую AgX. Чем он отличается от Standard и почему Filmic считается устаревшим?",
+          "supporting_facts": [
+            "Standard ограничивается преобразованием для дисплея",
+            "AgX tone mapping",
+            "Filmic deprecated"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "AgX"
+            ]
+          }
+        },
+        {
+          "number": 8,
+          "prompt": "Для этой задачи фиксирую Exposure +1. Как этот параметр меняет значения изображения и когда применяется?",
+          "supporting_facts": [
+            "Exposure до цветового преобразования",
+            "Каждая ступень умножает на два"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "+1"
+            ]
+          }
+        },
+        {
+          "number": 9,
+          "prompt": "Чем Gamma отличается от Exposure по месту применения преобразования?",
+          "supporting_facts": [
+            "Gamma после цветового преобразования",
+            "Exposure до него"
+          ],
+          "expected_state": {}
+        },
+        {
+          "number": 10,
+          "prompt": "Исправляю условие: теперь разрешены три источника Area вместо двух. Напомни, какие параметры каждого источника отвечают за форму и размеры.",
+          "supporting_facts": [
+            "Area Shape и Size/X/Y задают геометрию"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "три"
+            ],
+            "constraints_absent": [
+              "два"
+            ]
+          }
+        },
+        {
+          "number": 11,
+          "prompt": "А если поднять Exposure ещё на одну ступень, как изменятся значения? Это пока вопрос, не новое зафиксированное значение.",
+          "supporting_facts": [
+            "Дополнительная ступень умножит линейные значения на два"
+          ],
+          "expected_state": {
+            "constraints_present": [
+              "+1"
+            ],
+            "constraints_absent": [
+              "+2"
+            ]
+          }
+        },
+        {
+          "number": 12,
+          "prompt": "Вернись к исходной цели и объясни, что проверять в свете и просмотре с учётом текущего числа источников, AgX и зафиксированной экспозиции.",
+          "supporting_facts": [
+            "Area размер влияет на мягкость тени",
+            "AgX tone mapping",
+            "Exposure +1 удваивает значения до конвертации"
+          ],
+          "expected_state": {
+            "goal_contains": "мягк",
+            "constraints_present": [
+              "геометр",
+              "три",
+              "AgX",
+              "+1"
+            ],
+            "constraints_absent": [
+              "два",
+              "+2"
+            ],
+            "terms_present": [
+              "мягкий край"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
