@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Теория графики · RAG</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='rag.css') }}">
+  <script src="{{ url_for('static', filename='rag.js') }}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#question">К вопросу</a>
+<div class="rag-shell">
+  <header class="rag-top"><div><p class="eyebrow">КОМПЬЮТЕРНАЯ ГРАФИКА · ДЕНЬ 22</p><h1>Ответы с поиском по базе</h1></div><nav aria-label="Другие разделы"><a href="/">Чат</a><a href="/indexing">Индексация</a></nav></header>
+  <p class="intro">Помощник отвечает на вопросы о графике и устройстве проекта. Текущая база поиска — README и код помощника, сохранённые после дня 21; она не охватывает всю теорию графики. Режимы используют одну модель и чистый вопрос без истории.</p>
+  <section class="card composer-card" aria-labelledby="ask-title">
+    <h2 id="ask-title">Задать вопрос</h2>
+    <form id="rag-form">
+      <label for="question">Вопрос</label>
+      <textarea id="question" maxlength="4000" rows="4" placeholder="Какие MCP-серверы участвуют в исследовании нескольких источников?"></textarea>
+      <div class="controls"><label for="mode">Режим</label><select id="mode"><option value="rag">С поиском по базе</option><option value="plain">Без поиска</option></select><button id="ask" type="submit">Получить ответ</button><button id="compare" type="button">Сравнить оба режима</button></div>
+    </form>
+    <p class="hint">Сравнение выполняет два отдельных запроса. При ошибке или отказе следующая стадия прекращается; уже понесённый расход сохраняется.</p>
+    <p id="status" role="status" aria-live="polite">Загрузка сохранённой сессии…</p><p id="error" role="alert" hidden></p>
+  </section>
+  <section class="card" aria-labelledby="results-title"><h2 id="results-title">Последние ответы</h2><p id="result-question" class="muted">Пока нет запроса.</p><div class="answer-grid"><article class="answer-card" aria-labelledby="plain-title"><h3 id="plain-title">Без поиска</h3><div id="plain-result"></div></article><article class="answer-card" aria-labelledby="rag-title"><h3 id="rag-title">С поиском по базе</h3><div id="rag-result"></div></article></div></section>
+  <section class="card" aria-labelledby="ledger-title"><h2 id="ledger-title">Расходы этой сессии</h2><p id="cumulative">Загрузка…</p><p class="hint">Неизвестная стоимость не считается нулём. Стоимость построения индекса хранится отдельно от этой сессии.</p><div class="table-wrap"><table><thead><tr><th>Режим / этап</th><th>Статус и policy</th><th>API</th><th>Input / cached</th><th>Output / reasoning</th><th>Total</th><th>USD</th><th>Секунды</th></tr></thead><tbody id="ledger-body"></tbody></table></div><p id="ledger-empty" class="muted">Нет запросов.</p></section>
+  <section class="card" aria-labelledby="questions-title"><div class="section-head"><h2 id="questions-title">10 контрольных вопросов</h2><button id="refresh-evaluation" type="button">Обновить оценку</button></div><p class="muted">Ожидаемые факты и источники зафиксированы до генерации. Нажатие на вопрос только подставляет его в поле; эталон не отправляется модели.</p><div id="questions" class="question-list"></div></section>
+  <section class="card" aria-labelledby="evaluation-title"><h2 id="evaluation-title">Сохранённое сравнение качества</h2><p id="evaluation-status" role="status" aria-live="polite">Загрузка…</p><p id="evaluation-summary"></p><p class="hint">Совпадение имени файла — только proxy поиска, не проверка смысла. Содержательную оценку выполняет независимый агент по фактам и точным фрагментам; одна выборка не доказывает общее качество.</p><div class="table-wrap"><table><thead><tr><th>Вопрос</th><th>Без поиска</th><th>С поиском</th><th>Поиск источников</th></tr></thead><tbody id="evaluation-body"></tbody></table></div></section>
+</div>
+</body>
+</html>

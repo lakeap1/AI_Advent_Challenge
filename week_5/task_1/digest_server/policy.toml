@@ -1,0 +1,9 @@
+[input_policy]
+sources = ["blender", "computergraphics", "graphicdesign"]
+window_hours = 24
+
+[output_policy]
+max_questions_per_source = 100
+max_title_length = 240
+max_tags_per_question = 20
+max_excerpt_length = 500

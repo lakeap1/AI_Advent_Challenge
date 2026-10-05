@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Теория графики · RAG</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='rag.css') }}">
+  <script src="{{ url_for('static', filename='rag.js') }}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#question">К вопросу</a>
+<div class="rag-shell">
+  <header class="rag-top"><div><p class="eyebrow">КОМПЬЮТЕРНАЯ ГРАФИКА · ДЕНЬ 23</p><h1>Сравнение поиска по базе</h1></div><nav aria-label="Другие разделы"><a href="/">Чат</a><a href="/indexing">Индексация</a></nav></header>
+  <p class="intro">Помощник ищет в сохранённой базе README и кода проекта. Четыре режима используют один вопрос и индекс: обычный поиск, переписывание поискового запроса, дополнительный отбор и оба этапа вместе. База не охватывает всю теорию графики.</p>
+  <section class="card composer-card" aria-labelledby="ask-title">
+    <h2 id="ask-title">Задать вопрос</h2>
+    <form id="rag-form"><label for="question">Вопрос</label><textarea id="question" maxlength="4000" rows="4" placeholder="Какие ограничения есть у поиска по базе?"></textarea>
+      <div class="controls"><label for="mode">Режим</label><select id="mode"><option value="rag">Без rewrite и фильтра</option><option value="rewrite">Только rewrite</option><option value="filter">Только фильтр</option><option value="rewrite_filter">Rewrite + фильтр</option><option value="plain">Без поиска</option></select><button id="ask" type="submit">Получить ответ</button><button id="compare" type="button">Сравнить четыре режима</button></div>
+    </form>
+    <p class="hint">Сравнение выполняет до четырёх отдельных запросов. Ошибка или отказ останавливает следующие режимы; отсутствие подходящего контекста показывается отдельно.</p>
+    <p id="status" role="status" aria-live="polite">Загрузка сохранённой сессии…</p><p id="error" role="alert" hidden></p>
+  </section>
+  <section class="card" aria-labelledby="settings-title"><h2 id="settings-title">Параметры поиска</h2><p id="rag-config">Загрузка…</p><p class="hint">Оценка релевантности — целое число от 0 до 3, не вероятность. Лимит контекста измеряется в UTF-8 байтах как верхняя граница числа токенов.</p></section>
+  <section class="card" aria-labelledby="results-title"><h2 id="results-title">Последние ответы</h2><p id="result-question" class="muted">Пока нет запроса.</p><div class="answer-grid">
+    <article class="answer-card" aria-labelledby="rag-title"><h3 id="rag-title">Без rewrite и фильтра</h3><div id="rag-result"></div></article>
+    <article class="answer-card" aria-labelledby="rewrite-title"><h3 id="rewrite-title">Только rewrite</h3><div id="rewrite-result"></div></article>
+    <article class="answer-card" aria-labelledby="filter-title"><h3 id="filter-title">Только фильтр</h3><div id="filter-result"></div></article>
+    <article class="answer-card" aria-labelledby="rewrite-filter-title"><h3 id="rewrite-filter-title">Rewrite + фильтр</h3><div id="rewrite_filter-result"></div></article>
+  </div><details class="plain-disclosure"><summary>Отдельный ответ без поиска</summary><div id="plain-result"></div></details></section>
+  <section class="card" aria-labelledby="ledger-title"><h2 id="ledger-title">Расходы этой сессии</h2><p id="cumulative">Загрузка…</p><p class="hint">Неизвестная стоимость не считается нулём. Стоимость построения индекса хранится отдельно от этой сессии.</p><div class="table-wrap"><table><thead><tr><th>Режим / этап</th><th>Статус и policy</th><th>API</th><th>Input / cached</th><th>Output / reasoning</th><th>Total</th><th>USD</th><th>Секунды</th></tr></thead><tbody id="ledger-body"></tbody></table></div><p id="ledger-empty" class="muted">Нет запросов.</p></section>
+  <section class="card" aria-labelledby="questions-title"><div class="section-head"><h2 id="questions-title">10 контрольных вопросов</h2><button id="refresh-evaluation" type="button">Обновить оценку</button></div><p class="muted">Эталонные факты и источники зафиксированы до генерации. Выбор вопроса только подставляет его в поле.</p><div id="questions" class="question-list"></div></section>
+  <section class="card" aria-labelledby="evaluation-title"><h2 id="evaluation-title">Сохранённое сравнение качества</h2><p id="evaluation-status" role="status" aria-live="polite">Загрузка…</p><p id="evaluation-summary"></p><p id="evaluation-config" class="metadata"></p><p class="hint">Содержательная оценка отдельно проверяет факты, достаточность выбранного контекста и подтверждённость ответа. Непроверенные и незавершённые результаты не означают улучшения.</p><div class="table-wrap"><table><thead><tr><th>Вопрос</th><th>Без rewrite и фильтра</th><th>Только rewrite</th><th>Только фильтр</th><th>Rewrite + фильтр</th></tr></thead><tbody id="evaluation-body"></tbody></table></div></section>
+</div>
+</body>
+</html>

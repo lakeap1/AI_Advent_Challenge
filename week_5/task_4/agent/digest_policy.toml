@@ -1,0 +1,7 @@
+[input_policy]
+tools = ["configure_digest", "pause_digest", "get_digest_state", "collect_digest", "run_scheduled_digest", "list_digests", "get_digest"]
+
+[output_policy]
+max_bytes = 12000000
+max_questions = 300
+max_runs = 20
