@@ -4,8 +4,10 @@ import json
 import re
 
 import pytest
+from jsonschema import ValidationError, validate
 
-from rag.grounding import GroundingError, NO_CONTEXT_TEXT, parse_grounding
+from rag.grounding import (GroundingError, NO_CONTEXT_TEXT, ordinary_parts_format,
+                           parse_grounding, parse_part_grounding, response_format)
 
 
 SOURCES = [
@@ -14,6 +16,73 @@ SOURCES = [
     {'label': 'S2', 'source': 'beta.md', 'section': ['Details'],
      'chunk_id': 'chunk-2', 'text': 'Beta evidence.'},
 ]
+
+PARTS = [{'id': 'q1', 'question': 'First question.'},
+         {'id': 'q2', 'question': 'Second question.'}]
+ANSWERED = {'status': 'answered', 'claims': [
+    {'text': 'A supported answer.', 'source_labels': ['S1']}], 'clarification': ''}
+UNKNOWN = {'status': 'unknown', 'claims': [], 'clarification': 'Please clarify.'}
+
+
+def test_multipart_schema_rejects_actual_answered_with_clarification_draft():
+    # Embedded rejected provider response used to check incompatible answer fields.
+    draft = {'parts': {
+        'q1': {'status': 'answered', 'claims': [{
+            'text': 'В поле UV Map узла Normal Map укажите UVMap — имя UV-развёртки, из которой узел должен получать касательные для tangent-space карты.',
+            'source_labels': ['S1']}], 'clarification': ''},
+        'q2': {'status': 'answered', 'claims': [{
+            'text': 'Для Image Texture используйте координаты той же UV-карты UVMap, чтобы они совпадали с развёрткой, используемой узлом Normal Map.',
+            'source_labels': ['S1']}],
+            'clarification': 'Фрагмент подтверждает необходимость использовать UVMap, но не уточняет конкретное подключение или узел, выход которого следует подать на вход Vector.'}}}
+    with pytest.raises(GroundingError, match='invalid_grounding'):
+        parse_part_grounding(json.dumps(draft), PARTS, SOURCES,
+                             {'q1': ['S1'], 'q2': ['S1']})
+    with pytest.raises(ValidationError):
+        validate(draft, ordinary_parts_format(PARTS)['schema'])
+
+
+@pytest.mark.parametrize(('first', 'second'), [
+    (ANSWERED, ANSWERED), (UNKNOWN, UNKNOWN), (ANSWERED, UNKNOWN)])
+def test_multipart_schema_accepts_exclusive_answer_and_unknown_states(first, second):
+    draft = {'parts': {'q1': first, 'q2': second}}
+    validate(draft, ordinary_parts_format(PARTS)['schema'])
+    _, _, _, coverage = parse_part_grounding(json.dumps(draft), PARTS, SOURCES,
+                                             {'q1': ['S1'], 'q2': ['S1']})
+    assert [coverage[pid]['status'] for pid in ('q1', 'q2')] == [first['status'], second['status']]
+
+
+@pytest.mark.parametrize('invalid', [
+    {**ANSWERED, 'status': 'partial'},
+    {**ANSWERED, 'claims': []},
+    {**ANSWERED, 'clarification': 'A gap.'},
+    {**ANSWERED, 'clarification': ' '},
+    {**UNKNOWN, 'claims': ANSWERED['claims']},
+    {**UNKNOWN, 'clarification': ''},
+    {**UNKNOWN, 'clarification': ' \t\n\u00a0'},
+    {key: value for key, value in ANSWERED.items() if key != 'clarification'},
+    {**UNKNOWN, 'extra': 'unaccepted'},
+])
+def test_multipart_schema_rejects_invalid_status_claim_clarification_combinations(invalid):
+    draft = {'parts': {'q1': ANSWERED, 'q2': invalid}}
+    with pytest.raises(ValidationError):
+        validate(draft, ordinary_parts_format(PARTS)['schema'])
+    with pytest.raises(GroundingError, match='invalid_grounding'):
+        parse_part_grounding(json.dumps(draft), PARTS, SOURCES,
+                             {'q1': ['S1'], 'q2': ['S1']})
+
+
+def test_provider_schema_requires_a_source_for_each_answer_claim():
+    schema = response_format()['schema']
+    cited = {'status': 'answered', 'claims': [
+        {'text': 'A supported technical answer.', 'source_labels': ['S1']}],
+        'clarification': ''}
+    validate(cited, schema)
+    with pytest.raises(ValidationError):
+        validate({'status': 'answered', 'claims': [
+            cited['claims'][0],
+            {'text': 'A separate uncited reminder of dialogue state.', 'source_labels': []}],
+            'clarification': ''}, schema)
+    validate({'status': 'unknown', 'claims': [], 'clarification': 'Уточните вопрос.'}, schema)
 
 
 def fixture_grounding(text):

@@ -35,9 +35,10 @@ class BrowserFake(Fake):
             marker = "<img src=x onerror=window.__conversationXss=1>"
             if marker in message:
                 operations.append({"action": "set", "field": "goal", "key": "",
-                                   "value": marker, "evidence": marker})
+                                   "desired_outcome_evidence": marker, "conditions": []})
             return response(json.dumps({"revision": request["state"]["revision"],
-                                        "search_query": message, "operations": operations}, ensure_ascii=False))
+                                        "operations": operations,
+                                        "question_parts": [{"evidence": message}]}, ensure_ascii=False))
         if "TASK_STAGE_VALIDATION" in payload["instructions"]:
             from state_helpers import report_for
             return response(json.dumps(report_for(json.loads(payload["input"][0]["content"]))))
@@ -46,7 +47,7 @@ class BrowserFake(Fake):
             return response(json.dumps({"scores": {
                 item["chunk_id"]: {"score": 3, "reason": "Synthetic fixture"}
                 for item in candidates}}))
-        if name in ("grounded_answer", "task_response"):
+        if name in ("grounded_answer", "ordinary_parts_answer", "task_response"):
             raw = copy.deepcopy(self.replies.pop(0) if self.replies else response())
             if any(item.get("type") == "function_call" for item in raw.get("output", [])):
                 return raw
@@ -61,6 +62,8 @@ class BrowserFake(Fake):
                 answer = {"answer": answer, "event": "stay", "evidence": "",
                           **{key: state[key] for key in
                              ("goal", "current_step", "expected_action", "notes", "plan")}}
+            elif name == "ordinary_parts_answer":
+                answer = {"parts": {"q1": answer}}
             return response(json.dumps(answer, ensure_ascii=False))
         return response('{"operations": []}')
 
@@ -158,6 +161,8 @@ def close_panel(page):
 
 
 def test_panels_keyboard_focus_and_mobile_navigation(browser_app):
+    from playwright.sync_api import expect
+
     url, browser, _, _ = browser_app
     page = open_page(browser, url)
     try:
@@ -178,9 +183,8 @@ def test_panels_keyboard_focus_and_mobile_navigation(browser_app):
         page.wait_for_function("document.querySelector('#preview-button').disabled")
         page.keyboard.press("Escape")
         page.locator("#workspace-dialog").wait_for(state="hidden")
-        assert page.locator('.hud [data-panel="usage"]').evaluate(
-            "el => document.activeElement === el"
-        )
+        # Closing hides the dialog before its queued close handler restores focus.
+        expect(page.locator('.hud [data-panel="usage"]')).to_be_focused(timeout=3000)
         assert len(held_preview) == 1
         held_preview[0].abort()
         page.wait_for_function("!document.querySelector('#prompt').disabled")
@@ -319,7 +323,7 @@ def test_chat_api_memory_sources_usage_pause_and_branches(browser_app):
         page.locator("#toggle-task-pause").click()
         page.get_by_text("На паузе").first.wait_for()
         assert page.locator("#prompt").is_disabled()
-        page.locator("#send").is_disabled()
+        assert page.locator("#send").is_disabled()
         page.locator("#toggle-task-pause").click()
         page.wait_for_function("!document.querySelector('#prompt').disabled")
         close_panel(page)

@@ -38,7 +38,8 @@ class Fake:
         if payload.get('text', {}).get('format', {}).get('name') == 'conversation_preparation':
             data = json.loads(payload['input'][0]['content'])
             return response(json.dumps({'revision': data['state']['revision'],
-                'search_query': data['current_message'], 'operations': []}))
+                'operations': [],
+                'question_parts': [{'evidence': data['current_message'][:1000]}]}))
         if payload.get('text', {}).get('format', {}).get('name') == 'filter':
             candidate_ids = json.loads(payload['input'][0]['content'])['candidates']
             explicit = False
@@ -59,8 +60,11 @@ class Fake:
             reply = response(json.dumps(dict(answer=fixture_grounding(original) if grounding else original,
                 event='stay', evidence='', **{key: state[key] for key in
                 ('goal', 'current_step', 'expected_action', 'notes', 'plan')}), ensure_ascii=False))
-        elif payload.get('text', {}).get('format', {}).get('name') == 'grounded_answer' and reply['output'][0]['type'] == 'message':
-            reply = response(json.dumps(fixture_grounding(reply['output'][0]['content'][0]['text']), ensure_ascii=False))
+        elif payload.get('text', {}).get('format', {}).get('name') in ('grounded_answer', 'ordinary_parts_answer') and reply['output'][0]['type'] == 'message':
+            answer = fixture_grounding(reply['output'][0]['content'][0]['text'])
+            if payload['text']['format']['name'] == 'ordinary_parts_answer':
+                answer = {'parts': {'q1': answer}}
+            reply = response(json.dumps(answer, ensure_ascii=False))
         return reply
 
 
@@ -120,6 +124,7 @@ def test_main_route_requests_low_reasoning_only_for_grounded_generation(tmp_path
     answer_payload = next(call for call in fake.calls
         if call.get('text', {}).get('format', {}).get('name') == 'task_response')
     assert filter_payload['reasoning']['effort'] == 'none'
+    assert filter_payload['max_output_tokens'] == 3000
     assert answer_payload['reasoning']['effort'] == 'low'
     assert answer_payload['tool_choice'] == 'auto'
     assert {'lookup_wikipedia', 'search_stackexchange'} <= {
@@ -131,19 +136,77 @@ def test_main_route_requests_low_reasoning_only_for_grounded_generation(tmp_path
     assert parent['metadata']['requested_reasoning_effort'] == 'low'
     assert parent['metadata']['rag']['settings']['main_final_reasoning_effort'] == 'low'
     assert parent['metadata']['rag']['requested_reasoning_effort'] == 'low'
+    filter_request = next(item for item in result.json['state']['requests']
+        if item['metadata']['kind'] == 'relevance_filter')
+    assert filter_request['metadata']['requested_reasoning_effort'] == 'none'
+    app.extensions['workspace'].close()
+
+
+def test_ordinary_route_requests_stage_efforts_and_records_actual_usage(tmp_path, local_index):
+    class ReasoningFake(Fake):
+        def create(self, payload, timeout):
+            result = super().create(payload, timeout)
+            if payload.get('text', {}).get('format', {}).get('name') == 'ordinary_parts_answer':
+                result['usage']['output_tokens_details']['reasoning_tokens'] = 4
+            if payload.get('text', {}).get('format', {}).get('name') == 'filter':
+                result['usage']['output_tokens_details']['reasoning_tokens'] = 3
+            return result
+
+    fake = ReasoningFake([response('Alpha is documented [S1].')])
+    app = create_app(data_dir=tmp_path, transport=fake)
+    result = app.test_client().post('/api/ask', json={'prompt': 'Where is alpha?'})
+    assert result.status_code == 200, result.json
+    calls = {call.get('text', {}).get('format', {}).get('name'): call for call in fake.calls}
+    assert len(fake.calls) == 3
+    assert calls['conversation_preparation']['reasoning']['effort'] == 'high'
+    assert calls['filter']['reasoning']['effort'] == 'medium'
+    assert calls['ordinary_parts_answer']['reasoning']['effort'] == 'medium'
+    assert calls['conversation_preparation']['max_output_tokens'] == 4000
+    assert calls['filter']['max_output_tokens'] == 3000
+    assert calls['ordinary_parts_answer']['model'] == 'gpt-6-luna'
+    assert calls['ordinary_parts_answer']['max_output_tokens'] == 1600
+    assert all(call['model'] == 'gpt-6-luna' for call in fake.calls)
+    parent = next(row for row in result.json['state']['requests']
+                  if row['metadata']['kind'] == 'answer')
+    assert parent['metadata']['requested_reasoning_effort'] == 'medium'
+    assert parent['metadata']['rag']['requested_reasoning_effort'] == 'medium'
+    assert parent['metadata']['rag']['settings']['main_final_reasoning_effort'] == 'medium'
+    assert parent['usage']['reasoning_tokens'] == 4
+    assert parent['usage']['total_tokens'] == 110
+    assert Decimal(parent['cost_usd']) == Decimal('0.000015')
+    filter_request = next(row for row in result.json['state']['requests']
+        if row['metadata']['kind'] == 'relevance_filter')
+    assert filter_request['metadata']['requested_reasoning_effort'] == 'medium'
+    assert filter_request['metadata']['requested_max_output_tokens'] == 3000
+    assert filter_request['usage']['reasoning_tokens'] == 3
+    assert filter_request['usage']['total_tokens'] == 110
+    assert Decimal(filter_request['cost_usd']) == Decimal('0.000015')
+    assert result.json['state']['summary']['api_requests'] == 4
+    assert result.json['state']['summary']['cost_complete']
     app.extensions['workspace'].close()
 
 
 def test_main_reasoning_setting_validates_and_old_toml_defaults_to_none(tmp_path):
     configured = load_rag_config()
     assert configured.main_final_reasoning_effort == 'low'
+    assert configured.ordinary_final_reasoning_effort == 'medium'
+    assert configured.conversation_preparation_reasoning_effort == 'high'
+    assert configured.ordinary_filter_reasoning_effort == 'medium'
     legacy = tmp_path / 'legacy.toml'
     source = Path(__file__).resolve().parents[1] / 'rag' / 'config.toml'
     legacy.write_text(''.join(line for line in source.read_text(encoding='utf-8').splitlines(True)
-        if not line.startswith('main_final_reasoning_effort')), encoding='utf-8')
+        if not line.startswith(('main_final_reasoning_effort',
+                                'ordinary_final_reasoning_effort',
+                                'ordinary_filter_reasoning_effort',
+                                'conversation_preparation_reasoning_effort'))), encoding='utf-8')
     assert load_rag_config(legacy).main_final_reasoning_effort == 'none'
+    assert load_rag_config(legacy).ordinary_final_reasoning_effort is None
+    assert load_rag_config(legacy).conversation_preparation_reasoning_effort == 'low'
+    assert load_rag_config(legacy).ordinary_filter_reasoning_effort == 'none'
     with pytest.raises(ValueError):
         replace(configured, main_final_reasoning_effort='high').validate()
+    with pytest.raises(ValueError):
+        replace(configured, ordinary_final_reasoning_effort='high').validate()
 
 
 def test_opted_in_reasoning_leaves_plain_and_rewrite_machine_at_none(tmp_path, local_index):
@@ -218,6 +281,59 @@ def test_filter_instruction_scores_direct_passage_in_mixed_topic_chunk(tmp_path,
     agent.close()
 
 
+@pytest.mark.parametrize('prompt,beta_score,expected_files', [
+    ('How do the named alpha and beta settings affect the result?', 2,
+        {'alpha.md', 'beta.md'}),
+    ('What does the named alpha setting do?', 1, {'alpha.md'}),
+])
+def test_filter_payload_scores_independent_subparts_and_excludes_other_subject(
+        tmp_path, local_index, monkeypatch, prompt, beta_score, expected_files):
+    class LocalEncoding:
+        def encode(self, text, *, disallowed_special):
+            return list(text.encode('utf-8'))
+
+    monkeypatch.setattr('agent.tokens.tiktoken.get_encoding', lambda _: LocalEncoding())
+
+    class ScoredFake(Fake):
+        def create(self, payload, timeout):
+            if payload.get('text', {}).get('format', {}).get('name') != 'filter':
+                return super().create(payload, timeout)
+            self.calls.append(payload)
+            candidates = json.loads(payload['input'][0]['content'])['candidates']
+            return response(json.dumps({'scores': {candidate['chunk_id']: {
+                'score': beta_score if candidate['file'] == 'beta.md' else 3,
+                'reason': 'Independent fact' if beta_score == 2 else 'Other subject'
+            } for candidate in candidates}}))
+
+    fake = ScoredFake([response('Alpha is documented [S1].')])
+    agent = RagChatAgent(load_config(), fake, RagSQLiteStore(tmp_path / 'chat.sqlite3'),
+        index_data_dir=tmp_path)
+
+    result = agent.run(prompt, rag_mode='filter')
+
+    assert result.status == 'ok', result
+    filter_payload = next(call for call in fake.calls
+        if call.get('text', {}).get('format', {}).get('name') == 'filter')
+    data = json.loads(filter_payload['input'][0]['content'])
+    assert data['original_question'] == prompt
+    assert {candidate['file'] for candidate in data['candidates']} == {'alpha.md', 'beta.md'}
+    instructions = filter_payload['instructions']
+    assert 'настройки' in instructions and 'предпосылк' in instructions
+    assert 'не описывает остальные' in instructions
+    assert 'субъект' in instructions and 'условия' in instructions
+    assert '0=не относится' in instructions and '1=только тема' in instructions
+    rag = next(request['metadata']['rag'] for request in agent.state()['requests']
+        if request['metadata']['kind'] == 'answer')
+    assert {source['file'] for source in rag['sources']} == expected_files
+    assert next(candidate for candidate in rag['candidates']
+        if candidate['file'] == 'beta.md')['relevance_score'] == beta_score
+    assert len([call for call in fake.calls
+        if call.get('text', {}).get('format', {}).get('name') == 'filter']) == 1
+    assert len([call for call in fake.calls
+        if call.get('text', {}).get('format', {}).get('name') == 'grounded_answer']) == 1
+    agent.close()
+
+
 def test_invalid_index_stops_before_embedding_and_generation(tmp_path):
     fake = Fake()
     app = create_app(data_dir=tmp_path, transport=fake)
@@ -242,7 +358,7 @@ def test_unknown_source_rejects_after_paid_calls_without_assistant(tmp_path, loc
     assert state['summary']['cost_complete']
     assert not any(m['role'] == 'assistant' for m in state['messages'])
     assert [call['text']['format']['name'] for call in fake.calls] == [
-        'conversation_preparation', 'filter', 'grounded_answer']
+        'conversation_preparation', 'filter', 'ordinary_parts_answer']
 
 
 def test_embedding_failure_keeps_parent_unrequested_and_unknown_child_cost(tmp_path, local_index):
@@ -526,3 +642,27 @@ def test_non_boolean_rag_flag_rejected_at_route(tmp_path, flag):
     result = app.test_client().post('/api/ask', json={'prompt': 'Hello', 'use_rag': flag})
     assert result.status_code == 400
     assert fake.calls == []
+
+
+@pytest.mark.parametrize("stage", ["filter", "final"])
+def test_luna_only_config_rejects_prepared_sol_switch_before_provider(tmp_path, monkeypatch, stage):
+    from rag import chat
+    source = Path(__file__).resolve().parents[1] / 'rag' / 'config.toml'
+    invalid = tmp_path / 'unsupported-model.toml'
+    invalid.write_text(source.read_text(encoding='utf-8')
+        + f'\nordinary_{stage}_model = "gpt-6.1-sol"\n'
+        + f'\n[ordinary_{stage}_pricing]\n'
+        + 'model = "gpt-6.1-sol"\ninput_usd_per_million = "2"\n'
+        + 'cached_input_usd_per_million = "0.10"\ncache_write_usd_per_million = "2.50"\n'
+        + 'output_usd_per_million = "10"\nchecked_at = "2026-10-05"\n'
+        + 'source = "https://developers.openai.com/api/docs/models/gpt-6.1-sol"\n', encoding='utf-8')
+    fake = Fake()
+    monkeypatch.setattr(chat, 'load_rag_config', lambda: load_rag_config(invalid))
+    store = RagSQLiteStore(tmp_path / 'unsupported.sqlite3')
+    store.configure_context('sliding')
+    store.set_dialogue_kind('ordinary')
+    with pytest.raises((TypeError, ValueError)):
+        RagChatAgent(load_config(), fake, store, index_data_dir=tmp_path)
+    assert fake.calls == []
+    assert store.state()['requests'] == []
+    store.close()

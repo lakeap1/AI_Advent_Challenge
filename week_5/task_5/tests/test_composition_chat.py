@@ -75,7 +75,7 @@ def test_completed_exchange_in_chat_once_and_no_double_cost(tmp_path, monkeypatc
         followup = app.extensions['workspace'].agent().run('Поясни памятку', use_working=False, use_long_term=False)
         assert followup.status == 'ok'
         generation = next(call for call in fake.calls
-                          if call.get('text', {}).get('format', {}).get('name') == 'grounded_answer')
+                          if call.get('text', {}).get('format', {}).get('name') == 'ordinary_parts_answer')
         assert any(m.get('content') == content for m in generation['input'])
     for _ in range(3):
         again = client.get('/api/state').json
@@ -164,6 +164,6 @@ def test_followup_imports_completed_run_even_before_worker_callback(tmp_path, mo
     asked = client.post('/api/ask',json=dict(prompt='Поясни первый пункт',use_working=False,use_long_term=False))
     assert asked.json['status'] == 'ok' and asked.json['text'].endswith('[S1]')
     generation = next(call for call in fake.calls
-                      if call.get('text', {}).get('format', {}).get('name') == 'grounded_answer')
+                      if call.get('text', {}).get('format', {}).get('name') == 'ordinary_parts_answer')
     assert any(m.get('content') == summary.content for m in generation['input'])
     app.extensions['workspace'].close()

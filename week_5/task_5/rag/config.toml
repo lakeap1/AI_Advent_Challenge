@@ -1,6 +1,9 @@
 model = "gpt-6-luna"
 reasoning_effort = "none"
 main_final_reasoning_effort = "low"
+ordinary_final_reasoning_effort = "medium"
+conversation_preparation_reasoning_effort = "high"
+ordinary_filter_reasoning_effort = "medium"
 service_tier = "default"
 max_output_tokens = 900
 max_question_chars = 4000

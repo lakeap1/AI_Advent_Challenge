@@ -45,12 +45,21 @@ class Config:
     cache_write_usd_per_million: str
     output_usd_per_million: str
     main_final_reasoning_effort: str = "none"
+    ordinary_final_reasoning_effort: str | None = None
+    conversation_preparation_reasoning_effort: str = "low"
+    ordinary_filter_reasoning_effort: str = "none"
 
     def validate(self):
         if (self.model, self.reasoning_effort, self.service_tier) != ("gpt-6-luna", "none", "default"):
             raise ValueError("Unsupported generation model configuration")
         if self.main_final_reasoning_effort not in ("none", "low"):
             raise ValueError("Unsupported main final reasoning effort")
+        if self.ordinary_final_reasoning_effort not in (None, "none", "low", "medium"):
+            raise ValueError("Unsupported ordinary final reasoning effort")
+        if self.conversation_preparation_reasoning_effort not in ("low", "medium", "high"):
+            raise ValueError("Unsupported conversation preparation reasoning effort")
+        if self.ordinary_filter_reasoning_effort not in ("none", "medium"):
+            raise ValueError("Unsupported ordinary filter reasoning effort")
         if (self.embedding_model, self.embedding_dimensions) != ("text-embedding-3-small", 1536):
             raise ValueError("Unsupported embedding space")
         if (self.max_context_tokens, self.max_question_chars, self.max_output_tokens) != (6000, 4000, 900):

@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from indexing.chunking import chunk_document
+from indexing.corpus import Document
 from indexing.config import load_config as index_config
 from indexing.corpus import read_corpus
 from indexing.store import IndexStore
@@ -19,6 +20,21 @@ from rag.config import load_config as rag_config
 from rag.retrieval import read_index
 from rag.grounding import NO_CONTEXT_TEXT
 from test_grounding import fixture_grounding
+
+
+def test_lights_structural_chunks_keep_distinct_light_types_apart():
+    path = Path(__file__).parents[1] / "corpus" / "blender44_lights.md"
+    source = path.read_text(encoding="utf-8")
+    document = Document("corpus/blender44_lights.md", "manual", "Lights", source, "test")
+    chunks = chunk_document(document, "structural")
+    area = "Area Light имитирует свет от поверхности."
+    point_spot = "У Point и Spot с ненулевым Radius"
+    assert sum(area in chunk["text"] for chunk in chunks) == 1
+    assert sum(point_spot in chunk["text"] for chunk in chunks) == 1
+    assert all(not (area in chunk["text"] and point_spot in chunk["text"])
+               for chunk in chunks)
+    assert next(chunk for chunk in chunks if point_spot in chunk["text"])["section"][-1] != \
+        next(chunk for chunk in chunks if area in chunk["text"])["section"][-1]
 
 
 def response(text, usage=True):

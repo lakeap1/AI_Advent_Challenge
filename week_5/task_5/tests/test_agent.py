@@ -28,6 +28,43 @@ class FakeTransport:
         return self.output
 
 
+@pytest.mark.parametrize('outcome', ['ok', 'output_incomplete', 'transport_error'])
+def test_legacy_metadata_override_preserves_default_call_billing_and_failure_policy(outcome):
+    class LegacyAgent(Agent):
+        def _metadata(self, response=None):
+            return {**super()._metadata(response), 'legacy_metadata': 'preserved'}
+
+    output = response('Ответ', model='gpt-6-luna', service_tier='default',
+        status='incomplete' if outcome == 'output_incomplete' else 'completed',
+        usage={'input_tokens': 100, 'output_tokens': 20, 'total_tokens': 120,
+            'input_tokens_details': {'cached_tokens': 0, 'cache_write_tokens': 0},
+            'output_tokens_details': {'reasoning_tokens': 3}})
+    transport = FakeTransport(output, error=TransportError('connection') if outcome == 'transport_error' else None)
+    config = load_config()
+    agent = LegacyAgent(config, transport, SQLiteStore(':memory:'))
+    try:
+        result = agent.run('Как проверить освещение?')
+        assert result.status == {'ok': 'ok', 'output_incomplete': 'error', 'transport_error': 'error'}[outcome]
+        assert len(transport.calls) == 1
+        assert 'без Markdown' in transport.calls[0][0]['instructions']
+        row = agent.state()['requests'][0]
+        assert row['metadata']['legacy_metadata'] == 'preserved'
+        assert row['metadata']['requested_model'] == 'gpt-6-luna'
+        assert agent._config is config
+        if outcome == 'transport_error':
+            assert result.usage_status == 'unavailable'
+            assert result.cost_usd is None
+            assert row['metadata']['actual_model'] is None
+        else:
+            assert result.usage.total_tokens == 120
+            assert result.usage.reasoning_tokens == 3
+            assert result.cost_usd == row['cost_usd'] == '0.00002'
+            assert row['metadata']['actual_model'] == 'gpt-6-luna'
+            assert row['output_policy']['status'] == ('rejected' if outcome == 'output_incomplete' else 'accepted')
+    finally:
+        agent.close()
+
+
 @pytest.mark.parametrize("prompt,code", [(None, "input_invalid"), (3, "input_invalid"), ([], "input_invalid"), (" \n ", "input_invalid"), ("x" * 4001, "input_too_long")])
 def test_input_rejected_without_provider(prompt, code):
     transport = FakeTransport()

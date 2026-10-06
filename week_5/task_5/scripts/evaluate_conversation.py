@@ -100,8 +100,30 @@ def _values(state: dict, field: str, *, include_keys: bool = False) -> list[str]
     rows = state.get(field, [])
     if not isinstance(rows, list):
         return []
-    return [(str(row.get('key', '')) + ' ' if include_keys else '') + str(row.get('value', ''))
-            for row in rows if isinstance(row, dict)]
+    return [(str(row.get('key', '')).replace('_', ' ').replace('-', ' ') + ' '
+             if include_keys else '') + str(row.get('value', ''))
+            for row in rows if isinstance(row, dict) and (
+                not include_keys or isinstance(row.get('value'), str) and row['value'].strip())]
+
+
+def _constraint_values(state: dict) -> list[str]:
+    values = _values(state, 'constraints')
+    rows = state.get('constraints', [])
+    if not isinstance(rows, list):
+        return values
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        key, value = row.get('key'), row.get('value')
+        if not isinstance(key, str) or not isinstance(value, str) or not value.strip():
+            continue
+        key = re.sub(r'[_-]+', ' ', key.casefold())
+        if (re.search(r'(?<!\w)(?:geometry|геометр\w*)(?!\w)', key)
+                and re.search(r'(?<!\w)(?:не\s+(?:изменять|менять)\s+поверхность'
+                              r'|без\s+изменения\s+поверхности)(?=\s*(?:$|[.!?;,]))',
+                              value.casefold())):
+            values.append('геометр')
+    return values
 
 
 def _contains(values: list[str], expected: str) -> bool:
@@ -118,7 +140,7 @@ def _contains(values: list[str], expected: str) -> bool:
         return any(re.search(pattern, normalize(value)) is not None for value in values)
     pattern = (r'(?<![0-9.,])' if marker[0].isdigit() else '') + re.escape(marker)
     if marker[-1].isdigit():
-        pattern += r'(?![0-9.,])'
+        pattern += r'(?!\w|[.,][0-9])'
     return any(re.search(pattern, normalize(value)) is not None for value in values)
 
 
@@ -157,7 +179,7 @@ def assess_turn(turn: dict, response: dict) -> dict:
     goal = str(memory.get('goal', '')).casefold()
     if expected.get('goal_contains') and expected['goal_contains'].casefold() not in goal:
         problems.append('Goal does not contain: ' + expected['goal_contains'])
-    constraints = _values(memory, 'constraints')
+    constraints = _constraint_values(memory)
     terms = _values(memory, 'terms', include_keys=True)
     for value in expected.get('constraints_present', []):
         if not _contains(constraints, value):

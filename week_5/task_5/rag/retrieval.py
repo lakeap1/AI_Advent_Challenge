@@ -6,6 +6,7 @@ import sqlite3
 from collections import Counter, defaultdict
 from contextlib import closing
 from pathlib import Path
+from itertools import product
 
 from indexing.chunking import chunk_document
 from indexing.corpus import read_corpus
@@ -230,3 +231,53 @@ def select_context(scored, config, candidates=None):
                 source["relevance_score"] = candidate_record["relevance_score"]
         sources.append(source)
     return sources, context
+
+
+def select_part_context(scored, part_scores, config, candidates=None):
+    """Maximize covered parts within the same rendered-byte and source budgets.
+
+    At most three lists of twenty candidates make exhaustive seed selection
+    bounded. Trial packing uses no live candidate records.
+    """
+    by_id = {chunk['chunk_id']: (score, chunk) for score, chunk in scored}
+    passing = {part: sorted((cid for cid, verdict in scores.items()
+        if cid in by_id and verdict['score'] >= config.relevance_threshold),
+        key=lambda cid: (-scores[cid]['score'], -by_id[cid][0], cid))
+        for part, scores in part_scores.items()}
+
+    def covered(sources):
+        ids = {source['chunk_id'] for source in sources}
+        return {part: ids.intersection(eligible) for part, eligible in passing.items()}
+
+    best_ids, best_key = [], None
+    for bundle in product(*(eligible + [None] for eligible in passing.values())):
+        ids = list(dict.fromkeys(cid for cid in bundle if cid is not None))
+        sources, _ = select_context([by_id[cid] for cid in ids], config)
+        coverage = covered(sources)
+        retained = [source['chunk_id'] for source in sources]
+        quality = sum(max((part_scores[part][cid]['score'] for cid in ids), default=0)
+            for part, ids in coverage.items())
+        key = (-sum(bool(ids) for ids in coverage.values()), -quality,
+               -sum(by_id[cid][0] for cid in retained), tuple(retained))
+        if best_key is None or key < best_key:
+            best_key, best_ids = key, retained
+    # Give each part one opportunity per round to fill the remaining budget.
+    for position in range(max((len(ids) for ids in passing.values()), default=0)):
+        for ids in passing.values():
+            if position >= len(ids) or ids[position] in best_ids:
+                continue
+            trial, _ = select_context([by_id[cid] for cid in best_ids + [ids[position]]], config)
+            if len(trial) > len(best_ids):
+                best_ids.append(ids[position])
+    sources, context = select_context([by_id[cid] for cid in best_ids], config, candidates)
+    mapping = {part: [source['label'] for source in sources
+        if source['chunk_id'] in eligible] for part, eligible in passing.items()}
+    coverage = {part: {'source_status': 'selected' if mapping[part] else
+        'budget_excluded' if eligible else 'no_context', 'source_labels': mapping[part]}
+        for part, eligible in passing.items()}
+    selected = set(best_ids)
+    for candidate in candidates or []:
+        if candidate['chunk_id'] not in selected:
+            candidate['decision'] = ('context_budget' if any(candidate['chunk_id'] in ids
+                for ids in passing.values()) else 'threshold')
+    return sources, context, mapping, coverage

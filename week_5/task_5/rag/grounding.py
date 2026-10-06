@@ -39,7 +39,7 @@ def strict_json(raw):
 def grounding_schema():
     claim = {'type': 'object', 'properties': {
         'text': {'type': 'string'},
-        'source_labels': {'type': 'array', 'items': {'type': 'string'}}},
+        'source_labels': {'type': 'array', 'items': {'type': 'string'}, 'minItems': 1}},
         'required': ['text', 'source_labels'], 'additionalProperties': False}
     return {'type': 'object', 'properties': {
         'status': {'type': 'string', 'enum': ['answered', 'unknown']},
@@ -116,3 +116,57 @@ def parse_grounding_data(data, sources):
 
 def parse_grounding(raw, sources):
     return parse_grounding_data(strict_json(raw), sources)
+
+
+def ordinary_parts_format(parts):
+    claim_array = grounding_schema()['properties']['claims']
+    part_schema = {'anyOf': [
+        {'type': 'object', 'properties': {
+            'status': {'type': 'string', 'enum': ['answered']},
+            'claims': {**claim_array, 'minItems': 1},
+            'clarification': {'type': 'string', 'enum': ['']}},
+            'required': ['status', 'claims', 'clarification'], 'additionalProperties': False},
+        {'type': 'object', 'properties': {
+            'status': {'type': 'string', 'enum': ['unknown']},
+            'claims': {**claim_array, 'maxItems': 0},
+            'clarification': {'type': 'string', 'pattern': r'\S'}},
+            'required': ['status', 'claims', 'clarification'], 'additionalProperties': False}]}
+    properties = {part['id']: part_schema for part in parts}
+    return {'type': 'json_schema', 'name': 'ordinary_parts_answer', 'strict': True,
+        'schema': {'type': 'object', 'properties': {'parts': {'type': 'object',
+            'properties': properties, 'required': list(properties), 'additionalProperties': False}},
+            'required': ['parts'], 'additionalProperties': False}}
+
+
+def render_part_gap(part, source_status):
+    reason = ('Подходящие источники не вместились в бюджет контекста.'
+        if source_status == 'budget_excluded' else
+        'Переданные локальные источники не подтверждают ответ.')
+    return f'Не знаю. {part["question"]} {reason} Уточните эту часть вопроса.'
+
+
+def parse_part_grounding(raw, parts, sources, part_sources, source_coverage=None):
+    if source_coverage is None:
+        source_coverage = {part['id']: {'source_status': 'selected' if part_sources[part['id']]
+            else 'no_context', 'source_labels': part_sources[part['id']]} for part in parts}
+    data = strict_json(raw)
+    ids = {part['id'] for part in parts}
+    if (type(data) is not dict or set(data) != {'parts'} or type(data['parts']) is not dict
+            or set(data['parts']) != ids):
+        raise GroundingError('invalid_part_coverage')
+    rendered, claims, used_labels, coverage = [], [], set(), {}
+    for part in parts:
+        pid = part['id']
+        eligible = [source for source in sources if source['label'] in part_sources[pid]]
+        text, grounded, used = parse_grounding_data(data['parts'][pid], eligible)
+        coverage[pid] = {**source_coverage[pid], 'question': part['question'],
+                         'status': grounded['status'], 'claims': grounded['claims']}
+        if grounded['status'] == 'unknown':
+            text = render_part_gap(part, source_coverage[pid]['source_status'])
+        rendered.append(text)
+        claims.extend(grounded['claims'])
+        used_labels.update(source['label'] for source in used)
+    grounding = {'status': 'answered' if claims else 'unknown', 'claims': claims,
+                 'clarification': '' if claims else CLARIFICATION_TEXT}
+    return '\n\n'.join(rendered), grounding, [source for source in sources
+        if source['label'] in used_labels], coverage

@@ -50,7 +50,8 @@ class GroundedTransport:
         if kind == 'conversation_preparation':
             data = json.loads(payload['input'][0]['content'])
             return _response(json.dumps({'revision': data['state']['revision'],
-                'search_query': data['current_message'], 'operations': []}, ensure_ascii=False),
+                'operations': [],
+                'question_parts': [{'evidence': data['current_message'][:1000]}]}, ensure_ascii=False),
                 self.answer_usage)
         if kind == 'filter':
             candidates = json.loads(payload['input'][0]['content'])['candidates']
@@ -66,8 +67,10 @@ class GroundedTransport:
                         **{key: state[key] for key in
                            ('goal', 'current_step', 'expected_action', 'notes', 'plan')}}
             return _response(json.dumps(envelope, ensure_ascii=False), self.answer_usage)
-        if kind == 'grounded_answer':
+        if kind in ('grounded_answer', 'ordinary_parts_answer'):
             body = {'status': 'answered', 'claims': [
                 {'text': self.answer, 'source_labels': ['S1']}], 'clarification': ''}
+            if kind == 'ordinary_parts_answer':
+                body = {'parts': {'q1': body}}
             return _response(json.dumps(body, ensure_ascii=False), self.answer_usage)
         return _response('{"operations": []}', self.answer_usage)

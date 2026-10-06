@@ -109,6 +109,72 @@ def test_numeric_equivalence_preserves_fraction_boundary():
     assert not _contains(['Strength 10'], 'Strength 1')
 
 
+@pytest.mark.parametrize('value,expected,matched', [
+    ('Strength установлен в 0.5.', '0.5', True),
+    ('Strength установлен в 0,50, итог сохранён.', '0.5', True),
+    ('Strength установлен в 1.0.', '1', True),
+    ('Strength установлен в 0.5x.', '0.5', False),
+    ('Strength установлен в 1.01.', '1', False),
+    ('Strength установлен в 0.5.1', '0.5', False),
+    ('Strength установлен в 0.5.', '0', False),
+])
+def test_numeric_marker_accepts_sentence_punctuation_without_partial_number(value, expected, matched):
+    assert _contains([value], expected) is matched
+
+
+def test_recorded_term_key_with_identifier_separator_satisfies_term_expectation():
+    source = {'source': 'local', 'section': ['Term'], 'chunk_id': 'c', 'text': 'The relevant fact.'}
+    turn = {'prompt': 'Уточняю термин', 'supporting_facts': ['The relevant fact'],
+            'expected_state': {'terms_present': ['мягкий край']}}
+    response = {'status': 'ok', 'text': 'The relevant fact. [S1]', 'request_id': 7,
+                'state': {'conversation_state': {'terms': [{
+                    'key': 'мягкий_край', 'value': 'Край тени, а не край светового конуса.',
+                    'evidence': '«мягкий край» означает край тени'}]},
+                          'requests': [{'id': 7, 'status': 'ok', 'metadata': {'kind': 'answer',
+                              'rag': {'sources': [source], 'used_sources': [source]}}}],
+                          'retrievals': [{'request_id': 7, 'provider': 'local_index',
+                                          'status': 'ok'}]}}
+    assert assess_turn(turn, response)['passed'] is True
+    response['state']['conversation_state']['terms'][0]['key'] = 'другой_край'
+    assert assess_turn(turn, response)['passed'] is False
+    response['state']['conversation_state']['terms'][0]['key'] = 'мягкий-край'
+    assert assess_turn(turn, response)['passed'] is True
+    response['state']['conversation_state']['terms'][0]['value'] = ''
+    assert assess_turn(turn, response)['passed'] is False
+
+
+def test_geometry_constraint_alias_requires_key_and_unchanged_surface_value():
+    source = {'source': 'local', 'section': ['Workflow'], 'chunk_id': 'c',
+              'text': 'The relevant fact.'}
+    turn = {'prompt': 'Проверь текущие ограничения',
+            'supporting_facts': ['The relevant fact.'],
+            'expected_state': {'constraints_present': ['геометр']}}
+    row = {'key': 'geometry-change', 'value': 'Не изменять поверхность.',
+           'evidence': 'без изменения поверхности', 'source_request_id': 33}
+    response = {'status': 'ok', 'text': 'The relevant fact. [S1]', 'request_id': 37,
+                'state': {'conversation_state': {'constraints': [row]},
+                          'requests': [{'id': 37, 'status': 'ok', 'metadata': {'kind': 'answer',
+                              'rag': {'sources': [source], 'used_sources': [source]}}}],
+                          'retrievals': [{'request_id': 37, 'provider': 'local_index',
+                                          'status': 'ok'}]}}
+    assert assess_turn(turn, response)['passed'] is True
+    for key, value in (
+            ('geometry_change', 'Не менять поверхность.'),
+            ('геометрия-без-изменений', 'без изменения поверхности')):
+        row.update(key=key, value=value)
+        assert assess_turn(turn, response)['passed'] is True
+    for key, value in (
+            ('surface-color', 'Не изменять поверхность.'),
+            ('geometry-change', 'Не изменять цвет поверхности.'),
+            ('geometry-change', 'Изменять поверхность.'),
+            ('geometry-change', '')):
+        row.update(key=key, value=value)
+        assert assess_turn(turn, response)['passed'] is False
+    row.update(key='geometry-change', value='Цвет поверхности сохранён.',
+               evidence='без изменения поверхности')
+    assert assess_turn(turn, response)['passed'] is False
+
+
 def test_reopen_and_isolation_history_comparison_detects_retrieval_loss_or_mutation():
     from scripts.evaluate_conversation import _same_saved_state
 
