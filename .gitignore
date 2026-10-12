@@ -67,6 +67,42 @@ demo/
 /week_5/task_4/data/
 /week_5/task_5/data/
 
+# Day 26 local runtime, weights and request evidence.
+/week_6/task_1/.runtime/
+/week_6/task_1/.models/
+/week_6/task_1/data/
+/week_6/task_1/*.tmp.json
+/week_6/task_1/scripts/record-demo.cjs
+/week_6/task_1/scripts/quality-capture.cjs
+
+# Day 27 local conversations, accounting and verification intermediates.
+/week_6/task_2/data/
+/week_6/task_2/.test-tmp/
+/week_6/task_2/.test*/
+/week_6/task_2/.pytest-*/
+/week_6/task_2/scripts/record-day27-demo.cjs
+/week_6/task_2/scripts/quality-capture.cjs
+
+# Day 28 local index, request receipts and capture helpers.
+/week_6/task_3/data/
+/week_6/task_3/.test*/
+/week_6/task_3/scripts/record*.cjs
+/week_6/task_3/scripts/quality-capture.cjs
+
+# Day 29 local receipts, measurements and recording helpers.
+/week_6/task_4/data/
+/week_6/task_4/.test*/
+/week_6/task_4/scripts/record*.cjs
+/week_6/task_4/evaluation/manual_review_v1.json
+
+# Day 30 private-service receipts, secrets and media intermediates.
+/week_6/task_5/data/
+/week_6/task_5/.test*/
+/week_6/task_5/.runtime/
+/week_6/task_5/.models/
+/week_6/task_5/scripts/record*.cjs
+/week_6/task_5/scripts/quality-capture.cjs
+
 # Local recording tools; browser checks remain available.
 /week_5/task_[1-5]/scripts/record*.cjs
 /week_5/task_[1-5]/scripts/quality-capture.cjs

@@ -1,0 +1,29 @@
+selected_preset = "optimized"
+prompt_version = "day29-graphics-v2"
+
+[presets.baseline]
+model = "qwen3.5:9b"
+temperature = 0.2
+context_window = 8192
+max_output_tokens = 1024
+seed = 42
+think = false
+quantization = "Q4"
+
+[presets.optimized]
+model = "qwen3.5:9b"
+temperature = 0.0
+context_window = 6144
+max_output_tokens = 512
+seed = 42
+think = false
+quantization = "Q4"
+
+[presets.quantized]
+model = "qwen3.5:9b-q8_0"
+temperature = 0.0
+context_window = 6144
+max_output_tokens = 512
+seed = 42
+think = false
+quantization = "Q8_0"

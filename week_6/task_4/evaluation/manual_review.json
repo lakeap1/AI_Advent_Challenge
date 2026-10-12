@@ -1,0 +1,851 @@
+{
+  "scope": {
+    "run_file": "week_6/task_4/data/baseline-optimized-v3.json",
+    "run_id": "e7d85a0412fb4f12956e928f79fb6f83",
+    "input_sha256": "52597ba227a19a53b10476e2f752218ba4ea663e3096574f2981ba586e74d75c",
+    "questions": [
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5"
+    ],
+    "repeats": 3,
+    "answers": 30,
+    "sources": "Полные frozen snapshots источников и exact expected_facts; snapshots v3 полностью совпадают с v2 для всех пяти вопросов.",
+    "baseline": "Day 28 original: temperature=0.2, context_window=8192, max_output_tokens=1024, prompt_version=day28-original.",
+    "optimized": "Общий тематический шаблон с требованием частей вопроса, причин, направлений, подготовки, условий и ограничений из источников; temperature=0, context_window=6144, max_output_tokens=512, prompt_version=day29-graphics-v2.",
+    "evidence": "Прочитаны все 30 полных ответов и source_labels, вопросы и сохранённые полнотекстовые источники. Каждая пара question/preset дала один идентичный текст в трёх повторах; каждый повтор оценён отдельно."
+  },
+  "rubric": {
+    "unit": "Один expected_facts на один ответ; 15 фактов за повтор и 45 за preset.",
+    "correct": "Все смысловые части gold-факта точно и без противоречия подтверждены ответом и данным контекстом.",
+    "partial": "Есть верное ядро gold-факта, но отсутствует хотя бы одна обязательная часть или условие.",
+    "wrong": "Ответ противоречит источнику в механизме, о котором спрашивает факт; наличие верных соседних слов не устраняет ошибку.",
+    "missing": "Смысловой факт отсутствует.",
+    "unsupported_claims": "Отдельно фиксируются содержательные неверные или не подтверждённые данным контекстом утверждения.",
+    "irrelevant_labels": "Отдельно фиксируются включённые в source_labels фрагменты, не несущие содержательного доказательства использованных утверждений. Метаданные/заголовок сами по себе не засчитываются."
+  },
+  "quality": {
+    "baseline": {
+      "correct_facts": 36,
+      "total_facts": 45,
+      "partial_facts": 6,
+      "wrong_facts": 3,
+      "missing_facts": 0,
+      "unsupported_answers": 3,
+      "answers": 15,
+      "irrelevant_label_answers": 15
+    },
+    "optimized": {
+      "correct_facts": 39,
+      "total_facts": 45,
+      "partial_facts": 6,
+      "wrong_facts": 0,
+      "missing_facts": 0,
+      "unsupported_answers": 3,
+      "answers": 15,
+      "irrelevant_label_answers": 12
+    }
+  },
+  "cases": [
+    {
+      "question_id": "q1",
+      "repeat": 1,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Снижение Smoothness и более широкий мягкий блик прямо названы; S1."
+        },
+        {
+          "index": 2,
+          "status": "wrong",
+          "reason": "Металлический alpha по умолчанию и Albedo Alpha указаны, но ответ ошибочно утверждает, что канал выбирает Workflow Mode. В S1 его выбирает Source; ошибка затрагивает сам запрошенный механизм."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Workflow Mode определяет, какой alpha-канал используется; S1 относит выбор канала к Source, а Workflow Mode выбирает Metallic либо Specular."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q1",
+      "repeat": 1,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Уменьшение Smoothness и расширение блика указаны; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Source явно выбирает Metallic Alpha по умолчанию либо Albedo Alpha; S1. Ошибка baseline о Workflow Mode отсутствует."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": []
+    },
+    {
+      "question_id": "q2",
+      "repeat": 1,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map дана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel как инверсия зелёного канала Y описана; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Привязка инверсии к несовпадению конвенции карты с Unity дана; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2",
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q2",
+      "repeat": 1,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map указана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel назван инверсией зелёного канала Y; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Назначение инверсии при несовпадении конвенции карты с ожиданиями Unity объяснено; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Фраза «если выпуклости отображаются как впадины, это означает, что карта использует другую конвенцию» чрезмерно категорична: S1 предлагает проверить тип и соглашение, но не доказывает диагноз только по симптому."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 1,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Полный путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear даны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma → linear при выборке конкретной текстуры названо; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector, Texture Type по назначению и снятие sRGB (Color Texture) при отображении флажка даны; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 1,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear/Gamma указаны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma-текстура → linear-значения при выборке для шейдера объяснено; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector конкретной текстуры, Texture Type по назначению и снятие sRGB (Color Texture), если флажок отображается, названы; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 1,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap названа запечённой поверхностью, а пробы — точками пространства; не сказано, что данные самих проб тоже запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Для движущегося персонажа назван приближённый непрямой свет от ближайших проб; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Сценарий движущегося объекта указан, но необходимость bake для самих проб не объяснена; запечённый пол не равен запечённым пробам; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 1,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap описана как запечённое освещение поверхности, пробы — как данные в точках пространства; не сказано, что сами данные проб запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Динамический объект получает приближённый непрямой свет по ближайшим пробам во время выполнения; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Основной сценарий движущегося объекта назван, но необходимость bake самих Light Probes отсутствует; описание запечённого пола этого не заменяет; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 1,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное снижение draw calls и объясняет снижение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in названо; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 1,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное сокращение draw calls и объясняет уменьшение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in указано; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q1",
+      "repeat": 2,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Снижение Smoothness и более широкий мягкий блик прямо названы; S1."
+        },
+        {
+          "index": 2,
+          "status": "wrong",
+          "reason": "Металлический alpha по умолчанию и Albedo Alpha указаны, но ответ ошибочно утверждает, что канал выбирает Workflow Mode. В S1 его выбирает Source; ошибка затрагивает сам запрошенный механизм."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Workflow Mode определяет, какой alpha-канал используется; S1 относит выбор канала к Source, а Workflow Mode выбирает Metallic либо Specular."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q1",
+      "repeat": 2,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Уменьшение Smoothness и расширение блика указаны; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Source явно выбирает Metallic Alpha по умолчанию либо Albedo Alpha; S1. Ошибка baseline о Workflow Mode отсутствует."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": []
+    },
+    {
+      "question_id": "q2",
+      "repeat": 2,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map дана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel как инверсия зелёного канала Y описана; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Привязка инверсии к несовпадению конвенции карты с Unity дана; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2",
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q2",
+      "repeat": 2,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map указана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel назван инверсией зелёного канала Y; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Назначение инверсии при несовпадении конвенции карты с ожиданиями Unity объяснено; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Фраза «если выпуклости отображаются как впадины, это означает, что карта использует другую конвенцию» чрезмерно категорична: S1 предлагает проверить тип и соглашение, но не доказывает диагноз только по симптому."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 2,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Полный путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear даны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma → linear при выборке конкретной текстуры названо; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector, Texture Type по назначению и снятие sRGB (Color Texture) при отображении флажка даны; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 2,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear/Gamma указаны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma-текстура → linear-значения при выборке для шейдера объяснено; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector конкретной текстуры, Texture Type по назначению и снятие sRGB (Color Texture), если флажок отображается, названы; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 2,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap названа запечённой поверхностью, а пробы — точками пространства; не сказано, что данные самих проб тоже запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Для движущегося персонажа назван приближённый непрямой свет от ближайших проб; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Сценарий движущегося объекта указан, но необходимость bake для самих проб не объяснена; запечённый пол не равен запечённым пробам; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 2,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap описана как запечённое освещение поверхности, пробы — как данные в точках пространства; не сказано, что сами данные проб запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Динамический объект получает приближённый непрямой свет по ближайшим пробам во время выполнения; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Основной сценарий движущегося объекта назван, но необходимость bake самих Light Probes отсутствует; описание запечённого пола этого не заменяет; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 2,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное снижение draw calls и объясняет снижение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in названо; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 2,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное сокращение draw calls и объясняет уменьшение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in указано; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q1",
+      "repeat": 3,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Снижение Smoothness и более широкий мягкий блик прямо названы; S1."
+        },
+        {
+          "index": 2,
+          "status": "wrong",
+          "reason": "Металлический alpha по умолчанию и Albedo Alpha указаны, но ответ ошибочно утверждает, что канал выбирает Workflow Mode. В S1 его выбирает Source; ошибка затрагивает сам запрошенный механизм."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Workflow Mode определяет, какой alpha-канал используется; S1 относит выбор канала к Source, а Workflow Mode выбирает Metallic либо Specular."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q1",
+      "repeat": 3,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Уменьшение Smoothness и расширение блика указаны; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Source явно выбирает Metallic Alpha по умолчанию либо Albedo Alpha; S1. Ошибка baseline о Workflow Mode отсутствует."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Умножение выбранного alpha на ползунок Smoothness указано; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": []
+    },
+    {
+      "question_id": "q2",
+      "repeat": 3,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map дана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel как инверсия зелёного канала Y описана; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Привязка инверсии к несовпадению конвенции карты с Unity дана; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2",
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q2",
+      "repeat": 3,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Проверка Texture Type = Normal map указана; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Flip Green Channel назван инверсией зелёного канала Y; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Назначение инверсии при несовпадении конвенции карты с ожиданиями Unity объяснено; S1."
+        }
+      ],
+      "unsupported_claims": [
+        "Фраза «если выпуклости отображаются как впадины, это означает, что карта использует другую конвенцию» чрезмерно категорична: S1 предлагает проверить тип и соглашение, но не доказывает диагноз только по симптому."
+      ],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 3,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Полный путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear даны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma → linear при выборке конкретной текстуры названо; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector, Texture Type по назначению и снятие sRGB (Color Texture) при отображении флажка даны; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q3",
+      "repeat": 3,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Путь Edit → Project Settings → Player → Other Settings → Rendering и выбор Linear/Gamma указаны; S2."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Направление gamma-текстура → linear-значения при выборке для шейдера объяснено; S2."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Inspector конкретной текстуры, Texture Type по назначению и снятие sRGB (Color Texture), если флажок отображается, названы; S3."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S1"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 3,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap названа запечённой поверхностью, а пробы — точками пространства; не сказано, что данные самих проб тоже запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Для движущегося персонажа назван приближённый непрямой свет от ближайших проб; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Сценарий движущегося объекта указан, но необходимость bake для самих проб не объяснена; запечённый пол не равен запечённым пробам; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q4",
+      "repeat": 3,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "partial",
+          "reason": "Lightmap описана как запечённое освещение поверхности, пробы — как данные в точках пространства; не сказано, что сами данные проб запечены; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Динамический объект получает приближённый непрямой свет по ближайшим пробам во время выполнения; S1."
+        },
+        {
+          "index": 3,
+          "status": "partial",
+          "reason": "Основной сценарий движущегося объекта назван, но необходимость bake самих Light Probes отсутствует; описание запечённого пола этого не заменяет; S1."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S2"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 3,
+      "preset": "baseline",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное снижение draw calls и объясняет снижение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in названо; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    },
+    {
+      "question_id": "q5",
+      "repeat": 3,
+      "preset": "optimized",
+      "facts": [
+        {
+          "index": 1,
+          "status": "correct",
+          "reason": "Отрицает обязательное сокращение draw calls и объясняет уменьшение CPU-времени подготовки/отправки и смен состояния; S1."
+        },
+        {
+          "index": 2,
+          "status": "correct",
+          "reason": "Меньше shader variants для эффективности и допустимость разных материалов с одним shader указаны; S1."
+        },
+        {
+          "index": 3,
+          "status": "correct",
+          "reason": "Отсутствие поддержки Built-in указано; S2."
+        }
+      ],
+      "unsupported_claims": [],
+      "irrelevant_labels": [
+        "S3"
+      ]
+    }
+  ],
+  "limitations": [
+    "Пять вопросов Unity 6/URP использовались при разработке шаблона; это development set, а не независимый holdout.",
+    "Три идентичных ответа на пару question/preset показывают повторяемость этого запуска, но не независимое разнообразие качества.",
+    "Первичные страницы Unity отдельно не перепроверялись; оценка привязана к сохранённому корпусу и exact expected_facts.",
+    "Факт q4/1 требует явной запечённости данных проб, q4/3 — указания, что пробы надо bake; одних слов о запечённом полу недостаточно.",
+    "Для q2 optimized отдельно отмечена чрезмерная уверенность диагноза по симптому, хотя gold-факт о применении Flip Green при несовпадении конвенций раскрыт.",
+    "Сравнение median wall time взято из сохранённого runtime report; 15 запросов на preset и системные условия не доказывают универсальную скорость.",
+    "Q8 quality NOT RUN: отдельный эксперимент не дошёл до ответов из-за runtime CUDA/Ollama failure; в этот ручной обзор Q8 не включён."
+  ]
+}

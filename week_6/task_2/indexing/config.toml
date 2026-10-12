@@ -1,0 +1,13 @@
+model = "text-embedding-3-small"
+dimensions = 1536
+batch_size = 16
+chunk_size = 1800
+overlap = 180
+min_corpus_characters = 54000
+timeout_seconds = 60.0
+input_usd_per_million = 0.02
+service_tier = "standard"
+tariff_source = "https://developers.openai.com/api/docs/models/text-embedding-3-small"
+tariff_verified_on = "2026-10-03"
+input_policy = "manifest_utf8_safe_paths_min_corpus_v1"
+output_policy = "indexed_finite_nonzero_dimensions_v1"

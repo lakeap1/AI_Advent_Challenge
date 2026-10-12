@@ -1,0 +1,18 @@
+/* Composition stays within the existing chat shell. */
+.composition-progress {margin:12px 0 20px;border:1px solid var(--line-soft);border-radius:12px;padding:18px;background:var(--surface)}
+.composition-event {margin:0 0 30px;overflow-wrap:anywhere}
+.composition-event .message-meta {margin-bottom:6px}
+.composition-state {font-weight:600;margin:0 0 14px}
+.composition-steps {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0;margin:0}
+.composition-steps li {display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.4}
+.composition-steps small,.composition-receipt {color:var(--muted);font-size:12px;line-height:1.6}
+.composition-steps [data-status=running] .step-state {color:var(--green-strong)}
+.composition-steps [data-status=done] .step-state,.composition-steps [data-status=success] .step-state {color:var(--green)}
+.composition-error {color:var(--danger);white-space:pre-wrap}
+.composition-saved {margin-top:20px;border-top:1px solid var(--line-soft);padding-top:16px}
+.composition-saved h3 {margin:0 0 12px;font-size:14px}
+.composition-content {margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.7;color:var(--text)}
+.composition-file {margin-top:20px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.composition-path,.composition-file .field-note {overflow-wrap:anywhere;font-size:12px;line-height:1.6;color:var(--muted)}
+.composition-file a {display:inline-block;padding:8px 0;color:var(--green)}
+@media(max-width:700px){.composition-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}

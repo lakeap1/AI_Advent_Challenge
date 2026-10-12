@@ -1,0 +1,26 @@
+[runtime]
+endpoint = "http://127.0.0.1:11434"
+model = "qwen3.5:9b"
+timeout_seconds = 180
+
+[generation]
+num_ctx = 8192
+num_predict = 1024
+temperature = 0.7
+top_p = 0.8
+top_k = 20
+
+[input_policy]
+max_characters = 2000
+
+[output_policy]
+require_done = true
+reject_length = true
+require_nonempty = true
+
+[pricing]
+service_mode = "self_hosted_local"
+source = "Ollama local API; no token billing"
+checked_date = "2026-10-11"
+basis = "self-hosted local inference has no provider API charge; hardware and energy are excluded"
+

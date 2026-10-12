@@ -1,0 +1,1590 @@
+{
+  "dataset_sha256": "c87dbac2ab8e80207ff3b3fc2a00c79aad2c5853a3bb896df6aed967109b66a7",
+  "questions_sha256": "2f2352cf7d4ae453b02723503e047eb1fcd979241d4d348a410ca31c1d25e949",
+  "protocol": {
+    "scope": "5 fixed Unity 6 questions x 3 repeats, 30 answers; actual retrieved S1-S3 chunk text.",
+    "rubric": "correct: all essential clauses accurate; partial: some clauses present without contradiction; missing: absent; incorrect: material contradiction or wrong instruction, even if another clause is true. Partial earns no full point. Every factual claim must be entailed by supplied chunks; model knowledge outside context is unsupported. Citation label relevance is separate from claim support and retrieved file hit.",
+    "gold_availability": "q1/q2/q4: S1; q3: S2+S3; q5: S1+S2; judged from chunk text for each pair.",
+    "method": "Human semantic review of all unique answers and all case-specific retrieval; identical local repeats verified by SHA-256. No LLM judge."
+  },
+  "totals": {
+    "local": {
+      "answers": 15,
+      "expected_facts": 45,
+      "fully_correct_facts": 39,
+      "partial_facts": 3,
+      "missing_facts": 0,
+      "incorrect_facts": 3,
+      "fully_correct_answers": 9,
+      "fully_grounded_answers": 9,
+      "answers_with_irrelevant_citation_labels": 15,
+      "retrieved_expected_file_hit_answers": 15,
+      "gold_available_in_context_facts": 45,
+      "unique_answer_variants_by_question": {
+        "q1": 1,
+        "q2": 1,
+        "q3": 1,
+        "q4": 1,
+        "q5": 1
+      }
+    },
+    "cloud": {
+      "answers": 15,
+      "expected_facts": 45,
+      "fully_correct_facts": 45,
+      "partial_facts": 0,
+      "missing_facts": 0,
+      "incorrect_facts": 0,
+      "fully_correct_answers": 15,
+      "fully_grounded_answers": 15,
+      "answers_with_irrelevant_citation_labels": 0,
+      "retrieved_expected_file_hit_answers": 15,
+      "gold_available_in_context_facts": 45,
+      "unique_answer_variants_by_question": {
+        "q1": 3,
+        "q2": 3,
+        "q3": 3,
+        "q4": 3,
+        "q5": 3
+      }
+    }
+  },
+  "cases": [
+    {
+      "question_id": "q1",
+      "repeat": 1,
+      "provider": "local",
+      "answer_sha256": "ca4328b0169fb82e1d35c5e250a2f913d7258e424863954f7067ed621ba50766",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "…URP в Unity 6, необходимо уменьшить значение параметра Smoothness. В диапазоне от 0 до 1 значение 0 дает широкий и мягкий блик, тогда как значение 1 с…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "incorrect",
+          "evidence_excerpt": "…именно канал будет считаться: по умолчанию выбирается Metallic Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альф…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ верно называет каналы, но ошибочно приписывает переключение Workflow Mode вместо Source; облачный указывает Source."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…c Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альфа-канала на ползунок Smoothness, поэтому для корректной настро…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Workflow Mode выбирает alpha-канал smoothness",
+            "answer_excerpt": "Workflow Mode определяет, какой именно канал",
+            "reason": "S1: Workflow Mode выбирает Metallic/Specular, канал переключает Source.",
+            "source_labels": [
+              "S1"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q1",
+      "repeat": 1,
+      "provider": "cloud",
+      "answer_sha256": "62da333a6a084b26a637903060b7a5d2a64d79e7f80ff774df45d16817685f9b",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "Уменьшите Smoothness: чем ниже значение, тем шире и мягче блик; значение 0 даёт широкий шероховатый блик,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "correct",
+          "evidence_excerpt": "…кстурную гладкость берут из альфа-канала: по умолчанию Metallic Alpha, либо Albedo Alpha, если выбрать его в Source. Значения выбранного канала умножа…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Корректно названы Source, Metallic Alpha по умолчанию и Albedo Alpha по выбору."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…если выбрать его в Source. Значения выбранного канала умножаются на ползунок Smoothness.",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 1,
+      "provider": "local",
+      "answer_sha256": "36ef19a5159e55f51c64b842145ed0b1ffd7785c62d318904f87e06f40190236",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "После импорта normal map в Unity 6 выпуклости могут выглядеть как впадины из-за несоответствия между конвенци…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…полезно включить опцию Flip Green Channel. Эта функция инвертирует зеленый канал текстуры, который отвечает за направление по оси Y, тем самым исправл…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…могут выглядеть как впадины из-за несоответствия между конвенцией, используемой в вашей карте, и ожиданиями движка. Для решения этой проблемы необходи…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2",
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 1,
+      "provider": "cloud",
+      "answer_sha256": "53f40159b678bf31e1e33bce6e7de30043c8ee76b2899b62fb1be385d1b08627",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "…е, что в настройках текстуры Texture Type установлен в Normal map: этот тип подготавливает текстуру для normal mapping. Затем проверьте соглашение о н…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…мости включите Flip Green Channel.\n\nFlip Green Channel инвертирует зелёный канал, который представляет направление Y. Это помогает, если normal map ис…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…тавливает текстуру для normal mapping. Затем проверьте соглашение о направлении Y в зелёном канале и при необходимости включите Flip Green Channel.\n\nF…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 1,
+      "provider": "local",
+      "answer_sha256": "431484a6ce2030d497721580443186053a7b275c7c36354e1cb0a19406a22ecf",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…е. Настройка проекта выбирается через меню Edit, затем Project Settings, далее Player, Other Settings и Rendering, где можно выбрать Linear или Gamma.…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…нужно ли преобразовывать данные конкретной текстуры из гаммы в линейное при выборке. Настройка проекта выбирается через меню Edit, затем Project Setti…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…но выбрать соответствующий Texture Type и снять флажок sRGB (Color Texture), если он отображается. Важно помнить, что настройка конкретной текстуры не…",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Color Space проекта определяет отображение на экране",
+            "answer_excerpt": "и отображения на экране",
+            "reason": "S2/S3 не содержат такого утверждения о выводе на экран.",
+            "source_labels": [
+              "S2",
+              "S3"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S1"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 1,
+      "provider": "cloud",
+      "answer_sha256": "1c9ca210a7cfbd706a84e6c1dae5e7c3f7a2be1c90692c70ced836d3a5e4df59",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…инга — Linear или Gamma. Выбрать Linear можно в Edit → Project Settings → Player → Other Settings → Rendering → Color Space.\n\nsRGB — отдельная настрой…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…GB — отдельная настройка текстуры. При включённом sRGB sampling Unity преобразует значения gamma-текстуры в linear при выборке, чтобы согласовать их с…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…tor, выберите подходящий Texture Type и снимите флажок sRGB (Color Texture), если он отображается.",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 1,
+      "provider": "local",
+      "answer_sha256": "64ce25984a624f381c116bdee27c1b49a20379b08cc684fa7dd4adb4fc08ba7e",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…ъектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит запечённое освещение непосредственно на поверхностях сцены (например,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…вычисляется динамически путём интерполяции значений из ближайших Light Probes. Запечённый пол сам по себе не передаёт освещение движущемуся объекту, п…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "partial",
+          "evidence_excerpt": "…t Probes нужны для обеспечения качественного освещения движущихся объектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит за…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ называет движущиеся объекты, но явно не говорит про bake самих проб; облачный называет оба."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 1,
+      "provider": "cloud",
+      "answer_sha256": "4f4d93a82ebdb7eb2d7ee4b67146ddb78441aaa7f8847a44b50d05b732ff1507",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…обам; это может учитывать и отражённый непрямой свет.\n\nLightmap, напротив, хранит запечённое освещение на поверхностях сцены — например, на полу. Поэт…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…ремя игры оценивает освещение динамического объекта по ближайшим пробам; это может учитывать и отражённый непрямой свет.\n\nLightmap, напротив, хранит з…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "correct",
+          "evidence_excerpt": "…печённое непрямое освещение выглядело правдоподобно на движущемся персонаже. При запекании Unity сохраняет свет в точках пространства, а во время игры…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названы bake проб и их применение к движущимся объектам."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 1,
+      "provider": "local",
+      "answer_sha256": "96ad0212aed870ca02423e40a0375df8564122d00417e03439bf544590de77a7",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…зательно уменьшает общее число draw calls, а сокращает CPU-время подготовки и отправки draw calls для материалов, использующих один shader variant. Он…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…ки draw calls для материалов, использующих один shader variant. Он уменьшает смены состояния рендеринга между draw calls, но это отличается от уменьше…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…ается в URP, HDRP и custom Scriptable Render Pipeline. Built-in Render Pipeline его не поддерживает.",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 1,
+      "provider": "cloud",
+      "answer_sha256": "ecc49a1bb6550ad36173de62fc4235a854a3ee8bcbd869a79bdbe51cdef47bd8",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…во draw calls: он ускоряет их подготовку и отправку на CPU, уменьшая переключения состояния рендеринга между вызовами.\n\nЭффективная работа связана с s…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…а между вызовами.\n\nЭффективная работа связана с shader variants: SRP batch — это последовательность bind- и draw-команд для материалов с одним и тем ж…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…и пользовательских Scriptable Render Pipeline, но не в Built-in Render Pipeline.",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q1",
+      "repeat": 2,
+      "provider": "local",
+      "answer_sha256": "ca4328b0169fb82e1d35c5e250a2f913d7258e424863954f7067ed621ba50766",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "…URP в Unity 6, необходимо уменьшить значение параметра Smoothness. В диапазоне от 0 до 1 значение 0 дает широкий и мягкий блик, тогда как значение 1 с…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "incorrect",
+          "evidence_excerpt": "…именно канал будет считаться: по умолчанию выбирается Metallic Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альф…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ верно называет каналы, но ошибочно приписывает переключение Workflow Mode вместо Source; облачный указывает Source."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…c Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альфа-канала на ползунок Smoothness, поэтому для корректной настро…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Workflow Mode выбирает alpha-канал smoothness",
+            "answer_excerpt": "Workflow Mode определяет, какой именно канал",
+            "reason": "S1: Workflow Mode выбирает Metallic/Specular, канал переключает Source.",
+            "source_labels": [
+              "S1"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q1",
+      "repeat": 2,
+      "provider": "cloud",
+      "answer_sha256": "1514acf54357e83f72910a0c02911b8afe3ad980b42d32ad0305c2fa08170f6a",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "Уменьшите Smoothness: значение ближе к 0 даёт более широкий и мягкий блик, а значение ближе к 1 — небольш…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "correct",
+          "evidence_excerpt": "…используется альфа-канал: в параметре Source выберите Metallic Alpha (по умолчанию) или Albedo Alpha. Значения выбранного альфа-канала умножаются на…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Корректно названы Source, Metallic Alpha по умолчанию и Albedo Alpha по выбору."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…ию) или Albedo Alpha. Значения выбранного альфа-канала умножаются на ползунок Smoothness.",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 2,
+      "provider": "local",
+      "answer_sha256": "36ef19a5159e55f51c64b842145ed0b1ffd7785c62d318904f87e06f40190236",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "После импорта normal map в Unity 6 выпуклости могут выглядеть как впадины из-за несоответствия между конвенци…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…полезно включить опцию Flip Green Channel. Эта функция инвертирует зеленый канал текстуры, который отвечает за направление по оси Y, тем самым исправл…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…могут выглядеть как впадины из-за несоответствия между конвенцией, используемой в вашей карте, и ожиданиями движка. Для решения этой проблемы необходи…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2",
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 2,
+      "provider": "cloud",
+      "answer_sha256": "a99c5e34ec0e7b6459a55b787970a31dc0ee417101aff5647e154b75af0ac9ac",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "Проверьте, что у текстуры в Unity задан Texture Type = Normal map: этот тип подготавливает её для normal mapping. Затем проверьте соглашение зелёного…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…ыть несовпадение этого соглашения.\n\nFlip Green Channel инвертирует зелёный канал, который задаёт направление Y. Включайте эту настройку, если карта ис…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…подготавливает её для normal mapping. Затем проверьте соглашение зелёного канала в карте и то, совпадает ли оно с ожидаемым Unity. Если выпуклости вы…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 2,
+      "provider": "local",
+      "answer_sha256": "431484a6ce2030d497721580443186053a7b275c7c36354e1cb0a19406a22ecf",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…е. Настройка проекта выбирается через меню Edit, затем Project Settings, далее Player, Other Settings и Rendering, где можно выбрать Linear или Gamma.…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…нужно ли преобразовывать данные конкретной текстуры из гаммы в линейное при выборке. Настройка проекта выбирается через меню Edit, затем Project Setti…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…но выбрать соответствующий Texture Type и снять флажок sRGB (Color Texture), если он отображается. Важно помнить, что настройка конкретной текстуры не…",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Color Space проекта определяет отображение на экране",
+            "answer_excerpt": "и отображения на экране",
+            "reason": "S2/S3 не содержат такого утверждения о выводе на экран.",
+            "source_labels": [
+              "S2",
+              "S3"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S1"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 2,
+      "provider": "cloud",
+      "answer_sha256": "0acf5e5499ceeee3707cb0a52a907072c4246dc427ae69dd31a7cdcc96ff5cf8",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…в Linear-пространстве.\n\nВыбрать Linear можно в Edit → Project Settings → Player → Other Settings → Rendering, в настройке Color Space.\n\nЧтобы отключи…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…ьная настройка импорта конкретного texture asset. sRGB sampling преобразует значения gamma-текстуры в линейные при выборке, чтобы они соответствовали…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…tor, выберите подходящий Texture Type и снимите флажок sRGB (Color Texture), если он отображается. Это не меняет Color Space проекта.",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 2,
+      "provider": "local",
+      "answer_sha256": "64ce25984a624f381c116bdee27c1b49a20379b08cc684fa7dd4adb4fc08ba7e",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…ъектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит запечённое освещение непосредственно на поверхностях сцены (например,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…вычисляется динамически путём интерполяции значений из ближайших Light Probes. Запечённый пол сам по себе не передаёт освещение движущемуся объекту, п…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "partial",
+          "evidence_excerpt": "…t Probes нужны для обеспечения качественного освещения движущихся объектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит за…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ называет движущиеся объекты, но явно не говорит про bake самих проб; облачный называет оба."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 2,
+      "provider": "cloud",
+      "answer_sha256": "9e620018598b0f43e89e8c0fcdb860bce1015a2b69ea31c886f1290088149508",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…едать персонажу в том числе отражённый непрямой свет.\n\nLightmap, в отличие от проб, хранит запечённое освещение непосредственно на поверхностях сцены…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…риближает освещение динамического объекта по значениям ближайших проб. Это помогает передать персонажу в том числе отражённый непрямой свет.\n\nLightmap…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "correct",
+          "evidence_excerpt": "…запечённое непрямое освещение корректно учитывалось на движущихся объектах, например персонаже. При bake Unity записывает освещение в точках пустого п…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названы bake проб и их применение к движущимся объектам."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 2,
+      "provider": "local",
+      "answer_sha256": "96ad0212aed870ca02423e40a0375df8564122d00417e03439bf544590de77a7",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…зательно уменьшает общее число draw calls, а сокращает CPU-время подготовки и отправки draw calls для материалов, использующих один shader variant. Он…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…ки draw calls для материалов, использующих один shader variant. Он уменьшает смены состояния рендеринга между draw calls, но это отличается от уменьше…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…ается в URP, HDRP и custom Scriptable Render Pipeline. Built-in Render Pipeline его не поддерживает.",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 2,
+      "provider": "cloud",
+      "answer_sha256": "8bd3ba651d45998864348407b624407062251e6c118bf03bc73a1fbcea61b661",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…ательно уменьшает число draw calls: он сокращает время CPU на их подготовку и отправку, а также уменьшает смены состояния рендеринга между draw calls.…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…s.\n\nДля эффективности важно использовать меньше shader variants. Batcher работает с материалами, использующими один и тот же shader variant; при этом…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…P, HDRP и пользовательских Scriptable Render Pipeline. Built-in Render Pipeline его не поддерживает.",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q1",
+      "repeat": 3,
+      "provider": "local",
+      "answer_sha256": "ca4328b0169fb82e1d35c5e250a2f913d7258e424863954f7067ed621ba50766",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "…URP в Unity 6, необходимо уменьшить значение параметра Smoothness. В диапазоне от 0 до 1 значение 0 дает широкий и мягкий блик, тогда как значение 1 с…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "incorrect",
+          "evidence_excerpt": "…именно канал будет считаться: по умолчанию выбирается Metallic Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альф…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ верно называет каналы, но ошибочно приписывает переключение Workflow Mode вместо Source; облачный указывает Source."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…c Alpha, но можно переключиться на Albedo Alpha. Unity умножает значения выбранного альфа-канала на ползунок Smoothness, поэтому для корректной настро…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Workflow Mode выбирает alpha-канал smoothness",
+            "answer_excerpt": "Workflow Mode определяет, какой именно канал",
+            "reason": "S1: Workflow Mode выбирает Metallic/Specular, канал переключает Source.",
+            "source_labels": [
+              "S1"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q1",
+      "repeat": 3,
+      "provider": "cloud",
+      "answer_sha256": "50ea293f49dea8215b5acfd38d43ea420bd6c2cf3a5ee87871d80091c99f15eb",
+      "context_sha256": "62156ca08d09651fd3b320568a9f396b8dbe281bfdb52714deb9fe0b3384cdcc",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшить Smoothness для более широкого мягкого блика",
+          "status": "correct",
+          "evidence_excerpt": "Уменьшите Smoothness: значение ближе к 0 даёт более широкий и мягкий блик, а значение ближе к 1 — небольш…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Уменьшение Smoothness расширяет блик."
+        },
+        {
+          "expected": "По умолчанию используется альфа-канал Metallic Map; Source можно переключить на Albedo Alpha",
+          "status": "correct",
+          "evidence_excerpt": "…льфа-канал, выбранный в параметре Source: по умолчанию Metallic Alpha, либо Albedo Alpha. Значения этого канала умножаются на ползунок Smoothness.",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Корректно названы Source, Metallic Alpha по умолчанию и Albedo Alpha по выбору."
+        },
+        {
+          "expected": "Значение канала умножается на ползунок Smoothness",
+          "status": "correct",
+          "evidence_excerpt": "…tallic Alpha, либо Albedo Alpha. Значения этого канала умножаются на ползунок Smoothness.",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Значение канала умножается на ползунок."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 3,
+      "provider": "local",
+      "answer_sha256": "36ef19a5159e55f51c64b842145ed0b1ffd7785c62d318904f87e06f40190236",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "После импорта normal map в Unity 6 выпуклости могут выглядеть как впадины из-за несоответствия между конвенци…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…полезно включить опцию Flip Green Channel. Эта функция инвертирует зеленый канал текстуры, который отвечает за направление по оси Y, тем самым исправл…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…могут выглядеть как впадины из-за несоответствия между конвенцией, используемой в вашей карте, и ожиданиями движка. Для решения этой проблемы необходи…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2",
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q2",
+      "repeat": 3,
+      "provider": "cloud",
+      "answer_sha256": "480cc011ec1bbd5930a3c04d45a21669213f3305013adfa14b636b0e7acb0f1d",
+      "context_sha256": "3a5a527f221a103216af1fd572cf02bf2b80aec8f7fe847feb12520ff5ee8451",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Проверить Texture Type = Normal map",
+          "status": "correct",
+          "evidence_excerpt": "Проверьте, что у текстуры установлен Texture Type = Normal map: этот режим подготавливает её для normal mapping. Затем проверьте соглашение направл…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Texture Type = Normal map указан."
+        },
+        {
+          "expected": "Flip Green Channel инвертирует зелёный канал Y",
+          "status": "correct",
+          "evidence_excerpt": "…правления Y в зелёном канале карты. Flip Green Channel инвертирует зелёный канал, представляющий направление Y. Включайте эту опцию, если соглашение к…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Инверсия зелёного канала Y указана."
+        },
+        {
+          "expected": "Инверсия нужна при несовпадении соглашения карты с ожидаемым Unity",
+          "status": "correct",
+          "evidence_excerpt": "…подготавливает её для normal mapping. Затем проверьте соглашение направления Y в зелёном канале карты. Flip Green Channel инвертирует зелёный канал,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названо несовпадение соглашений карты и Unity."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 3,
+      "provider": "local",
+      "answer_sha256": "431484a6ce2030d497721580443186053a7b275c7c36354e1cb0a19406a22ecf",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…е. Настройка проекта выбирается через меню Edit, затем Project Settings, далее Player, Other Settings и Rendering, где можно выбрать Linear или Gamma.…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…нужно ли преобразовывать данные конкретной текстуры из гаммы в линейное при выборке. Настройка проекта выбирается через меню Edit, затем Project Setti…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…но выбрать соответствующий Texture Type и снять флажок sRGB (Color Texture), если он отображается. Важно помнить, что настройка конкретной текстуры не…",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "unsupported",
+        "unsupported_claims": [
+          {
+            "claim": "Color Space проекта определяет отображение на экране",
+            "answer_excerpt": "и отображения на экране",
+            "reason": "S2/S3 не содержат такого утверждения о выводе на экран.",
+            "source_labels": [
+              "S2",
+              "S3"
+            ]
+          }
+        ],
+        "irrelevant_labels": [
+          "S1"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q3",
+      "repeat": 3,
+      "provider": "cloud",
+      "answer_sha256": "198f76c764b8fc0da9c6d3f33f6737d1cd30b8aae5cde0e62b781cf59b7a504b",
+      "context_sha256": "c1e4799ed90dda2ab66e746a56a2e71021d8fc2d297093cc7e7cc3ae8e4f09bb",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Color Space находится в Project Settings / Player / Other Settings / Rendering",
+          "status": "correct",
+          "evidence_excerpt": "…g у отдельной текстуры.\n\nВыбрать Linear можно в Edit → Project Settings → Player → Other Settings → Rendering, в настройке Color Space.\n\nЧтобы отключи…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Назван путь настройки проекта и выбор Linear."
+        },
+        {
+          "expected": "sRGB sampler переводит gamma-значения в linear для шейдера",
+          "status": "correct",
+          "evidence_excerpt": "…ет за преобразование значений при её выборке. При sRGB sampling значения gamma-текстуры переводятся в линейные для вычислений шейдера. Это разные наст…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Описана конверсия gamma в linear при выборке."
+        },
+        {
+          "expected": "В Inspector текстуры выбрать назначение Texture Type и снять sRGB (Color Texture), если флажок показан",
+          "status": "correct",
+          "evidence_excerpt": "…r, установите подходящий Texture Type и снимите флажок sRGB (Color Texture), если он отображается. Это полезно, например, для текстур с числовыми данн…",
+          "source_labels": [
+            "S3"
+          ],
+          "note": "Названы Texture Type по назначению и отключение sRGB (Color Texture), если флажок виден."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 3,
+      "provider": "local",
+      "answer_sha256": "64ce25984a624f381c116bdee27c1b49a20379b08cc684fa7dd4adb4fc08ba7e",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…ъектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит запечённое освещение непосредственно на поверхностях сцены (например,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…вычисляется динамически путём интерполяции значений из ближайших Light Probes. Запечённый пол сам по себе не передаёт освещение движущемуся объекту, п…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "partial",
+          "evidence_excerpt": "…t Probes нужны для обеспечения качественного освещения движущихся объектов, включая отражённый непрямой свет. В отличие от lightmap, который хранит за…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Локальный ответ называет движущиеся объекты, но явно не говорит про bake самих проб; облачный называет оба."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S2"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q4",
+      "repeat": 3,
+      "provider": "cloud",
+      "answer_sha256": "59b10aef63b5a52d8fd3b7af09710f1d3f7b043b8fa5ede861f55f670cf43def",
+      "context_sha256": "8797ff95a6a2670e5fc8a2a6ab92609f8768212f3e75817f110d424a9ae3f11f",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Lightmap хранит запечённое освещение поверхности, пробы — точек в пространстве",
+          "status": "correct",
+          "evidence_excerpt": "…иблизительно вычисляется по значениям ближайших проб.\n\nLightmap и Light Probes хранят данные по-разному: lightmap — запечённое освещение поверхностей,…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Различены свет на поверхности и свет в точках пространства."
+        },
+        {
+          "expected": "Динамический объект получает приближённый непрямой свет по ближайшим пробам",
+          "status": "correct",
+          "evidence_excerpt": "…еского объекта приблизительно вычисляется по значениям ближайших проб.\n\nLightmap и Light Probes хранят данные по-разному: lightmap — запечённое освеще…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Динамический объект получает приближённый непрямой свет по пробам."
+        },
+        {
+          "expected": "Пробам требуется bake; основной сценарий — движущиеся объекты",
+          "status": "correct",
+          "evidence_excerpt": "Light Probes нужны, чтобы движущийся персонаж получал запечённое непрямое освещение, в том числе отражённый свет. При зап…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Названы bake проб и их применение к движущимся объектам."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 3,
+      "provider": "local",
+      "answer_sha256": "96ad0212aed870ca02423e40a0375df8564122d00417e03439bf544590de77a7",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…зательно уменьшает общее число draw calls, а сокращает CPU-время подготовки и отправки draw calls для материалов, использующих один shader variant. Он…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…ки draw calls для материалов, использующих один shader variant. Он уменьшает смены состояния рендеринга между draw calls, но это отличается от уменьше…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…ается в URP, HDRP и custom Scriptable Render Pipeline. Built-in Render Pipeline его не поддерживает.",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [
+          "S3"
+        ],
+        "cited_labels": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    },
+    {
+      "question_id": "q5",
+      "repeat": 3,
+      "provider": "cloud",
+      "answer_sha256": "1490f529c330d5a5926fc1270ce3052cf9a5d63a7fb24407b8730c1951c7cb9a",
+      "context_sha256": "143ec98c800a27f74189e37c618e39b1acbb749c4d3d3f29baf8af7279867eba",
+      "retrieved_expected_file_hit": true,
+      "gold_available_in_context": 3,
+      "expected_facts": [
+        {
+          "expected": "Уменьшает CPU-затраты подготовки/отправки и смены состояния между draw calls, не обязательно число вызовов",
+          "status": "correct",
+          "evidence_excerpt": "…е обязательно уменьшает число draw calls: он сокращает CPU-время на их подготовку и отправку, а также уменьшает смены состояния рендеринга между ними.…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "CPU-затраты и смены состояния уменьшены без обязательного снижения draw calls."
+        },
+        {
+          "expected": "Меньше shader variants повышает эффективность; разные материалы с одним shader допустимы",
+          "status": "correct",
+          "evidence_excerpt": "…отает, когда материалы используют один и тот же shader variant. Разных материалов с одним шейдером может быть много; для эффективности желательно мень…",
+          "source_labels": [
+            "S1"
+          ],
+          "note": "Меньше variants полезно, несколько материалов с одним shader допустимы."
+        },
+        {
+          "expected": "Built-in не поддерживает SRP Batcher",
+          "status": "correct",
+          "evidence_excerpt": "…материалов хранятся в constant buffers памяти GPU.\n\nВ Built-in Render Pipeline SRP Batcher не поддерживается. Он поддерживается в URP, HDRP и custom…",
+          "source_labels": [
+            "S2"
+          ],
+          "note": "Built-in не поддерживает SRP Batcher."
+        }
+      ],
+      "grounding": {
+        "status": "supported",
+        "unsupported_claims": [],
+        "irrelevant_labels": [],
+        "cited_labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "notes": "Каждый факт оценён относительно ответа; дополнительные утверждения — относительно переданного контекста."
+    }
+  ],
+  "limitations": [
+    "Five fixed questions do not support a general model ranking or performance claim for unseen graphics topics.",
+    "Local outputs are byte-identical across repeats per question; cloud variants differ. Repetitions are not independent question types.",
+    "Brief corpus texts were used as supplied; upstream Unity pages were not revalidated in this review.",
+    "No new generation, speed, cold start, offline-network, UI, or end-to-end runtime check was performed."
+  ]
+}

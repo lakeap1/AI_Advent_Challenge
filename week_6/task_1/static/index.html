@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Локальная LLM · День 26</title>
+  <style>
+    :root { color-scheme: light; --ink:#203044; --muted:#64758a; --line:#d8e2e9; --surface:#fff; --bg:#f4f7f8; --blue:#1b647c; --blue2:#e5f2f5; --green:#237859; --red:#b44742; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:18px/1.55 "Segoe UI", Arial, sans-serif; }
+    .wrap { max-width:1500px; padding:36px 46px 90px; margin:auto; }
+    .hero { display:grid; grid-template-columns:1fr auto; gap:32px; align-items:start; margin-bottom:29px; }
+    .eyebrow { margin:0 0 8px; color:var(--blue); text-transform:uppercase; letter-spacing:.12em; font-size:14px; font-weight:800; }
+    h1 { font-size:45px; line-height:1.12; letter-spacing:-.035em; margin:0 0 14px; }
+    .intro { max-width:870px; margin:0; color:#4c6075; font-size:20px; }
+    .runtime { min-width:350px; background:#eaf0f1; border:1px solid var(--line); border-radius:17px; padding:20px 23px; }
+    .runtime strong { display:block; font-size:21px; margin:4px 0; }
+    .runtime small { display:block; color:var(--muted); font-size:15px; }
+    .runtime .state { margin-top:13px; font-size:15px; color:var(--blue); }
+    .notice { background:#fff6e7; border:1px solid #ebd29f; color:#715623; border-radius:12px; padding:13px 18px; margin:0 0 22px; font-size:16px; }
+    .summary { display:flex; gap:24px; flex-wrap:wrap; padding:15px 20px; border:1px solid var(--line); border-radius:13px; background:var(--surface); margin-bottom:24px; font-size:16px; }
+    .summary b { margin-left:8px; font-size:18px; }
+    .scene { scroll-margin-top:20px; background:var(--surface); border:1px solid var(--line); box-shadow:0 12px 35px #163a4a0a; border-radius:20px; padding:28px 34px 31px; margin-bottom:24px; }
+    .scene-head { display:flex; justify-content:space-between; align-items:start; gap:24px; }
+    .scene-number { display:inline-grid; place-items:center; width:45px; height:45px; border-radius:12px; background:var(--blue2); color:var(--blue); font-size:20px; font-weight:800; margin-right:12px; }
+    h2 { display:inline; font-size:27px; line-height:1.35; letter-spacing:-.02em; }
+    .level { display:inline-block; margin-left:12px; color:var(--muted); font-size:15px; font-weight:600; }
+    button { border:0; background:var(--blue); color:white; border-radius:11px; padding:13px 23px; font:700 17px "Segoe UI",Arial,sans-serif; cursor:pointer; white-space:nowrap; }
+    button:hover:not(:disabled) { background:#124e63; }
+    button:disabled { opacity:.55; cursor:wait; }
+    .label { margin:22px 0 7px; color:var(--muted); text-transform:uppercase; letter-spacing:.09em; font-size:13px; font-weight:800; }
+    .prompt { margin:0; color:#42566b; font-size:17px; max-width:1270px; }
+    .response { border-top:1px solid var(--line); margin-top:20px; padding-top:4px; min-height:70px; }
+    .answer { white-space:pre-wrap; font-size:20px; line-height:1.65; margin:0; max-width:1260px; }
+    .placeholder { color:#8998a8; font-style:italic; }
+    .error { color:var(--red); font-weight:600; }
+    .meta { display:flex; flex-wrap:wrap; gap:12px 26px; margin-top:18px; color:var(--muted); font-size:15px; }
+    .meta b { color:var(--ink); }
+    .badge { border-radius:30px; padding:4px 10px; background:#edf1f4; color:#64758a; font-size:14px; font-weight:700; }
+    .badge.ok { background:#e2f4eb; color:var(--green); }
+    .badge.fail { background:#fbe7e6; color:var(--red); }
+    .badge.busy { background:#e7f2f6; color:var(--blue); }
+    @media(max-width:950px) { .wrap{padding:22px 18px 50px}.hero{grid-template-columns:1fr}.runtime{min-width:0}.scene{padding:22px}.scene-head{flex-wrap:wrap}h1{font-size:35px} }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AI Advent Challenge · Неделя 6 · День 26</p>
+        <h1>Локальная модель в работе</h1>
+        <p class="intro">Три фиксированных вопроса по компьютерной графике: от материала и освещения до диагностики normal map. Каждый запуск обращается к локальной модели отдельно.</p>
+      </div>
+      <aside class="runtime" aria-label="Состояние runtime">
+        <small>Модель и endpoint</small>
+        <strong id="model">qwen3.5:9b</strong>
+        <small id="endpoint">http://127.0.0.1:11434</small>
+        <div class="state" id="runtime-state">Проверка runtime…</div>
+        <small id="runtime-details">Квантизация и VRAM: проверка…</small>
+      </aside>
+    </header>
+    <p class="notice">Демонстрационный режим: при нажатии «Запустить» текст фиксированного запроса и ответ сохраняются локально в data/requests.jsonl вместе с метаданными. Данные не отправляются в облачный API.</p>
+    <section class="summary" aria-label="Сводка"><span>Завершено: <b id="completed">0 / 3</b></span><span>Локальный API: <b id="cost">пока нет запросов</b></span><span>Инфраструктура: <b>стоимость неизвестна</b></span></section>
+    <div id="scenes" aria-live="polite"></div>
+  </main>
+  <script>
+    const scenes = document.getElementById('scenes');
+    const state = new Map();
+    let running = false;
+    function seconds(ns) { return Number.isFinite(ns) ? (ns / 1e9).toFixed(2) + ' с' : 'неизвестно'; }
+    function value(n) { return Number.isInteger(n) ? String(n) : 'неизвестно'; }
+    function usd(amount) { return typeof amount === 'number' && Number.isFinite(amount) ? '$' + amount.toFixed(2) : 'неизвестно'; }
+    function node(tag, className, content) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (content !== undefined) el.textContent = content;
+      return el;
+    }
+    function render(scenario) {
+      const card = node('section', 'scene'); card.id = 'scene-' + scenario.id;
+      const head = node('div', 'scene-head');
+      const title = node('div'); title.append(node('span','scene-number', String(['simple','medium','hard'].indexOf(scenario.id) + 1)), node('h2','',scenario.title), node('span','level',scenario.level));
+      const button = node('button','', 'Запустить'); button.type = 'button'; button.addEventListener('click', () => run(scenario));
+      head.append(title, button);
+      card.append(head, node('p','label','Запрос модели'), node('p','prompt',scenario.prompt));
+      const response = node('div','response'); response.append(node('p','label','Ответ'), node('p','answer placeholder','Нажмите «Запустить», чтобы получить реальный ответ.'));
+      card.append(response, node('div','meta'));
+      scenes.append(card);
+      state.set(scenario.id, {card, button, answer:response.querySelector('.answer'), meta:card.querySelector('.meta'), status:'idle'});
+    }
+    function updateButtons() { for (const item of state.values()) item.button.disabled = running; }
+    function setMeta(item, receipt) {
+      item.meta.replaceChildren();
+      const status = node('span','badge ' + (receipt.status === 'ok' ? 'ok' : 'fail'), receipt.status === 'ok' ? 'Готово' : receipt.status);
+      const usage = receipt.usage || {};
+      item.meta.append(status,
+        node('span','',`Токены: вход ${value(usage.input_tokens)} · выход ${value(usage.output_tokens)} · всего ${value(usage.total_tokens)}`),
+        node('span','',`Генерация: ${seconds(receipt.durations_ns?.total_duration)}`),
+        node('span','',`API USD: ${usd(receipt.pricing?.api_cost_usd)}`));
+      document.getElementById('cost').textContent = usd(receipt.pricing?.cumulative_api_cost_usd);
+    }
+    async function run(scenario) {
+      if (running) return;
+      running = true; updateButtons();
+      const item = state.get(scenario.id);
+      item.status = 'busy'; item.button.textContent = 'Генерация…';
+      item.answer.className = 'answer placeholder'; item.answer.textContent = 'Модель обрабатывает запрос…';
+      item.meta.replaceChildren(node('span','badge busy','Ожидание ответа модели'));
+      item.card.scrollIntoView({behavior:'smooth', block:'start'});
+      try {
+        const response = await fetch('/api/run', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario_id:scenario.id})});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        const receipt = result.receipt;
+        item.status = result.status;
+        if (result.status === 'ok') {
+          item.answer.className = 'answer'; item.answer.textContent = result.answer;
+        } else {
+          item.answer.className = 'answer error';
+          item.answer.textContent = 'Запрос остановлен: ' + (receipt.error || receipt.output_policy?.reason || receipt.input_policy?.reason || (result.status === 'usage_unknown' ? 'счётчики токенов неизвестны' : result.status));
+        }
+        setMeta(item, receipt);
+        document.getElementById('completed').textContent = [...state.values()].filter(x => x.status === 'ok').length + ' / 3';
+      } catch (error) {
+        item.status = 'error'; item.answer.className = 'answer error'; item.answer.textContent = 'Ошибка соединения: ' + error.message;
+        item.meta.replaceChildren(node('span','badge fail','Ошибка'));
+      } finally {
+        running = false; item.button.textContent = 'Запустить снова'; updateButtons();
+      }
+    }
+    async function init() {
+      try {
+        const response = await fetch('/api/scenarios'); if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json(); data.forEach(render);
+      } catch (error) { scenes.append(node('p','error','Не удалось загрузить сценарии: ' + error.message)); }
+      try {
+        const status = await (await fetch('/api/status')).json();
+        document.getElementById('model').textContent = status.model;
+        document.getElementById('endpoint').textContent = status.endpoint;
+        const problems = Object.entries(status).filter(([key, value]) => ['version','tags','ps','show'].includes(key) && value && value.error);
+        document.getElementById('runtime-state').textContent = problems.length ? 'Runtime: ' + problems.map(([key, value]) => `${key}: ${value.error}`).join('; ') : `Runtime ${status.version || 'неизвестен'} · модель ${status.tags?.includes(status.model) ? 'установлена' : 'не найдена в tags'}`;
+        const loaded = Array.isArray(status.ps) ? status.ps.find(x => x.name === status.model) : null;
+        const vram = Number.isFinite(loaded?.size_vram) ? (loaded.size_vram / 1073741824).toFixed(1) + ' ГиБ VRAM' : 'VRAM неизвестна';
+        document.getElementById('runtime-details').textContent = `Квантизация: ${status.show?.quantization_level || 'неизвестна'} · ${vram}`;
+      } catch (error) { document.getElementById('runtime-state').textContent = 'Runtime недоступен: ' + error.message; }
+    }
+    init();
+  </script>
+</body>
+</html>

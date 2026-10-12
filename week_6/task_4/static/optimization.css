@@ -1,0 +1,17 @@
+/* Day 29 additions to the existing assistant theme. */
+.optimization-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 12px}
+.optimization-preset-card{display:flex;flex-direction:column;gap:4px;min-width:0;padding:11px 12px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:9px;overflow-wrap:anywhere}
+.optimization-preset-card strong{font-size:12px;color:var(--green)}
+.optimization-preset-card span{font-size:12px}
+.optimization-preset-card small{font-size:11px;color:var(--muted);line-height:1.5}
+.optimization-benchmark{max-width:850px;margin-top:37px;padding-top:22px;border-top:1px solid var(--line-soft)}
+.optimization-saved-tag{color:var(--amber);background:var(--amber-soft);border-radius:6px;padding:4px 8px;font-size:11px}
+.optimization-table-scroll{overflow-x:auto;margin:15px 0;max-width:100%}
+.optimization-table{width:100%;min-width:680px;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.optimization-table th,.optimization-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+.optimization-table thead th{font-size:11px;font-weight:500;color:var(--muted);background:var(--surface)}
+.optimization-table tbody th{font-weight:600}
+.optimization-benchmark .rag-muted{overflow-wrap:anywhere}
+.rag-source-text{max-height:none}
+@media(max-width:800px){.optimization-presets{grid-template-columns:1fr}.optimization-preset-card{padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){.rag-spinner{animation:none}}

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "scope": "Сохранённый корпус дня 21: README и код помощника дня 20; вопросы о фактическом проекте. indexing/ и новые RAG-файлы не входят в базу.",
+  "fixed_before_generation": "2026-10-05",
+  "questions": [
+    {
+      "id": "q01",
+      "question": "Какие три MCP-сервера участвуют в исследовании нескольких источников в нашем помощнике и какие инструменты предоставляет каждый?",
+      "expected_facts": ["research предоставляет lookup_wikipedia и search_stackexchange", "processing предоставляет compare_sources и prepare_report", "library предоставляет save_report и read_report"],
+      "expected_sources": [{"file": "corpus/project_readme.md", "evidence": "Раздел Возможность дня 20: таблица Сервер / Инструменты / Назначение"}, {"file": "orchestration/runner.py", "evidence": "execute_flow required: шесть квалифицированных имён research__/processing__/library__"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q02",
+      "question": "Какие пределы количества шагов модели и вызовов инструментов установлены для вложенного исследования нескольких источников в нашем помощнике?",
+      "expected_facts": ["Не более 12 шагов модели", "Не более 10 вызовов инструментов за запуск"],
+      "expected_sources": [{"file": "orchestration/runner.py", "evidence": "execute_flow(... max_calls=10, max_steps=12 ...)"}, {"file": "corpus/project_readme.md", "evidence": "Вложенный цикл ограничен 12 шагами модели и 10 вызовами инструментов"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q03",
+      "question": "По каким трём проверкам чтение сохранённого отчёта оркестрации в нашем помощнике считается успешным?",
+      "expected_facts": ["Прочитанные байты равны UTF-8 байтам сохранённого содержимого", "Длина байтов равна bytes_written", "SHA-256 прочитанного файла совпадает с сохранённым sha256"],
+      "expected_sources": [{"file": "orchestration/service.py", "evidence": "read_report сравнивает actual, len(actual) и hashlib.sha256(actual).hexdigest()"}, {"file": "orchestration/runner.py", "evidence": "library__read_report сверяет content, sha256 и bytes_written"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q04",
+      "question": "Какие пять источников допускает композиция одного источника в нашем помощнике и сколько фрагментов выдаёт такой поиск?",
+      "expected_facts": ["Blender Stack Exchange", "Computer Graphics Stack Exchange", "Game Development Stack Exchange", "Wikipedia en и Wikipedia ru", "От одного до трёх фрагментов; это не полный обзор"],
+      "expected_sources": [{"file": "composition/contracts.py", "evidence": "SourceChoice/SOURCE_LABELS и ограничение pieces min_length=1 max_length=3"}, {"file": "composition/service.py", "evidence": "search_graphics выполняет limit=3 и описывает ограничение источника"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q05",
+      "question": "По сочетанию каких идентификаторов HTTP-маршрут нашего помощника ограничивает доступ к результату оркестрации и что возвращает при несовпадении?",
+      "expected_facts": ["Проверяются profile_id, dialogue_id и branch_id вместе", "Несовпадение с текущим рабочим пространством возвращает HTTP 404"],
+      "expected_sources": [{"file": "orchestration_routes.py", "evidence": "identity() и owned(rid): тройка идентификаторов и abort(404)"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q06",
+      "question": "Как наш помощник учитывает reasoning tokens в цене и как показывает накопленный расход, если стоимость одного выполненного API-запроса неизвестна?",
+      "expected_facts": ["Reasoning tokens уже входят в output_tokens и не оплачиваются второй раз", "Неизвестная стоимость не считается нулевой", "Показывается известная часть суммы и отмечается неполнота общей стоимости"],
+      "expected_sources": [{"file": "agent/usage.py", "evidence": "estimate_cost комментарий reasoning и формула без двойного прибавления"}, {"file": "agent/storage.py", "evidence": "snapshot: known_cost_usd, cost_complete, unknown_cost_requests"}, {"file": "corpus/project_readme.md", "evidence": "Политики и расходы: reasoning входит в output, неизвестные данные не ноль"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q07",
+      "question": "Что показывает раздел сводок нашего помощника, когда MCP-сервер сводок недоступен?",
+      "expected_facts": ["Доступна ранее сохранённая локальная история сводок", "Показано предупреждение о недоступности; новые данные не выдаются за подтверждённые"],
+      "expected_sources": [{"file": "digest_routes.py", "evidence": "listing/status except: store.list(...) и warning о недоступности"}, {"file": "corpus/project_readme.md", "evidence": "При недоступном сервере сводок доступна локальная история с предупреждением"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q08",
+      "question": "Что происходит с незавершённым запуском оркестрации нашего помощника после перезапуска процесса?",
+      "expected_facts": ["Запуск со статусом running переводится в interrupted", "Автоматического повтора нет"],
+      "expected_sources": [{"file": "orchestration/store.py", "evidence": "recover(): UPDATE runs SET status='interrupted' ... WHERE status='running'"}, {"file": "corpus/project_readme.md", "evidence": "После рестарта незавершённые запуски помечаются interrupted; автоматического повтора нет"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q09",
+      "question": "В нашем помощнике отчёт уже записан и проверен чтением, но последующая реплика чата не прошла output policy. Что остаётся результатом и что будет с расходами выполненных вызовов?",
+      "expected_facts": ["Сохранённый и проверенный отчёт остаётся фактическим результатом инструментов", "Отклонённый ответ чата не считается принятым", "Usage и стоимость всех уже выполненных вызовов сохраняются"],
+      "expected_sources": [{"file": "corpus/project_readme.md", "evidence": "Успешная запись и финальный ответ чата — разные результаты; все выполненные вызовы учитываются"}, {"file": "agent/core.py", "evidence": "Учёт usage/cost до accepted output и output policy rejection"}, {"file": "agent/orchestration_action.py", "evidence": "completed result сохраняет saved_readback независимо от дальнейшего финального ответа"}],
+      "unanswerable": false
+    },
+    {
+      "id": "q10",
+      "question": "В каком формате и кодировке сохраняется отчёт оркестрации и разрешена ли перезапись уже существующего файла?",
+      "expected_facts": ["Отчёт сохраняется как текстовый файл .txt", "Содержимое кодируется в UTF-8", "Перезапись существующего файла запрещена"],
+      "expected_sources": [{"file": "orchestration/service.py", "evidence": "OrchestrationService.save_report: суффикс .txt, content.encode('utf-8'), open('xb') и обработка FileExistsError"}],
+      "unanswerable": false
+    }
+  ]
+}

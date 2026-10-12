@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Теория графики · Индексация</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body{background:var(--bg);min-height:100vh}
+    .index-shell{max-width:1500px;margin:auto;padding:22px clamp(16px,3vw,48px) 60px}
+    .index-top{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line-soft);padding-bottom:22px}
+    .index-top a{color:var(--green);font-weight:600}
+    .eyebrow{font-size:11px;letter-spacing:.13em;color:var(--green);margin-bottom:6px}
+    h1{font-size:28px}h2{font-size:18px;margin-bottom:10px}
+    .intro{color:var(--muted);max-width:78ch;margin:20px 0 24px}
+    .index-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.9fr);gap:18px}
+    .card{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;padding:22px;min-width:0}
+    .wide{grid-column:1/-1}
+    .card-head{display:flex;align-items:start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .muted{color:var(--muted)}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+    .metric{background:var(--surface-2);padding:14px;border-radius:9px;min-width:0}.metric strong{display:block;font-size:21px;color:var(--green-strong);overflow-wrap:anywhere}.metric span{font-size:12px;color:var(--muted)}
+    .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.controls select{width:auto;min-width:145px}.controls button{white-space:nowrap}
+    #build{background:var(--green);color:var(--on-accent);border-color:var(--green);font-weight:650}#build:hover:not(:disabled){background:var(--accent-hover)}
+    #error{background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);padding:12px 16px;border-radius:9px;margin:0 0 18px;white-space:pre-wrap}
+    .table-wrap{overflow-x:auto;margin-top:12px}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line-soft);vertical-align:top}th{color:var(--muted);font-size:12px;font-weight:600}td:first-child{font-weight:600}
+    .hint{font-size:12px;color:var(--muted);margin-top:12px}.list{display:grid;gap:7px;max-height:440px;overflow:auto;margin-top:14px}.chunk-button{display:block;width:100%;text-align:left;background:var(--surface-2);overflow-wrap:anywhere}.chunk-button[aria-pressed=true]{border-color:var(--green);background:var(--green-soft)}.chunk-button small{display:block;color:var(--muted)}
+    .pager{display:flex;align-items:center;gap:10px;margin-top:14px}.pager span{color:var(--muted);font-size:12px}
+    #chunk-details{min-height:190px}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.detail-grid p{background:var(--surface-2);padding:8px;border-radius:6px;overflow-wrap:anywhere}.detail-grid span{display:block;font-size:11px;color:var(--muted)}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);padding:14px;border:1px solid var(--line-soft);border-radius:8px;max-height:340px;overflow:auto;font:12px/1.5 Consolas,monospace}h3{margin:17px 0 7px}
+    .boundary{white-space:pre-wrap;overflow-wrap:anywhere}.status-line{color:var(--green);margin-top:14px}.mono{font-family:Consolas,monospace;font-size:12px}.corpus-table{max-height:350px;overflow:auto}
+    @media(max-width:900px){.index-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-grid{grid-template-columns:1fr}}
+    @media(max-width:560px){.index-top{align-items:start;flex-direction:column}.metric-grid{grid-template-columns:1fr 1fr}.card{padding:16px}.controls{align-items:stretch}.controls select{width:100%}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#build">К индексации</a>
+<div class="index-shell">
+  <header class="index-top"><div><p class="eyebrow">КОМПЬЮТЕРНАЯ ГРАФИКА · ДЕНЬ 21</p><h1>Индексация документов</h1></div><nav aria-label="Другие разделы"><a href="/">← Вернуться в чат</a> · <a href="/rag">Ответы с поиском →</a></nav></header>
+  <p class="intro">Локальный корпус кода и описания помощника делится двумя способами. Кнопка «Индексировать документы» отправит тексты перечисленных файлов в OpenAI API. После построения можно изучить точные границы фрагментов, сохранённые векторы и расход. Это подготовка базы для поиска; качество поиска здесь не измеряется.</p>
+  <p id="error" role="alert" hidden></p>
+  <div class="index-grid">
+    <section class="card"><div class="card-head"><div><h2>Корпус</h2><p class="muted">Явный список файлов; эквивалент страницы — 1800 символов.</p></div><span id="status-label" class="status-line" role="status" aria-live="polite">Загрузка…</span></div>
+      <p id="corpus-current-label" class="hint">Проверяем текущий корпус для следующего построения…</p>
+      <div class="metric-grid"><div class="metric"><strong id="documents">—</strong><span>документов</span></div><div class="metric"><strong id="characters">—</strong><span>символов</span></div><div class="metric"><strong id="lines">—</strong><span>строк кода и текста</span></div><div class="metric"><strong id="pages">—</strong><span>эквивалентов страниц</span></div><div class="metric"><strong id="dimensions">—</strong><span>размерность вектора</span></div><div class="metric"><strong id="model">—</strong><span>модель embeddings</span></div></div>
+      <p id="corpus-hash" class="hint mono"></p><p id="published-snapshot" class="hint mono"></p><p id="progress" class="hint"></p>
+      <details id="corpus-files" style="margin-top:16px"><summary>Состав корпуса и происхождение</summary><p id="corpus-provenance" class="hint"></p><div class="table-wrap corpus-table"><table><thead><tr><th>Файл</th><th>Название</th><th>Символов</th><th>SHA-256</th></tr></thead><tbody id="corpus-files-body"></tbody></table></div><p id="corpus-files-empty" class="hint"></p></details>
+    </section>
+    <section class="card"><h2>Построение</h2><p class="muted">Обе стратегии строятся на одном снимке. Повтор без force использует сохранённый индекс.</p>
+      <div class="controls" style="margin-top:22px"><button id="build" type="button">Индексировать документы</button><button id="refresh" type="button">Обновить состояние</button><a href="/api/indexing/export" download="indexing-export.json">Экспорт JSON</a></div>
+      <p id="build-note" class="hint">Построение отправляет фрагменты корпуса в API; команда inspect доступна без ключа.</p>
+      <p id="cumulative" class="status-line"></p><p id="tariff" class="hint"></p>
+    </section>
+    <section class="card wide"><h2>Сравнение стратегий</h2><p class="muted">Метрики структуры и стоимости рассчитаны по фактическим чанкам и журналу API.</p><div class="table-wrap"><table><thead><tr><th>Метрика</th><th>Fixed-size</th><th>Structural</th></tr></thead><tbody id="comparison-body"></tbody></table></div><p id="boundary" class="hint boundary"></p></section>
+    <section class="card"><div class="card-head"><div><h2>Фрагменты</h2><p class="muted">Выберите стратегию и чанк.</p></div><div class="controls"><label for="strategy">Стратегия</label><select id="strategy"><option value="fixed">Fixed-size</option><option value="structural">Structural</option></select></div></div><div id="chunk-list" class="list" aria-label="Фрагменты индекса"></div><div class="pager"><button id="previous-page" type="button">← Назад</button><span id="page-label"></span><button id="next-page" type="button">Вперёд →</button></div></section>
+    <section class="card"><h2>Содержимое фрагмента</h2><div id="chunk-details" aria-live="polite"><p class="muted">Выберите фрагмент слева.</p></div></section>
+    <section class="card wide"><h2>Учёт API-запросов</h2><p class="muted">Каждая строка — выполненный batch. Неизвестный usage или расход явно обозначен; общая сумма может быть неполной.</p><div class="table-wrap"><table><thead><tr><th>Batch</th><th>Стратегия</th><th>Статус / policy</th><th>Input</th><th>Output</th><th>Total</th><th>USD</th></tr></thead><tbody id="ledger-body"></tbody></table></div><p id="ledger-empty" class="hint"></p></section>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const PAGE_SIZE = 20;
+  let state = {}, inspectedCorpus = null, offset = 0, requestNumber = 0, building = false, poller = null;
+  const integer = value => value === null || value === undefined ? 'неизвестно' : Number(value).toLocaleString('ru-RU');
+  const money = value => value === null || value === undefined ? 'неизвестно' : '$' + Number(value).toFixed(8);
+  const value = v => v === null || v === undefined ? 'неизвестно' : String(v);
+  function set(id, v) { $(id).textContent = v; }
+  function error(message) { set('error', message); $('error').hidden = !message; }
+  async function api(path, options) {
+    const response = await fetch(path, {cache:'no-store', ...options});
+    let data;
+    try { data = await response.json(); } catch { throw new Error('Сервер вернул ответ без JSON.'); }
+    if (!response.ok) throw new Error(data?.error || data?.text || 'Запрос завершился ошибкой.');
+    return data;
+  }
+  function cell(row, content) { const td = document.createElement('td'); td.textContent = content; row.append(td); }
+  function row(body, cells) { const tr = document.createElement('tr'); cells.forEach(c => cell(tr, c)); body.append(tr); }
+  function safeFile(file) {
+    const name = String(file || '');
+    return name && !name.startsWith('/') && !name.startsWith('\\') && !name.includes(':') && !name.split(/[\\/]/).includes('..') ? name : 'некорректный путь';
+  }
+  function renderCorpus(corpus) {
+    const files = Array.isArray(corpus.files) ? corpus.files : [];
+    const body = $('corpus-files-body'); body.replaceChildren();
+    for (const file of files) row(body, [safeFile(file.file), value(file.title), integer(file.characters), value(file.document_hash)]);
+    set('corpus-provenance', corpus.provenance ? 'Происхождение: ' + corpus.provenance : 'Происхождение пока не указано.');
+    set('corpus-files-empty', files.length ? '' : 'Список файлов пока недоступен.');
+    $('corpus-files').querySelector('summary').textContent = `Состав корпуса и происхождение · ${integer(files.length)} файлов`;
+  }
+  const metrics = [
+    ['Чанков','chunk_count',integer], ['Минимум символов','min_characters',integer],
+    ['Медиана символов','median_characters',integer], ['Максимум символов','max_characters',integer],
+    ['Пересечение разделов','multi_section_chunks',integer], ['Fallback-разбиений','fallback_chunks',integer],
+    ['Индексировано символов','indexed_characters',integer], ['Коэффициент повтора','repetition_factor',v => v == null ? 'неизвестно' : Number(v).toFixed(3)],
+    ['Время, с','elapsed_seconds',v => v == null ? 'неизвестно' : Number(v).toFixed(2)],
+    ['Input tokens','input_tokens',integer], ['Стоимость, USD','cost_usd',money]
+  ];
+  function renderSummary(summary) {
+    state = summary || {};
+    const corpus = inspectedCorpus || {};
+    const published = state.corpus || null;
+    set('status-label', ({complete:'Готово',running:'Идёт построение',building:'Идёт построение',failed:'Ошибка',empty:'Индекс не построен',idle:'Индекс не построен'})[state.status] || value(state.status));
+    set('corpus-current-label', inspectedCorpus ? 'Текущий корпус для следующего построения:' : 'Текущий корпус недоступен; новое построение не запущено.');
+    set('documents', integer(corpus.documents)); set('characters', integer(corpus.characters));
+    set('lines', integer(corpus.lines)); set('pages', integer(corpus.estimated_pages));
+    set('dimensions', integer(state.dimensions ?? state.config?.dimensions ?? 1536)); set('model', value(state.model ?? state.config?.model ?? 'text-embedding-3-small'));
+    set('corpus-hash', corpus.corpus_hash ? 'SHA-256 текущего корпуса: ' + corpus.corpus_hash : 'Хеш текущего корпуса неизвестен.');
+    set('published-snapshot', published?.corpus_hash ? `Опубликованный снимок: ${published.corpus_hash} · ${integer(published.documents)} документов, ${integer(published.characters)} символов` + (corpus.corpus_hash ? (corpus.corpus_hash === published.corpus_hash ? ' · совпадает с текущим корпусом' : ' · отличается от текущего корпуса') : ' · сравнение с текущим корпусом недоступно') : 'Опубликованного снимка пока нет.');
+    renderCorpus(corpus);
+    const progress = state.progress || {};
+    set('progress', progress.completed != null ? `Обработано: ${integer(progress.completed)} из ${integer(progress.total)} фрагментов.` : progress.batches != null && progress.batches > 0 ? `Записано batch: ${integer(progress.batches)} · текущая стратегия: ${value(progress.current_strategy)}.` : '');
+    const cumulative = state.cumulative || {};
+    set('cumulative', 'Все вызовы API: ' + money(cumulative.known_cost_usd) + (cumulative.complete === false ? ' · сумма неполная' : cumulative.complete === true ? ' · сумма полная' : ' · полнота неизвестна'));
+    const tariff = state.tariff || state.config?.tariff || {};
+    set('tariff', tariff.input_usd_per_million != null ? `Тариф: $${tariff.input_usd_per_million} / 1 млн input tokens · ${value(tariff.service_tier)} · проверен ${value(tariff.verified_on)} · ${value(tariff.source)}` : 'Тариф указан в indexing/config.toml.');
+    const body = $('comparison-body'); body.replaceChildren();
+    for (const [label, key, format] of metrics) row(body, [label, format(state.comparison?.fixed?.[key]), format(state.comparison?.structural?.[key])]);
+    set('build-note', building ? 'Индексация выполняется. Статус обновляется без повторного запуска.' : 'Построение отправляет фрагменты корпуса в API; inspect доступен без ключа.');
+  }
+  function selectChunk(chunk, button) {
+    for (const item of $('chunk-list').querySelectorAll('button')) item.setAttribute('aria-pressed', String(item === button));
+    const target = $('chunk-details'); target.replaceChildren();
+    const grid = document.createElement('div'); grid.className = 'detail-grid';
+    const fields = [
+      ['ID',chunk.chunk_id], ['Файл',chunk.file || chunk.source], ['Источник',chunk.source],
+      ['Заголовок',chunk.title], ['Разделы',Array.isArray(chunk.section) ? chunk.section.join(' / ') : chunk.section],
+      ['Символы',`${chunk.start}–${chunk.end}`], ['Строки',`${chunk.line_start}–${chunk.line_end}`],
+      ['Fallback',chunk.fallback ? 'да' : 'нет'], ['SHA-256 документа',chunk.document_hash]
+    ];
+    for (const [name, field] of fields) { const p = document.createElement('p'); const title = document.createElement('span'); title.textContent = name; p.append(title,document.createTextNode(value(field))); grid.append(p); }
+    target.append(grid);
+    const heading = document.createElement('h3'); heading.textContent = 'Точный текст'; const source = document.createElement('pre'); source.textContent = value(chunk.text); target.append(heading, source);
+    const vector = chunk.embedding || chunk.vector;
+    const vectorHeading = document.createElement('h3'); vectorHeading.textContent = 'Вектор';
+    const preview = document.createElement('pre'); preview.textContent = Array.isArray(vector) ? `${vector.length} измерений · первые 12: ${vector.slice(0,12).map(v => Number(v).toPrecision(6)).join(', ')}` : 'Вектор недоступен';
+    target.append(vectorHeading,preview);
+  }
+  async function loadChunks() {
+    const serial = ++requestNumber, strategy = $('strategy').value;
+    const chunks = await api(`/api/indexing/chunks?strategy=${encodeURIComponent(strategy)}&offset=${offset}&limit=${PAGE_SIZE}`);
+    if (serial !== requestNumber) return;
+    const list = $('chunk-list'); list.replaceChildren(); $('chunk-details').replaceChildren();
+    if (!Array.isArray(chunks) || !chunks.length) { const p = document.createElement('p'); p.className = 'muted'; p.textContent = 'На этой странице нет фрагментов.'; list.append(p); }
+    else for (const chunk of chunks) { const button = document.createElement('button'); button.type = 'button'; button.className = 'chunk-button'; button.dataset.chunkId = chunk.chunk_id; button.setAttribute('aria-pressed','false');
+      const main = document.createElement('strong'); main.textContent = `${chunk.file || chunk.source} · ${chunk.line_start}–${chunk.line_end}`;
+      const small = document.createElement('small'); small.textContent = `${Array.isArray(chunk.section) ? chunk.section.join(' / ') : value(chunk.section)} · ${chunk.start}–${chunk.end}`;
+      button.append(main,small); button.addEventListener('click',() => selectChunk(chunk,button)); list.append(button);
+    }
+    const total = state.comparison?.[strategy]?.chunk_count ?? 0;
+    set('page-label', chunks.length ? `${integer(offset + 1)}–${integer(offset + chunks.length)} из ${integer(total)}` : `0 из ${integer(total)}`);
+    $('previous-page').disabled = offset === 0; $('next-page').disabled = chunks.length < PAGE_SIZE || (state.comparison?.[strategy]?.chunk_count != null && offset + chunks.length >= state.comparison[strategy].chunk_count);
+  }
+  function renderLedger(exported) {
+    const ledger = Array.isArray(exported?.ledger) ? exported.ledger : []; const body = $('ledger-body'); body.replaceChildren();
+    for (const item of ledger) row(body, [value(item.batch_id),value(item.strategy),`${value(item.status)} / ${value(item.policy?.code || item.policy?.status || item.policy)}`,integer(item.input_tokens),value(item.output_tokens_status === 'not_applicable' ? 'не применяется' : integer(item.output_tokens)),integer(item.total_tokens),money(item.cost_usd)]);
+    set('ledger-empty', ledger.length ? '' : 'Вызовов API пока нет.');
+    const tariff = ledger.find(item => item.tariff?.input_usd_per_million != null)?.tariff;
+    if (tariff) set('tariff', `Тариф: $${tariff.input_usd_per_million} / 1 млн input tokens · ${value(tariff.service_tier)} · проверен ${value(tariff.verified_on)} · ${value(tariff.source)}`);
+  }
+  function renderBoundary(exported) {
+    if (!state.comparison?.fixed || !state.comparison?.structural) { set('boundary','Границы появятся после построения обоих индексов.'); return; }
+    const fixed = exported?.indexes?.fixed?.chunks || [], structural = exported?.indexes?.structural?.chunks || [];
+    const byFile = new Map();
+    for (const chunk of structural) {
+      if (!byFile.has(chunk.file)) byFile.set(chunk.file, []);
+      byFile.get(chunk.file).push(chunk);
+    }
+    const candidates = fixed.filter(chunk => byFile.has(chunk.file));
+    candidates.sort((a,b) => Number(b.file === 'agent/composition.py') - Number(a.file === 'agent/composition.py'));
+    let pair = null;
+    for (const a of candidates) {
+      const b = byFile.get(a.file).find(item => item.start !== a.start || item.end !== a.end);
+      if (b) { pair = [a,b]; break; }
+    }
+    if (!pair) { set('boundary','Разные границы в опубликованных индексах не найдены.'); return; }
+    const [a,b] = pair;
+    const tail = chunk => value(chunk.text).slice(-72).replace(/\s+/g,' ');
+    set('boundary', `Один файл — разные границы (${a.file}):\nFixed-size ${a.start}–${a.end} · ${(a.section || []).join(' / ')}\n…${tail(a)}\nStructural ${b.start}–${b.end} · ${(b.section || []).join(' / ')}\n…${tail(b)}`);
+  }
+  async function refresh({preserveError = false} = {}) {
+    const previousError = preserveError ? $('error').textContent : '';
+    let inspectError = '';
+    try {
+      const summary = await api('/api/indexing/status');
+      try { inspectedCorpus = await api('/api/indexing/inspect'); }
+      catch (cause) { inspectedCorpus = null; inspectError = 'Текущий корпус недоступен: ' + (cause.message || 'ошибка проверки.'); }
+      renderSummary(summary);
+      const exported = await api('/api/indexing/export'); renderLedger(exported); renderBoundary(exported);
+      await loadChunks();
+      const statusError = summary.status === 'failed' ? (summary.active_run_id ? 'Последнее построение завершилось ошибкой. Прежний опубликованный индекс сохранён.' : 'Индексация завершилась ошибкой. Проверьте журнал запросов.') : '';
+      const message = [previousError,inspectError,statusError].filter(Boolean).join(' ');
+      if (message) error(message);
+      else if (!building) error('');
+    } catch (cause) { error([previousError,inspectError,cause.message || 'Не удалось загрузить индекс.'].filter(Boolean).join(' ')); }
+  }
+  $('build').addEventListener('click', async () => {
+    if (building) return; building = true; $('build').disabled = true; error(''); renderSummary(state);
+    try { inspectedCorpus = await api('/api/indexing/inspect'); renderSummary(state); }
+    catch (cause) {
+      inspectedCorpus = null; building = false; $('build').disabled = false; renderSummary(state);
+      error('Текущий корпус недоступен: ' + (cause.message || 'ошибка проверки.') + ' Индексация не запущена.');
+      return;
+    }
+    poller = setInterval(async () => { try { const summary = await api('/api/indexing/status'); if (building) renderSummary(summary); } catch { /* final response shows error */ } }, 1200);
+    let buildError = '';
+    try {
+      const result = await api('/api/indexing/build', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({force:false})});
+      if (result.status === 'failed' || result.status === 'rejected') throw new Error(result.error || result.text || 'Индексация не завершена.');
+    } catch (cause) { buildError = cause.message || 'Индексация не завершена.'; error(buildError); }
+    finally {
+      clearInterval(poller); poller = null; building = false; $('build').disabled = false;
+      await refresh({preserveError: Boolean(buildError)}); renderSummary(state);
+    }
+  });
+  $('refresh').addEventListener('click',() => refresh());
+  $('strategy').addEventListener('change', async () => { offset = 0; try { await loadChunks(); } catch (cause) { error(cause.message); } });
+  $('next-page').addEventListener('click', async () => { offset += PAGE_SIZE; try { await loadChunks(); } catch (cause) { offset -= PAGE_SIZE; error(cause.message); } });
+  $('previous-page').addEventListener('click', async () => { offset = Math.max(0,offset-PAGE_SIZE); try { await loadChunks(); } catch (cause) { error(cause.message); } });
+  refresh();
+})();
+</script>
+</body>
+</html>

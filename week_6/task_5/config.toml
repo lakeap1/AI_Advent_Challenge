@@ -1,0 +1,21 @@
+[runtime]
+model = "qwen3.5:4b"
+num_ctx = 4096
+num_predict = 384
+num_gpu = 0
+timeout_seconds = 180
+
+[input_policy]
+max_characters = 2000
+max_context_characters = 16000
+
+[output_policy]
+max_characters = 2000
+
+[pricing]
+api_usd_per_million_input = "0"
+api_usd_per_million_output = "0"
+service_mode = "self_hosted_local"
+source = "Ollama local inference has no provider API token charge"
+checked_on = "2026-10-12"
+infrastructure_cost = "unknown; depends on hosting and electricity costs"

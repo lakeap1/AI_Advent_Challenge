@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Теория графики · Локальный поиск</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="/day28-static/local-rag.css">
+  <script src="/day28-static/local-rag.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#rag-prompt">К вопросу</a>
+<div class="rag-shell">
+  <aside class="rag-nav" aria-label="Разделы помощника">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">а.</span>Теория графики</a>
+    <p class="eyebrow">ПОМОЩНИК ПО ГРАФИКЕ И АРТУ</p>
+    <strong class="rag-nav-current" aria-current="page">Локальный поиск</strong>
+    <a class="rag-nav-link" href="/chat">Открыть прежний чат <span aria-hidden="true">↗</span></a>
+    <p class="rag-nav-note">Вопросы обрабатываются по отдельности. История сохраняет результаты, но не передаётся модели как контекст разговора.</p>
+    <section class="rag-nav-history" aria-labelledby="rag-history-title">
+      <h2 id="rag-history-title">История вопросов</h2>
+      <div id="rag-history"><p class="rag-muted">История загружается…</p></div>
+    </section>
+  </aside>
+  <div class="rag-workspace">
+    <header class="rag-topbar">
+      <div>
+        <p class="eyebrow">ДЕНЬ 28 · RAG ПО ЛОКАЛЬНЫМ МАТЕРИАЛАМ</p>
+        <h1>Разобраться в графике с опорой на источники</h1>
+      </div>
+      <a class="rag-chat-link" href="/chat">Прежний чат <span aria-hidden="true">↗</span></a>
+    </header>
+    <div class="rag-body">
+      <main class="rag-main">
+        <section class="rag-intro" aria-label="О помощнике">
+          <p>Спросите о графике и арте. Помощник найдёт фрагменты в локальной базе и покажет полный ответ рядом с источниками. Локальный режим выбран по умолчанию.</p>
+        </section>
+        <section class="rag-system" aria-labelledby="rag-system-title">
+          <div class="rag-section-head"><h2 id="rag-system-title">База и модели</h2><div class="rag-actions"><button id="rag-refresh" type="button">Обновить состояние</button><button id="rag-build" type="button" class="secondary-button">Построить индекс</button></div></div>
+          <div id="rag-status" role="status" aria-live="polite">Загрузка состояния…</div>
+          <p class="rag-muted">Индекс строится только по кнопке. Обновление состояния не обращается к Ollama; доступность моделей проверяется при построении индекса или вопросе.</p>
+        </section>
+        <form id="rag-form" class="rag-composer" novalidate>
+          <label for="rag-prompt">Ваш вопрос</label>
+          <textarea id="rag-prompt" name="prompt" maxlength="2000" rows="3" placeholder="Например, как устроено освещение в Unity URP?" aria-describedby="rag-prompt-help rag-count"></textarea>
+          <div class="rag-form-bottom">
+            <div class="rag-mode-wrap"><label for="rag-mode">Режим ответа</label><select id="rag-mode" name="mode"><option value="local" selected>Локальная модель</option><option value="cloud">Облачная модель</option><option value="compare">Сравнить две модели</option></select></div>
+            <span id="rag-count" class="rag-muted">0 / 2000</span>
+            <button id="rag-submit" class="send-button" type="submit">Получить ответ <span aria-hidden="true">↗</span></button>
+          </div>
+          <p id="rag-prompt-help" class="rag-muted">Каждый вопрос независим. Облачный режим требует ключа API и запускается только по вашему выбору.</p>
+        </form>
+        <div id="rag-waiting" class="rag-waiting" role="status" aria-live="polite" hidden><span class="rag-spinner" aria-hidden="true"></span><span>Ищем фрагменты и ждём полный ответ модели…</span></div>
+        <div id="rag-notice" class="rag-notice" role="alert" hidden></div>
+        <section class="rag-result-area" aria-labelledby="rag-result-title">
+          <div class="rag-section-head"><h2 id="rag-result-title" tabindex="-1">Ответ</h2><span id="rag-result-meta" class="rag-muted"></span></div>
+          <div id="rag-results" aria-live="polite"><p class="rag-empty">Задайте вопрос, чтобы увидеть ответ и подтверждающие фрагменты.</p></div>
+        </section>
+      </main>
+      <aside class="rag-evidence" aria-label="Источники и расходы">
+        <section aria-labelledby="rag-sources-title">
+          <h2 id="rag-sources-title">Найденные источники</h2>
+          <div id="rag-sources"><p class="rag-muted">Источники появятся после запроса.</p></div>
+        </section>
+        <section aria-labelledby="rag-ledger-title">
+          <h2 id="rag-ledger-title">Расходы и политика</h2>
+          <div id="rag-ledger"><p class="rag-muted">Сведения загружаются…</p></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

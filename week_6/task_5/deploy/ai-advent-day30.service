@@ -1,0 +1,20 @@
+[Unit]
+Description=AI Advent Day 30 private chat API
+After=ai-advent-day30-ollama.service
+Requires=ai-advent-day30-ollama.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ai-advent-day30/app
+Environment=DAY30_TOKEN_FILE=%h/ai-advent-day30/data/access-token
+Environment=DAY30_DATA_DIR=%h/ai-advent-day30/data/chat
+ExecStart=%h/ai-advent-day30/.venv/bin/python -B %h/ai-advent-day30/app/week_6/task_5/server.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/ai-advent-day30/data
+
+[Install]
+WantedBy=default.target

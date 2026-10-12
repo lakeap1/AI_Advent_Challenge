@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Атлас — приватный помощник по графике</title>
+  <link rel="stylesheet" href="/static/private_chat.css">
+  <script src="/static/private_chat.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="masthead">
+      <a class="brand" href="/" aria-label="Атлас, начало страницы"><span class="brand-mark" aria-hidden="true">✳</span><span>АТЛАС<span class="brand-sub">/ PRIVATE STUDIO</span></span></a>
+      <span class="masthead-note">Локальный помощник · компьютерная графика и арт</span>
+      <span class="connection-indicator" id="connection-indicator">Не подключено</span>
+    </header>
+
+    <main class="workspace">
+      <section class="chat-panel" aria-labelledby="chat-title">
+        <div class="chat-heading">
+          <div><span class="eyebrow">01 / ДИАЛОГ</span><h1 id="chat-title">Рабочая студия</h1><p>Свет, материалы, композиция, 2D и 3D — разберите задачу вместе с локальной моделью.</p></div>
+          <span class="private-tag">ПРИВАТНЫЙ ДОСТУП</span>
+        </div>
+        <div class="conversation" id="messages" role="log" aria-label="История диалога" aria-live="polite" aria-relevant="additions text"><div class="empty-state"><span aria-hidden="true">✳</span><h2>Диалог появится после подключения</h2><p>Введите ключ доступа справа, чтобы загрузить общую историю чата.</p></div></div>
+        <form class="composer" id="composer">
+          <label for="prompt">Ваш вопрос</label>
+          <textarea id="prompt" name="prompt" rows="3" maxlength="2000" placeholder="Например: как выстроить мягкий свет для предметного рендера?" disabled></textarea>
+          <div class="composer-footer"><span id="prompt-hint">До 2000 символов · Ctrl+Enter — отправить</span><button type="submit" id="send" disabled>Отправить <span aria-hidden="true">↗</span></button></div>
+        </form>
+      </section>
+
+      <aside class="side-panel" aria-label="Подключение и состояние сервиса">
+        <section class="card access-card" aria-labelledby="access-title">
+          <div class="card-heading"><span class="eyebrow">02 / ДОСТУП</span><span class="card-icon" aria-hidden="true">⌁</span></div>
+          <h2 id="access-title">Подключение</h2>
+          <p>Ключ нужен для просмотра истории и отправки вопросов. Он остаётся только в памяти этой вкладки.</p>
+          <form id="access-form" autocomplete="off"><label for="token">Ключ доступа</label><div class="access-row"><input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Введите Bearer-ключ" required><button id="connect" type="submit">Подключить</button></div></form>
+          <p class="shared-note">Один владелец · общая история. Каждый, у кого есть ключ, видит весь диалог.</p>
+        </section>
+
+        <div class="status-box" id="status" role="status" aria-live="polite">Введите ключ, чтобы подключиться к сервису.</div>
+
+        <section class="card runtime-card" aria-labelledby="runtime-title"><div class="card-heading"><span class="eyebrow">03 / СЕРВИС</span><button class="text-button" id="refresh" type="button" disabled>Обновить</button></div><h2 id="runtime-title">Локальный runtime</h2><div class="runtime-state" id="runtime">Сведения появятся после подключения.</div><dl class="facts"><div><dt>Модель</dt><dd id="runtime-model">—</dd></div><div><dt>Версия</dt><dd id="runtime-version">—</dd></div><div><dt>Процессор</dt><dd id="runtime-processor">—</dd></div></dl></section>
+
+        <section class="card limits-card" aria-labelledby="limits-title"><div class="card-heading"><span class="eyebrow">04 / ОГРАНИЧЕНИЯ</span></div><h2 id="limits-title">Границы сервиса</h2><dl class="facts" id="limits"><div><dt>Вопросов</dt><dd>10 / 60 сек</dd></div><div><dt>Вопрос</dt><dd>до 2000 символов</dd></div><div><dt>Контекст</dt><dd>4096 токенов</dd></div><div><dt>Ответ</dt><dd>до 384 токенов</dd></div><div><dt>Очередь</dt><dd>3 ожидания</dd></div></dl><p class="muted">Контекст проверяется консервативным бюджетом. Полная история не обрезается.</p></section>
+
+        <section class="card accounting-card" aria-labelledby="accounting-title"><div class="card-heading"><span class="eyebrow">05 / УЧЁТ</span></div><h2 id="accounting-title">Расход и квитанции</h2><div class="cost-total"><span>Сумма API, USD</span><strong id="total-cost">—</strong></div><p class="infra-cost">Инфраструктура: стоимость неизвестна и зависит от хостинга, электричества и обслуживания.</p><div class="receipt-scroll"><table><caption>Квитанции запросов</caption><thead><tr><th scope="col">№ / итог</th><th scope="col">Токены<br>вх / вых / всего</th><th scope="col">API USD</th></tr></thead><tbody id="receipts"><tr><td colspan="3">После подключения</td></tr></tbody></table></div><p class="muted" id="receipt-note">Для каждого вызова также фиксируются проверки input/output policy.</p></section>
+      </aside>
+    </main>
+    <footer class="site-footer"><span>АТЛАС · ЛОКАЛЬНЫЙ AI-СЕРВИС</span><span>Доступ через защищённый SSH-туннель</span></footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "files": [
+    {"file":"corpus/unity6_urp_lit.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/urp/lit-shader.html","title":"Unity 6.0 / URP — Lit"},
+    {"file":"corpus/unity6_normal_import.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/texture-type-normal-map.html","title":"Unity 6.0 — Normal Map import"},
+    {"file":"corpus/unity6_color_space.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/set-project-color-space.html","title":"Unity 6.0 — Linear / Gamma"},
+    {"file":"corpus/unity6_data_texture.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/disable-srgb-sampling-textures.html","title":"Unity 6.0 — sRGB sampling"},
+    {"file":"corpus/unity6_light_probes.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/LightProbes.html","title":"Unity 6.0 — Light Probes"},
+    {"file":"corpus/unity6_srp_batcher.md","source":"https://docs.unity3d.com/6000.0/Documentation/Manual/SRPBatcher.html","title":"Unity 6.0 / URP — SRP Batcher"}
+  ],
+  "provenance":"Авторские краткие русские пересказы официальных страниц Unity Technologies, проверенных 2026-10-11; дополнение к корпусу Недели6. Полные страницы и иллюстрации не копируются."
+}
