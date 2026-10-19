@@ -7,7 +7,7 @@ import sqlite3
 from pathlib import Path
 
 from graphics.retrieval import Retriever
-from graphics.store import Store
+from .review_store import ReviewStore
 
 
 _REVIEW_STEPS = {
@@ -37,7 +37,7 @@ class ReviewLedger:
         self.settings = settings
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.store = Store(self.data_dir / "review.sqlite3")
+        self.store = ReviewStore(self.data_dir / "review.sqlite3")
         self.embedding_transport = embedding_transport or self._embedding_transport
         with self.store._connect() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS review_runs (
@@ -169,7 +169,8 @@ class ReviewLedger:
 
     def usage(self, run_key):
         row = self._row(run_key)
-        all_calls = self.store.ledger(self.user_id)["calls"]
+        instance = self.store.ledger(self.user_id)
+        all_calls = instance["calls"]
         calls = [call for call in all_calls if call["turn_id"] == row["turn_id"]]
         complete = all(c["status"] == "not_sent" or (
             c["status"] in {"complete", "rejected"} and c["usage"] is not None
@@ -180,7 +181,16 @@ class ReviewLedger:
                 "cost_estimated_usd": known if complete else None,
                 "input_tokens": sum(c["usage"].get("input_tokens", 0) for c in calls if c["usage"]),
                 "output_tokens": sum(c["usage"].get("output_tokens", 0) for c in calls if c["usage"]),
-                "total_tokens": sum(c["usage"].get("total_tokens", 0) for c in calls if c["usage"])}
+                "total_tokens": sum(c["usage"].get("total_tokens", 0) for c in calls if c["usage"]),
+                "instance_accounting": {
+                    "complete": instance["complete"],
+                    "known_cost_estimated_usd": instance["known_cost_estimated_usd"],
+                    "cost_estimated_usd": instance["cost_estimated_usd"],
+                    "budget_usd": self.settings.budget_usd,
+                    "unknown_call_ids": [c["id"] for c in all_calls if c["status"] != "not_sent" and
+                                         (c["status"] not in {"complete", "rejected"} or c["usage"] is None or
+                                          c["cost_estimated_usd"] is None)],
+                    "operator_resolutions": self.store.operator_resolutions()}}
 
     def _embedding_transport(self, texts, query):
         retriever = Retriever(self.settings)

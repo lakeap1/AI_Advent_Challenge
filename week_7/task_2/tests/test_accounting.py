@@ -60,6 +60,30 @@ class ReviewLedgerTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.ledger.embed(["x"], query=True)
 
+    def test_unknown_prior_run_remains_visible_in_instance_accounting(self):
+        self.ledger.claim("lost", "a" * 64)
+        self.ledger.begin("lost")
+        for state in ("input_check", "context", "sources"):
+            self.ledger.advance("lost", state)
+        self.ledger.event("lost", "retrieving")
+        self.ledger.embedding_transport = lambda texts, query: (_ for _ in ()).throw(TimeoutError("CPU timeout"))
+        with self.assertRaisesRegex(RuntimeError, "embedding_result_unknown"):
+            self.ledger.embed(["x"], query=False)
+        lost_id = self.ledger.usage("lost")["calls"][0]["id"]
+        self.ledger.finish("lost", {"status": "error"})
+
+        self.ledger.claim("later", "b" * 64)
+        self.ledger.begin("later")
+        usage = self.ledger.usage("later")
+        self.assertTrue(usage["complete"])
+        self.assertIn("instance_accounting", usage)
+        self.assertFalse(usage["instance_accounting"]["complete"])
+        self.assertIsNone(usage["instance_accounting"]["cost_estimated_usd"])
+        self.assertEqual(usage["instance_accounting"]["known_cost_estimated_usd"], 0.0)
+        self.assertEqual(usage["instance_accounting"]["budget_usd"], 1.0)
+        self.assertEqual(usage["instance_accounting"]["unknown_call_ids"], [lost_id])
+        self.assertEqual(usage["instance_accounting"]["operator_resolutions"], [])
+
     def test_conflicting_embedding_identity_keeps_actual_receipt_and_usage(self):
         self.ledger.claim("identity", "c" * 64)
         self.ledger.begin("identity")
