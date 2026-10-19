@@ -39,6 +39,15 @@ class ReviewLedgerTests(unittest.TestCase):
         self.assertEqual(self.ledger.claim("key", "a" * 64)["kind"], "pending")
         self.assertEqual(self.ledger.claim("key", "b" * 64)["kind"], "mismatch")
 
+    def test_previous_terminal_run_excludes_current_and_older_runs(self):
+        for key, digest in (("first", "a" * 64), ("second", "b" * 64)):
+            self.ledger.claim(key, digest)
+            self.ledger.begin(key)
+            self.ledger.event(key, "retrieving")
+            self.ledger.finish(key, {"status": "error"})
+        self.ledger.claim("current", "c" * 64)
+        self.assertEqual(self.ledger.previous_terminal_run_key("current"), "second")
+
     def test_unknown_embedding_blocks_following_run(self):
         self.ledger.embedding_transport = lambda texts, query: ([[1.0, 0.0]],
                                                                  {"model": "qwen3-embedding:0.6b",

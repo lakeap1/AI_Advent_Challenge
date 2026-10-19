@@ -110,6 +110,9 @@ class PipelineTests(unittest.TestCase):
         self.extra_unseen = False
         self.control_mode = "valid"
         self.drop_control = False
+        self.line_aware = False
+        self.wrong_line = False
+        self.malformed_finding = False
         self.index_factory = FakeIndex
         self.sent_messages = []
         self.embedded_queries = []
@@ -152,6 +155,15 @@ class PipelineTests(unittest.TestCase):
                                            "quote": "not present" if self.invalid_citation else "return 1"}] +
                                          ([{"source_id": citation, "quote": "return 2"}]
                                           if self.extra_unseen else [])}] if self.finding else []
+                if findings and self.line_aware:
+                    visible = data["sources"][0]["lines"]
+                    number, original = next((number, original) for number, original in visible
+                                            if "return 1" in original)
+                    findings[0]["location"]["start_line"] = 1 if self.wrong_line else number
+                    findings[0]["location"]["end_line"] = 1 if self.wrong_line else number
+                    findings[0]["evidence"][0]["quote"] = "return 1"
+                if findings and self.malformed_finding:
+                    findings[0]["title"] = ""
                 body = {"schema_version": 1, "base_revision": "B" if self.labelled else BASE,
                         "head_revision": "H" if self.labelled else snap["head_revision"],
                         "snapshot_sha256": snap["snapshot_sha256"],
@@ -163,6 +175,8 @@ class PipelineTests(unittest.TestCase):
                         citation["source_id"] = "S999"
                     if self.control_mode == "invented":
                         citation["quote"] = "Не показанный источник"
+                    if self.control_mode == "no_marker":
+                        citation["quote"] = "токены и стоимость"
                     if self.control_mode == "wrong_revision":
                         citation["revision"] = BASE
                     body["rag_control_answer"] = {
@@ -240,6 +254,123 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["status"], "accepted")
         self.assertEqual(self.stages, ["filter", "generator", "validator"])
 
+    def test_numbered_lf_source_guides_real_quote_and_wrong_range_still_rejects(self):
+        self.finding = True
+        self.line_aware = True
+        good = self.run_review("numbered-good")
+        self.assertEqual(good["status"], "accepted")
+        payloads = [json.loads(messages[-1]["content"]) for messages in self.sent_messages]
+        self.assertIn("text", payloads[0]["candidates"][0])
+        for stage in payloads[1:]:
+            self.assertNotIn("text", stage["sources"][0])
+            self.assertEqual(stage["sources"][0]["lines"],
+                             [[1, "def answer():\n"], [2, "    return 1\n"]])
+        self.wrong_line = True
+        self.stages.clear()
+        bad = self.run_review("numbered-wrong")
+        self.assertEqual(bad["status"], "rejected")
+        self.assertEqual(self.stages, ["filter", "generator"])
+        self.assertIn("report.findings[0].location:no_quoted_evidence",
+                      bad["program_validation"]["errors"])
+        self.assertIs(bad["program_validation"]["evidence_exposed"], None)
+        self.assertEqual(next(c for c in bad["ledger"]["calls"] if c["stage"] == "generator")
+                         ["output_policy"]["program_validation"], bad["program_validation"])
+
+    def test_program_subcodes_distinguish_shape_source_quote_and_control(self):
+        for mode, flag, expected in (
+            ("shape", "malformed_finding", "report.findings[0].title:invalid"),
+            ("source", "unknown_label", "report.findings[0].evidence[0].source_id:unknown"),
+            ("quote", "invalid_citation", "report.findings[0].evidence[0].quote:not_in_source"),
+        ):
+            with self.subTest(mode=mode):
+                self.finding = True
+                setattr(self, flag, True)
+                result = self.run_review("program-" + mode)
+                self.assertEqual(result["status"], "rejected")
+                self.assertIn(expected, result["program_validation"]["errors"])
+                self.assertNotIn("not present", json.dumps(result))
+                setattr(self, flag, False)
+        self.finding = False
+        for mode, expected in (("missing", "missing"), ("unknown", "source"),
+                               ("invented", "quote"), ("no_marker", "marker")):
+            with self.subTest(mode=mode):
+                self.control_mode = mode
+                result = self.run_real_control("program-control-" + mode)
+                self.assertEqual(result["status"], "rejected")
+                self.assertEqual(result["program_validation"]["control_error"], expected)
+
+    def test_lf_numbering_does_not_split_unicode_separator_or_cr(self):
+        changed = snapshot(text="def answer():\r\n    return 1  # а\u2028б\r\n")
+        changed["sources"][0]["end_line"] = 2
+        changed["snapshot_sha256"] = snapshot_digest(changed)
+        self.run_review("lf-lines", changed)
+        payload = next(json.loads(messages[-1]["content"]) for messages in self.sent_messages
+                       if json.loads(messages[-1]["content"])["stage"] == "generator")
+        self.assertEqual(payload["sources"][0]["lines"],
+                         [[1, "def answer():\r\n"], [2, "    return 1  # а\u2028б\r\n"]])
+
+    def test_base_tip_only_retry_reuses_last_terminal_index_without_new_build_receipts(self):
+        original = snapshot()
+        self.current_snapshot = original
+        first = ReviewRunner(self.settings, Path(self.temp.name) / "review",
+                             provider_factory=self.provider_factory)
+        first.ledger.embedding_transport = self.embedding_transport
+        result = first.run(original, "cache-first")
+        self.assertEqual(result["status"], "accepted")
+        old_calls = first.ledger.store.ledger(first.ledger.user_id)["calls"]
+        before_calls = len(old_calls)
+        changed = snapshot()
+        changed["base_revision"] = "c" * 40
+        changed["snapshot_sha256"] = snapshot_digest(changed)
+        self.current_snapshot = changed
+        self.labelled = True
+        self.embedded_queries.clear()
+        second = ReviewRunner(self.settings, Path(self.temp.name) / "review",
+                              provider_factory=self.provider_factory)
+        second.ledger.embedding_transport = self.embedding_transport
+        again = second.run(changed, "cache-second")
+        self.assertEqual(again["status"], "accepted")
+        self.assertTrue(again["retrieval_index"]["cache_hit"])
+        self.assertEqual(again["retrieval_index"]["source_run_key"], "cache-first")
+        self.assertEqual(len(self.embedded_queries), 1)
+        self.assertEqual([c["stage"] for c in again["ledger"]["calls"]],
+                         ["embedding", "filter", "generator", "validator"])
+        all_calls = second.ledger.store.ledger(second.ledger.user_id)["calls"]
+        self.assertGreater(len(all_calls), before_calls)
+        self.assertEqual([c["id"] for c in all_calls[:before_calls]],
+                         [c["id"] for c in old_calls])
+        self.assertEqual(again["ledger"]["instance_accounting"]["budget_usd"],
+                         result["ledger"]["instance_accounting"]["budget_usd"])
+
+    def test_invalid_previous_index_metadata_stops_before_query_or_model(self):
+        original = snapshot()
+        self.current_snapshot = original
+        first = ReviewRunner(self.settings, Path(self.temp.name) / "review",
+                             provider_factory=self.provider_factory)
+        first.ledger.embedding_transport = self.embedding_transport
+        self.assertEqual(first.run(original, "bad-meta-first")["status"], "accepted")
+        index_path = (Path(self.temp.name) / "review" / "runs" /
+                      hashlib.sha256(b"bad-meta-first").hexdigest() / "snapshot-index.json")
+        stored = json.loads(index_path.read_text(encoding="utf-8"))
+        stored["metadata"]["status"] = "incomplete"
+        index_path.write_text(json.dumps(stored), encoding="utf-8")
+        changed = snapshot()
+        changed["base_revision"] = "c" * 40
+        changed["snapshot_sha256"] = snapshot_digest(changed)
+        self.current_snapshot = changed
+        self.stages.clear()
+        self.embedded_queries.clear()
+        second = ReviewRunner(self.settings, Path(self.temp.name) / "review",
+                              provider_factory=self.provider_factory)
+        second.ledger.embedding_transport = self.embedding_transport
+        result = second.run(changed, "bad-meta-second")
+        self.assertEqual(result["status"], "error")
+        self.assertEqual(result["reason"], "reuse_index_invalid")
+        self.assertEqual(result["retrieval_index"]["status"], "invalid_cache")
+        self.assertEqual(self.stages, [])
+        self.assertEqual(self.embedded_queries, [])
+        self.assertEqual(result["ledger"]["calls"], [])
+
     def run_real_control(self, key, snap=None):
         self.current_snapshot = snap or usage_snapshot()
         runner = ReviewRunner(self.settings, Path(self.temp.name) / "review",
@@ -260,7 +391,8 @@ class PipelineTests(unittest.TestCase):
         payloads = [json.loads(messages[-1]["content"]) for messages in self.sent_messages]
         self.assertIn("rag_control", payloads[1])
         self.assertIn("validated_rag_control_answer", payloads[2])
-        self.assertIn("В панели «Учёт»", payloads[2]["control_source"]["text"])
+        self.assertIn("В панели «Учёт»", "\n".join(line[1] for line in
+            payloads[2]["control_source"]["lines"]))
 
     def test_control_missing_or_invalid_citation_stops_before_semantic(self):
         for mode in ("missing", "unknown", "invented", "wrong_revision"):
@@ -360,7 +492,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(finding["properties"]["kind"]["enum"], ["defect", "hypothesis"])
         self.assertIn("location", finding["properties"])
         self.assertIn("evidence", finding["properties"])
-        self.assertTrue(payloads["generator"]["example"]["findings"])
+        self.assertEqual(payloads["generator"]["example"]["findings"], [])
 
     def test_semantic_rejection_hides_draft(self):
         self.finding = True

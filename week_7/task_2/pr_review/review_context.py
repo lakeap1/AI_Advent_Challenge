@@ -18,6 +18,10 @@ _TARGET_CHUNK_BYTES = 4096
 _BATCH = 1
 
 
+class IndexReuseError(ValueError):
+    """The last terminal review index exists but cannot be trusted for reuse."""
+
+
 def _digest(value):
     return hashlib.sha256(value).hexdigest()
 
@@ -75,7 +79,7 @@ def _chunks(source):
 class SnapshotIndex:
     """The embedding callback owns transport and durable accounting."""
 
-    def __init__(self, settings, embed, directory):
+    def __init__(self, settings, embed, directory, *, reuse_from=None, source_run_key=None):
         self.settings = settings
         self.embed = embed
         self.directory = Path(directory).resolve()
@@ -87,9 +91,63 @@ class SnapshotIndex:
                                         corpus.is_relative_to(self.directory))):
             raise ValueError("review index may not occupy production directory")
         self.index_path = self.directory / "snapshot-index.json"
+        self.reuse_from = Path(reuse_from) if reuse_from is not None else None
+        self.source_run_key = source_run_key
+        if self.reuse_from is not None and (
+                self.reuse_from.name != "snapshot-index.json" or
+                self.reuse_from.parent.parent != self.directory.parent or
+                not isinstance(source_run_key, str) or not source_run_key):
+            raise IndexReuseError("reuse_index_invalid")
         self._snapshot = None
         self._index = None
         self._grounding_context = None
+
+    def _reusable_payload(self, documents, parts, source_bytes):
+        candidate = self.reuse_from
+        if candidate is None:
+            return None
+        if (candidate.parent.parent.is_symlink() or candidate.parent.is_symlink()
+                or candidate.is_symlink()):
+            raise IndexReuseError("reuse_index_invalid")
+        if not candidate.exists():
+            return None
+        try:
+            old = SnapshotIndex(self.settings, self.embed, candidate.parent)._read()
+            metadata = old["metadata"]
+            if metadata.get("status") != "ready" or not old["chunks"]:
+                raise IndexReuseError("reuse_index_invalid")
+            expected_counts = {"documents": len(old["documents"]),
+                               "chunks": len(old["chunks"])}
+            if any(type(metadata.get(key)) is not int or metadata[key] < 0 or
+                   metadata[key] != expected for key, expected in expected_counts.items()):
+                raise IndexReuseError("reuse_index_invalid")
+            stored_parts = [{key: value for key, value in chunk.items() if key != "embedding"}
+                            for chunk in old["chunks"]]
+            if old["documents"] != documents or stored_parts != parts:
+                return None
+            if (type(metadata.get("source_bytes")) is not int or metadata["source_bytes"] < 0
+                    or metadata["source_bytes"] != source_bytes):
+                raise IndexReuseError("reuse_index_invalid")
+            payload = deepcopy(old)
+            metadata = payload["metadata"]
+            metadata.update({"cache_hit": True, "source_run_key": self.source_run_key,
+                             "source_fingerprint": old["metadata"]["fingerprint"],
+                             "original_index_prompt_eval_count": old["metadata"].get("original_index_prompt_eval_count",
+                                                                               old["metadata"].get("prompt_eval_count"))})
+            return payload
+        except (ValueError, KeyError, TypeError, OverflowError, OSError, json.JSONDecodeError):
+            raise IndexReuseError("reuse_index_invalid") from None
+
+    def _write_payload(self, payload):
+        self.directory.mkdir(parents=True, exist_ok=True)
+        descriptor, temporary = tempfile.mkstemp(prefix="snapshot-", suffix=".json", dir=self.directory)
+        os.close(descriptor)
+        try:
+            Path(temporary).write_bytes(_canonical(payload))
+            os.replace(temporary, self.index_path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
 
     def _response(self, texts, *, query, digest=None):
         vectors, receipt = self.embed(texts, query=query)
@@ -138,39 +196,36 @@ class SnapshotIndex:
                               "path": source["path"], "content_sha256": source["content_sha256"]})
             if len(parts) > _MAX_CHUNKS:
                 raise ValueError("snapshot chunk budget exceeded")
-        vectors = []
-        receipts = []
-        digest = None
-        for offset in range(0, len(parts), _BATCH):
-            batch = parts[offset:offset + _BATCH]
-            values, receipt = self._response([part["text"] for part in batch], query=False, digest=digest)
-            digest = receipt["model_digest"]
-            vectors.extend(values)
-            receipts.append(receipt)
-        indexed = [{**part, "embedding": vector} for part, vector in zip(parts, vectors)]
-        fingerprint = _digest(_canonical({"documents": documents, "chunks": indexed,
-                                          "model": self.settings.embedding_model,
-                                          "model_digest": digest, "dimensions": self.settings.embedding_dimensions}))
-        metadata = {"documents": len(documents), "chunks": len(parts), "model": self.settings.embedding_model,
-                    "model_digest": digest, "dimensions": self.settings.embedding_dimensions,
-                    "fingerprint": fingerprint, "source_bytes": byte_total,
-                    "status": "ready" if parts else "incomplete",
-                    "prompt_eval_count": sum(r["prompt_eval_count"] for r in receipts)
-                    if receipts and all(type(r.get("prompt_eval_count")) is int for r in receipts) else None}
-        payload = {"metadata": metadata, "documents": documents, "chunks": indexed}
-        self.directory.mkdir(parents=True, exist_ok=True)
-        descriptor, temporary = tempfile.mkstemp(prefix="snapshot-", suffix=".json", dir=self.directory)
-        os.close(descriptor)
-        try:
-            Path(temporary).write_bytes(_canonical(payload))
-            os.replace(temporary, self.index_path)
-        finally:
-            if os.path.exists(temporary):
-                os.unlink(temporary)
+        payload = self._reusable_payload(documents, parts, byte_total)
+        if payload is None:
+            vectors = []
+            receipts = []
+            digest = None
+            for offset in range(0, len(parts), _BATCH):
+                batch = parts[offset:offset + _BATCH]
+                values, receipt = self._response([part["text"] for part in batch], query=False, digest=digest)
+                digest = receipt["model_digest"]
+                vectors.extend(values)
+                receipts.append(receipt)
+            indexed = [{**part, "embedding": vector} for part, vector in zip(parts, vectors)]
+            fingerprint = _digest(_canonical({"documents": documents, "chunks": indexed,
+                                              "model": self.settings.embedding_model,
+                                              "model_digest": digest, "dimensions": self.settings.embedding_dimensions}))
+            metadata = {"documents": len(documents), "chunks": len(parts), "model": self.settings.embedding_model,
+                        "model_digest": digest, "dimensions": self.settings.embedding_dimensions,
+                        "fingerprint": fingerprint, "source_bytes": byte_total,
+                        "status": "ready" if parts else "incomplete",
+                        "prompt_eval_count": sum(r["prompt_eval_count"] for r in receipts)
+                        if receipts and all(type(r.get("prompt_eval_count")) is int for r in receipts) else None,
+                        "cache_hit": False, "source_run_key": None, "source_fingerprint": None,
+                        "original_index_prompt_eval_count": sum(r["prompt_eval_count"] for r in receipts)
+                        if receipts and all(type(r.get("prompt_eval_count")) is int for r in receipts) else None}
+            payload = {"metadata": metadata, "documents": documents, "chunks": indexed}
+        self._write_payload(payload)
         self._snapshot = deepcopy(snapshot)
         self._index = payload
         self._grounding_context = None
-        return metadata.copy()
+        return payload["metadata"].copy()
 
     def _read(self):
         if self._index is None:

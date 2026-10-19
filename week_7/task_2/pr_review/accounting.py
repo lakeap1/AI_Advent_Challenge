@@ -99,6 +99,14 @@ class ReviewLedger:
             raise ValueError("unknown_run")
         return dict(row)
 
+    def previous_terminal_run_key(self, current_run_key):
+        """Only the latest completed claim may supply a local diagnostic index."""
+        with self.store._connect() as db:
+            row = db.execute(
+                "SELECT run_key FROM review_runs WHERE run_key<>? AND result IS NOT NULL "
+                "ORDER BY rowid DESC LIMIT 1", (current_run_key,)).fetchone()
+        return row["run_key"] if row is not None else None
+
     def advance(self, run_key, store_state):
         row = self._row(run_key)
         if row["result"] is not None or row["turn_id"] is None:

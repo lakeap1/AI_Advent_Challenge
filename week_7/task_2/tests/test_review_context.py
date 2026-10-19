@@ -262,3 +262,147 @@ class SnapshotIndexTests(unittest.TestCase):
         self.assertIn("В панели «Учёт»", private["candidates"][0]["text"])
         private["candidates"].clear()
         self.assertTrue(self.index.grounding_context()["candidates"])
+
+    def test_exact_previous_index_reuses_all_chunks_without_embedding_again(self):
+        data = long_snapshot()
+        for source, first in zip(data["sources"], (0, 48)):
+            lines = [f"fragment {number:02d} " + "x" * 3000 + "\n"
+                     for number in range(first, first + 48)]
+            source["text"] = "".join(lines)
+            source["end_line"] = len(lines)
+            source["content_sha256"] = hashlib.sha256(source["text"].encode()).hexdigest()
+        original = self.index.build(data)
+        self.assertEqual(original["chunks"], 96)
+        old_bytes = self.index.index_path.read_bytes()
+        data["base_revision"] = "c" * 40
+        later = SnapshotIndex(self.settings, self.embed, self.root / "later",
+                              reuse_from=self.index.index_path, source_run_key="terminal-first")
+        before = len(self.embed.calls)
+        receipt = later.build(data)
+        self.assertTrue(receipt["cache_hit"])
+        self.assertEqual(receipt["source_run_key"], "terminal-first")
+        self.assertEqual(receipt["source_fingerprint"], original["fingerprint"])
+        self.assertEqual(receipt["original_index_prompt_eval_count"], 96)
+        self.assertEqual(len(self.embed.calls), before)
+        self.assertEqual(self.index.index_path.read_bytes(), old_bytes)
+        later.search("fragment")
+        self.assertEqual(len(self.embed.calls), before + 1)
+
+    def test_cache_miss_for_changed_head_or_content_and_query_digest_guard(self):
+        original = snapshot()
+        self.index.build(original)
+        old_bytes = self.index.index_path.read_bytes()
+        head_changed = copy.deepcopy(original)
+        head_changed["head_revision"] = "c" * 40
+        head_changed["sources"][1]["revision"] = "c" * 40
+        head_changed["sources"][1]["source_id"] = "new-head-id"
+        later = SnapshotIndex(self.settings, self.embed, self.root / "head-change",
+                              reuse_from=self.index.index_path, source_run_key="prior")
+        before = len(self.embed.calls)
+        self.assertFalse(later.build(head_changed)["cache_hit"])
+        self.assertGreater(len(self.embed.calls), before)
+        content_changed = copy.deepcopy(original)
+        content_changed["sources"][1]["text"] = "# Форма\nИной шейдер\n"
+        content_changed["sources"][1]["content_sha256"] = hashlib.sha256(
+            content_changed["sources"][1]["text"].encode()).hexdigest()
+        another = SnapshotIndex(self.settings, self.embed, self.root / "content-change",
+                                reuse_from=self.index.index_path, source_run_key="prior")
+        self.assertFalse(another.build(content_changed)["cache_hit"])
+        self.assertEqual(self.index.index_path.read_bytes(), old_bytes)
+        self.embed.digest = "sha256:different"
+        with self.assertRaisesRegex(ValueError, "digest"):
+            another.search("шейдер")
+
+    def test_corrupt_previous_index_fails_before_embedding(self):
+        data = snapshot()
+        self.index.build(data)
+        self.index.index_path.write_bytes(b"{" )
+        later = SnapshotIndex(self.settings, self.embed, self.root / "corrupt",
+                              reuse_from=self.index.index_path, source_run_key="prior")
+        before = len(self.embed.calls)
+        with self.assertRaisesRegex(ValueError, "reuse_index_invalid"):
+            later.build(data)
+        self.assertEqual(len(self.embed.calls), before)
+
+    def test_previous_index_metadata_counts_and_status_must_match_sources(self):
+        data = snapshot()
+        blank = data["sources"][0]
+        blank["text"] = " \n\t\n"
+        blank["content_sha256"] = hashlib.sha256(blank["text"].encode()).hexdigest()
+        original = self.index.build(data)
+        self.assertEqual(original["status"], "ready")
+        self.assertEqual(original["documents"], 2)
+        self.assertEqual(original["chunks"], 1)
+        self.assertGreater(original["source_bytes"], len(data["sources"][1]["text"].encode()))
+        correct_bytes = self.index.index_path.read_bytes()
+        before = len(self.embed.calls)
+        clean = SnapshotIndex(self.settings, self.embed, self.root / "valid-metadata",
+                              reuse_from=self.index.index_path, source_run_key="prior")
+        self.assertTrue(clean.build(data)["cache_hit"])
+        self.assertEqual(len(self.embed.calls), before)
+        cases = (("status", "incomplete"), ("documents", 999), ("documents", True),
+                 ("chunks", 999), ("chunks", True), ("source_bytes", 0),
+                 ("source_bytes", True),
+                 ("source_bytes", len(data["sources"][1]["text"].encode())))
+        for number, (field, value) in enumerate(cases):
+            with self.subTest(field=field, value=value):
+                stored = json.loads(correct_bytes)
+                stored["metadata"][field] = value
+                self.index.index_path.write_text(json.dumps(stored), encoding="utf-8")
+                mutated = self.index.index_path.read_bytes()
+                later = SnapshotIndex(self.settings, self.embed, self.root / f"invalid-{number}",
+                                      reuse_from=self.index.index_path, source_run_key="prior")
+                with self.assertRaisesRegex(ValueError, "reuse_index_invalid"):
+                    later.build(data)
+                self.assertEqual(len(self.embed.calls), before)
+                self.assertEqual(self.index.index_path.read_bytes(), mutated)
+
+    def test_ready_old_index_and_new_empty_sources_are_normal_cache_miss(self):
+        old = snapshot()
+        self.assertEqual(self.index.build(old)["status"], "ready")
+        old_bytes = self.index.index_path.read_bytes()
+        before = len(self.embed.calls)
+        for changed_head in (False, True):
+            with self.subTest(changed_head=changed_head):
+                current = copy.deepcopy(old)
+                if changed_head:
+                    current["head_revision"] = "c" * 40
+                    current["sources"][1]["revision"] = "c" * 40
+                    current["sources"][1]["source_id"] = "new-head-empty"
+                for source, text in zip(current["sources"], ("", " \n\t\n")):
+                    source["text"] = text
+                    source["start_line"] = 0 if not text else 1
+                    source["end_line"] = 0 if not text else 2
+                    source["content_sha256"] = hashlib.sha256(text.encode()).hexdigest()
+                later = SnapshotIndex(self.settings, self.embed,
+                                      self.root / f"empty-new-{changed_head}",
+                                      reuse_from=self.index.index_path, source_run_key="prior")
+                metadata = later.build(current)
+                self.assertEqual(metadata["status"], "incomplete")
+                self.assertEqual(metadata["chunks"], 0)
+                self.assertFalse(metadata["cache_hit"])
+                self.assertEqual(len(self.embed.calls), before)
+                self.assertEqual(self.index.index_path.read_bytes(), old_bytes)
+        stored = json.loads(old_bytes)
+        stored["metadata"]["status"] = "incomplete"
+        self.index.index_path.write_text(json.dumps(stored), encoding="utf-8")
+        invalid = SnapshotIndex(self.settings, self.embed, self.root / "invalid-old-status",
+                                reuse_from=self.index.index_path, source_run_key="prior")
+        with self.assertRaisesRegex(ValueError, "reuse_index_invalid"):
+            invalid.build(current)
+        self.assertEqual(len(self.embed.calls), before)
+
+    def test_symlinked_previous_index_fails_before_embedding(self):
+        data = snapshot()
+        link = self.root / "old-link" / "snapshot-index.json"
+        link.parent.mkdir()
+        try:
+            link.symlink_to(self.production_index)
+        except OSError:
+            self.skipTest("Windows symlink creation unavailable")
+        linked = SnapshotIndex(self.settings, self.embed, self.root / "linked",
+                               reuse_from=link, source_run_key="prior")
+        before = len(self.embed.calls)
+        with self.assertRaisesRegex(ValueError, "reuse_index_invalid"):
+            linked.build(data)
+        self.assertEqual(len(self.embed.calls), before)

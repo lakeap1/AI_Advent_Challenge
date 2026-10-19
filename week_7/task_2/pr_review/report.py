@@ -79,7 +79,10 @@ def render_report(report: dict) -> str:
         parts.append('</article>')
     if not accepted:
         parts.append('<section><h2>Черновик не опубликован</h2><p>Непринятые находки не выдаются как результат ревью.</p></section>')
-    parts.extend(['<section><h2>Проверки RAG и покрытие</h2>',
+    parts.extend(['<section><h2>Программная проверка и индекс поиска</h2>',
+                  f'<pre>{_json(report.get("program_validation", {}))}</pre>',
+                  f'<pre>{_json(report.get("retrieval_index", {}))}</pre></section>',
+                  '<section><h2>Проверки RAG и покрытие</h2>',
                   f'<pre>{_json(report.get("rag_checks", {}))}</pre>',
                   f'<pre>{_json(report.get("coverage", {}))}</pre></section>',
                   '<section><h2>Токены и расходы</h2>',

@@ -51,6 +51,20 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotIn("REJECTED_DRAFT_SENTINEL", html)
         self.assertIn("отклон", html.lower())
 
+    def test_report_shows_safe_program_subcodes_and_index_origin_without_draft(self):
+        report = {"status": "rejected", "review_accepted": False,
+                  "findings": [{"title": "REJECTED_DRAFT_SENTINEL"}],
+                  "program_validation": {"errors": ["report.findings[0].location:no_quoted_evidence"],
+                                         "evidence_exposed": None, "control_error": "marker"},
+                  "retrieval_index": {"cache_hit": True, "source_run_key": "previous",
+                                      "fingerprint": "a" * 64,
+                                      "original_index_prompt_eval_count": 96}}
+        html = render_report(report)
+        self.assertIn("no_quoted_evidence", html)
+        self.assertIn("previous", html)
+        self.assertIn("96", html)
+        self.assertNotIn("REJECTED_DRAFT_SENTINEL", html)
+
     def test_worker_rejects_configuration_in_untrusted_payload(self):
         calls = []
         with self.assertRaises(ValueError):
