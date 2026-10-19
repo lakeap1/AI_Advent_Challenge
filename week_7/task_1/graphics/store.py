@@ -173,7 +173,7 @@ class Store:
             raise PermissionError("Доступ запрещён")
 
     def _require_branch(self, db, user_id, branch_id):
-        row = db.execute("SELECT * FROM branches WHERE id=? AND user_id=?", (branch_id, user_id)).fetchone()
+        row = db.execute("SELECT * FROM branches WHERE id=?", (branch_id,)).fetchone()
         if row is None:
             raise PermissionError("Доступ запрещён")
         return row
