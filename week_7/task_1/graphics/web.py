@@ -22,7 +22,7 @@ from .store import Store
 _SOURCE_FILES = {
     "readme": "README.md", "usage": "docs/usage.md",
     "architecture": "docs/architecture.md", "api": "docs/api.md",
-    "glossary": "corpus/glossary.md",
+    "glossary": "corpus/glossary.md", "support-faq": "corpus/support-faq.md",
 }
 _PROFILE_FIELDS = {"role", "level", "goal", "depth"}
 _BRANCH_FIELDS = {"title", "conditions"}
@@ -94,7 +94,7 @@ def _public_result(result):
     """Explicit allowlist prevents provider drafts and receipts reaching JSON."""
     status = result.get("status", "error")
     if status not in {"accepted", "compressed", "updated", "needs_clarification",
-                      "input_rejected", "rejected", "error"}:
+                      "input_rejected", "rejected", "error", "support_control", "pending"}:
         status = "error"
     public = {"status": status}
     if status == "accepted":
@@ -102,6 +102,15 @@ def _public_result(result):
         public["sources"] = result.get("sources", [])
     else:
         public["message"] = result.get("message") or "Не удалось завершить запрос"
+    if isinstance(result.get("support_confirmation"), dict):
+        confirmation = result["support_confirmation"]
+        receipt = confirmation.get("receipt")
+        if isinstance(receipt, dict) and isinstance(confirmation.get("message"), str):
+            safe = {key: receipt[key] for key in
+                    ("operation_id", "operation", "ticket_id", "memory_id", "changed_fields", "committed_at")
+                    if key in receipt}
+            public["support_confirmation"] = {"message": confirmation["message"],
+                                               "receipt": safe}
     if isinstance(result.get("usage"), dict):
         public["usage"] = {k: result["usage"].get(k) for k in
                            ("complete", "known_cost_estimated_usd", "cost_estimated_usd",
@@ -109,11 +118,22 @@ def _public_result(result):
     return public
 
 
-def _public_branch(branch):
+def _public_branch(branch, support_actions=()):
     public = {key: branch[key] for key in ("id", "chat_id", "title", "summary",
               "summary_through", "conditions", "revision")}
-    public["messages"] = [{key: message[key] for key in ("id", "role", "content", "sources")}
+    public["messages"] = [{key: message[key] for key in ("id", "role", "content", "sources", "turn_id")}
                           for message in branch["messages"]]
+    public["support_confirmations"] = [
+        {"turn_id": action["turn_id"], "status": action["status"],
+         "receipt": {key: action["receipt"][key] for key in
+                     ("operation_id", "operation", "ticket_id", "memory_id", "changed_fields", "committed_at")
+                     if key in action["receipt"]}}
+        for action in support_actions if action["status"] == "confirmed" and isinstance(action.get("receipt"), dict)
+    ]
+    public["support_outcomes"] = [
+        {"turn_id": action["turn_id"], "status": action["status"]}
+        for action in support_actions if action["status"] == "unknown"
+    ]
     return public
 
 
@@ -318,7 +338,8 @@ def create_app(settings=None, store=None, service=None):
 
     @app.get("/api/branches/<branch_id>")
     def branch(branch_id):
-        return jsonify(_public_branch(owned_branch(branch_id)))
+        owned = owned_branch(branch_id)
+        return jsonify(_public_branch(owned, store.support_actions(current_user(), branch_id)))
 
     @app.patch("/api/branches/<branch_id>")
     def edit_branch(branch_id):
@@ -347,13 +368,18 @@ def create_app(settings=None, store=None, service=None):
     @app.post("/api/branches/<branch_id>/ask")
     def ask(branch_id):
         owned_branch(branch_id)
-        data = fields(body(), {"question"})
+        data = fields(body(), {"question", "request_id"})
         question = data.get("question")
         if not isinstance(question, str) or not question.strip() or len(question) > 8000:
             raise ValueError("Вопрос пустой или слишком длинный")
+        request_id = data.get("request_id")
+        if request_id is not None and (not isinstance(request_id, str) or len(request_id) > 128):
+            raise ValueError("Некорректный идентификатор запроса")
         if not paid_action_allowed():
             return problem(429, "Слишком много запросов. Повторите позже")
-        return jsonify(_public_result(service.ask(current_user(), branch_id, question)))
+        result = (service.ask(current_user(), branch_id, question) if request_id is None else
+                  service.ask(current_user(), branch_id, question, request_id=request_id))
+        return jsonify(_public_result(result))
 
     @app.post("/api/branches/<branch_id>/compress")
     def compress(branch_id):

@@ -33,13 +33,19 @@ _CRITERIA = {
         "Не оценивай выполнение программы, которую никто не запускал."
     ),
 }
+_SUPPORT_ANSWER = (
+    " Если answer_kind=support, отдельно проверь факты FAQ и реальные результаты "
+    "инструментов, подтверждение действия по квитанции, неизвестные состояния "
+    "диагностики и приватность данных пользователя. Не выдавай unknown за исправное, "
+    "не обещай оператора или решение обращения без основания."
+)
 
 
-def semantic_task(mode: str) -> str:
+def semantic_task(mode: str, *, answer_kind: str | None = None) -> str:
     """Return trusted criteria for exactly the two supported consumers."""
     if mode not in _CRITERIA:
         raise ValueError("invalid_semantic_mode")
-    return _COMMON + _CRITERIA[mode]
+    return _COMMON + _CRITERIA[mode] + (_SUPPORT_ANSWER if mode == "answer" and answer_kind == "support" else "")
 
 
 def validate_semantics(call, payload: dict, *, mode: str, allowed_source_ids) -> dict:
@@ -48,7 +54,7 @@ def validate_semantics(call, payload: dict, *, mode: str, allowed_source_ids) ->
     The consumer retains transport, budgets and durable policy receipts. This
     helper owns the common judge criteria and verdict/evidence schema.
     """
-    criteria = semantic_task(mode)
+    criteria = semantic_task(mode, answer_kind=payload.get("answer_kind") if isinstance(payload, dict) else None)
     if not isinstance(payload, dict) or not isinstance(allowed_source_ids, (list, tuple)):
         raise ValueError("invalid_semantic_input")
     if any(not isinstance(item, str) or not item for item in allowed_source_ids):

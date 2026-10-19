@@ -5,9 +5,11 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sqlite3
 import uuid
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .context import validate_explicit
@@ -39,15 +41,33 @@ def _safe_turn_details(details):
 
 _STEPS = {
     "new": {"input_check"},
-    "input_check": {"context", "input_rejected", "error"},
+    "input_check": {"context", "support_control", "input_rejected", "error"},
     "context": {"sources", "needs_clarification", "compressed", "error"},
     "sources": {"draft", "needs_clarification", "error"},
     "draft": {"program_check", "error"},
     "program_check": {"semantic_check", "rejected", "error"},
     "semantic_check": {"accepted", "rejected", "error"},
 }
-_TERMINAL = {"input_rejected", "needs_clarification", "rejected", "error", "accepted", "compressed"}
+_TERMINAL = {"input_rejected", "needs_clarification", "rejected", "error", "accepted", "compressed", "support_control"}
 _PROFILE_FIELDS = {"role", "level", "goal", "depth"}
+_SUPPORT_TOOLS = {
+    "support_ticket_create", "support_ticket_append", "support_ticket_close",
+    "support_profile_update", "support_memory_set", "support_memory_delete",
+}
+_SUPPORT_STATUSES = {"pending", "confirmed", "error", "unknown"}
+_SUPPORT_RECEIPT_OPERATIONS = {
+    "support_ticket_create": "create", "support_ticket_append": "append",
+    "support_ticket_close": "close", "support_profile_update": "support_profile_update",
+    "support_memory_set": "support_memory_set", "support_memory_delete": "support_memory_delete",
+}
+_SAFE_SUPPORT_RECEIPT_FIELDS = {
+    "operation_id", "request_key", "operation", "ticket_id", "committed_at",
+    "branch_id", "turn_id", "memory_id", "changed_fields",
+}
+
+
+class SupportIdempotencyConflict(ValueError):
+    """One authenticated request key was reused with different arguments."""
 _BRANCH_FIELDS = {"title", "summary", "summary_through", "working_state", "conditions"}
 _CALL_STATES = {
     "preparation": {"context"},
@@ -65,6 +85,7 @@ _SAFE_TERMINAL_ERRORS = {
     "error": "Не удалось завершить запрос",
     "accepted": None,
     "compressed": None,
+    "support_control": None,
 }
 
 
@@ -108,7 +129,7 @@ class Store:
                 );
                 CREATE UNIQUE INDEX IF NOT EXISTS one_active_turn_per_branch
                     ON turns(branch_id) WHERE status NOT IN
-                    ('input_rejected','needs_clarification','rejected','error','accepted','compressed');
+                    ('input_rejected','needs_clarification','rejected','error','accepted','compressed','support_control');
                 CREATE TABLE IF NOT EXISTS calls (
                     id TEXT PRIMARY KEY, user_id INTEGER NOT NULL, branch_id TEXT NOT NULL,
                     chat_id TEXT NOT NULL, turn_id TEXT NOT NULL, stage TEXT NOT NULL,
@@ -117,6 +138,26 @@ class Store:
                     input_policy TEXT, output_policy TEXT,
                     request_dispatched INTEGER NOT NULL DEFAULT 0
                 );
+                CREATE TABLE IF NOT EXISTS support_operations (
+                    operation_id TEXT PRIMARY KEY, user_id INTEGER NOT NULL,
+                    branch_id TEXT NOT NULL, turn_id TEXT NOT NULL,
+                    request_key TEXT NOT NULL, operation TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL, committed_at TEXT NOT NULL,
+                    receipt TEXT NOT NULL, UNIQUE(user_id,request_key)
+                );
+                CREATE TABLE IF NOT EXISTS support_action_journal (
+                    user_id INTEGER NOT NULL, branch_id TEXT NOT NULL,
+                    turn_id TEXT NOT NULL, request_key TEXT NOT NULL,
+                    tool TEXT NOT NULL, status TEXT NOT NULL,
+                    receipt TEXT, error_code TEXT, recorded_at TEXT NOT NULL,
+                    PRIMARY KEY(user_id,branch_id,request_key)
+                );
+                CREATE TABLE IF NOT EXISTS support_requests (
+                    user_id INTEGER NOT NULL, branch_id TEXT NOT NULL,
+                    request_id TEXT NOT NULL, fingerprint TEXT NOT NULL,
+                    turn_id TEXT NOT NULL,
+                    PRIMARY KEY(user_id,branch_id,request_id)
+                );
             """)
             columns = {row["name"] for row in db.execute("PRAGMA table_info(turns)")}
             if "accepted_snapshot" not in columns:
@@ -124,12 +165,16 @@ class Store:
             call_columns = {row["name"] for row in db.execute("PRAGMA table_info(calls)")}
             if "request_dispatched" not in call_columns:
                 db.execute("ALTER TABLE calls ADD COLUMN request_dispatched INTEGER NOT NULL DEFAULT 0")
+            # executescript commits its own DDL. Lock and recheck before replacing the legacy index.
+            if not db.in_transaction:
+                db.execute("BEGIN IMMEDIATE")
             active_index = db.execute("SELECT sql FROM sqlite_master WHERE name='one_active_turn_per_branch'").fetchone()
-            if active_index is not None and "compressed" not in active_index["sql"]:
+            if active_index is not None and ("compressed" not in active_index["sql"] or
+                                             "support_control" not in active_index["sql"]):
                 db.execute("DROP INDEX one_active_turn_per_branch")
                 db.execute("CREATE UNIQUE INDEX one_active_turn_per_branch ON turns(branch_id) "
                            "WHERE status NOT IN ('input_rejected','needs_clarification','rejected',"
-                           "'error','accepted','compressed')")
+                           "'error','accepted','compressed','support_control')")
 
     @contextmanager
     def _connect(self):
@@ -244,6 +289,215 @@ class Store:
             if result.rowcount != 1:
                 raise PermissionError("Доступ запрещён")
 
+    def _require_support_context(self, db, user_id: int, branch_id: str,
+                                 turn_id: str | None = None):
+        self._require_branch(db, user_id, branch_id)
+        if turn_id is not None and db.execute(
+            "SELECT 1 FROM turns WHERE id=? AND user_id=? AND branch_id=?",
+            (turn_id, user_id, branch_id),
+        ).fetchone() is None:
+            raise PermissionError("Доступ запрещён")
+
+    @staticmethod
+    def _support_key(request_key: str) -> None:
+        if not isinstance(request_key, str) or re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", request_key) is None:
+            raise ValueError("Некорректный ключ запроса")
+
+    @staticmethod
+    def _support_fingerprint(operation: str, branch_id: str, arguments: dict) -> str:
+        payload = json.dumps({"operation": operation, "branch_id": branch_id, "arguments": arguments},
+                             ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def _support_mutation(self, user_id: int, branch_id: str, turn_id: str,
+                          request_key: str, operation: str, arguments: dict, apply):
+        self._support_key(request_key)
+        fingerprint = self._support_fingerprint(operation, branch_id, arguments)
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            self._require_support_context(db, user_id, branch_id, turn_id)
+            previous = db.execute(
+                "SELECT fingerprint,receipt FROM support_operations WHERE user_id=? AND request_key=?",
+                (user_id, request_key),
+            ).fetchone()
+            if previous is not None:
+                if previous["fingerprint"] != fingerprint:
+                    raise SupportIdempotencyConflict("Ключ запроса уже использован с другими аргументами")
+                return {"receipt": _read(previous["receipt"])}
+            metadata = apply(db)
+            receipt = {
+                "operation_id": _id(), "request_key": request_key, "operation": operation,
+                "branch_id": branch_id, "turn_id": turn_id,
+                "committed_at": datetime.now(timezone.utc).isoformat(timespec="microseconds"),
+                **metadata,
+            }
+            db.execute(
+                "INSERT INTO support_operations(operation_id,user_id,branch_id,turn_id,request_key,"
+                "operation,fingerprint,committed_at,receipt) VALUES(?,?,?,?,?,?,?,?,?)",
+                (receipt["operation_id"], user_id, branch_id, turn_id, request_key,
+                 operation, fingerprint, receipt["committed_at"], _json(receipt)),
+            )
+            journal = db.execute(
+                "INSERT INTO support_action_journal(user_id,branch_id,turn_id,request_key,tool,"
+                "status,receipt,error_code,recorded_at) VALUES(?,?,?,?,?,'confirmed',?,NULL,?) "
+                "ON CONFLICT(user_id,branch_id,request_key) DO UPDATE SET "
+                "status='confirmed',receipt=excluded.receipt,error_code=NULL,recorded_at=excluded.recorded_at "
+                "WHERE support_action_journal.turn_id=excluded.turn_id "
+                "AND support_action_journal.tool=excluded.tool",
+                (user_id, branch_id, turn_id, request_key, operation, _json(receipt), receipt["committed_at"]),
+            )
+            if journal.rowcount != 1:
+                raise SupportIdempotencyConflict("Ключ запроса уже использован для другой операции")
+            return {"receipt": receipt}
+
+    def support_update_profile(self, user_id: int, branch_id: str, turn_id: str,
+                               changes: dict, request_key: str) -> dict:
+        if not isinstance(changes, dict) or not changes or not set(changes) <= _PROFILE_FIELDS:
+            raise ValueError("Недопустимое поле профиля")
+        if any(not isinstance(value, str) or (value != "" and not value.strip()) or len(value) > 500
+               for value in changes.values()):
+            raise ValueError("Недопустимое значение профиля")
+
+        def apply(db):
+            profile = _read(db.execute("SELECT profile FROM users WHERE id=?", (user_id,)).fetchone()["profile"])
+            for field, value in changes.items():
+                if value == "":
+                    profile.pop(field, None)
+                else:
+                    profile[field] = value
+            self._admit_explicit(db, user_id, profile=profile)
+            db.execute("UPDATE users SET profile=? WHERE id=?", (_json(profile), user_id))
+            return {"changed_fields": sorted(changes)}
+
+        return self._support_mutation(user_id, branch_id, turn_id, request_key,
+                                      "support_profile_update", changes, apply)
+
+    def support_memory_set(self, user_id: int, branch_id: str, turn_id: str,
+                           key: str, value: str, request_key: str) -> dict:
+        if (not isinstance(key, str) or not isinstance(value, str) or
+                not 1 <= len(key.strip()) <= 500 or not 1 <= len(value.strip()) <= 500):
+            raise ValueError("Недопустимая память")
+
+        def apply(db):
+            normalized = key.strip()
+            existing = db.execute("SELECT id FROM memories WHERE user_id=? AND key=?",
+                                  (user_id, normalized)).fetchone()
+            memory_id = existing["id"] if existing else _id()
+            proposed = {"id": memory_id, "key": normalized, "value": value.strip()}
+            memories = [dict(row) for row in db.execute(
+                "SELECT id,key,value FROM memories WHERE user_id=? AND key!=? ORDER BY key",
+                (user_id, normalized))]
+            self._admit_explicit(db, user_id, memories=sorted(memories + [proposed], key=lambda m: m["key"]))
+            db.execute("INSERT INTO memories(id,user_id,key,value) VALUES(?,?,?,?) "
+                       "ON CONFLICT(user_id,key) DO UPDATE SET value=excluded.value",
+                       (memory_id, user_id, normalized, value.strip()))
+            return {"memory_id": memory_id}
+
+        return self._support_mutation(user_id, branch_id, turn_id, request_key,
+                                      "support_memory_set", {"key": key, "value": value}, apply)
+
+    def support_memory_delete(self, user_id: int, branch_id: str, turn_id: str,
+                              memory_id: str, request_key: str) -> dict:
+        if not isinstance(memory_id, str) or len(memory_id) != 32:
+            raise ValueError("Некорректный идентификатор памяти")
+
+        def apply(db):
+            row = db.execute("SELECT key FROM memories WHERE id=? AND user_id=?",
+                             (memory_id, user_id)).fetchone()
+            if row is None:
+                raise PermissionError("Доступ запрещён")
+            db.execute("DELETE FROM memories WHERE id=? AND user_id=?", (memory_id, user_id))
+            return {"memory_id": memory_id}
+
+        return self._support_mutation(user_id, branch_id, turn_id, request_key,
+                                      "support_memory_delete", {"memory_id": memory_id}, apply)
+
+    def record_support_action(self, user_id: int, branch_id: str, turn_id: str,
+                              request_key: str, tool: str, status: str,
+                              receipt: dict | None = None, error_code: str | None = None) -> dict:
+        self._support_key(request_key)
+        if tool not in _SUPPORT_TOOLS or status not in _SUPPORT_STATUSES:
+            raise ValueError("Некорректная операция поддержки")
+        if status == "confirmed":
+            common = {"operation_id", "request_key", "operation", "committed_at"}
+            ticket = tool.startswith("support_ticket_")
+            specific = ({"ticket_id"} if ticket else
+                        {"branch_id", "turn_id", "changed_fields"} if tool == "support_profile_update"
+                        else {"branch_id", "turn_id", "memory_id"})
+            if (not isinstance(receipt, dict) or not common | specific <= set(receipt) or
+                    set(receipt) - _SAFE_SUPPORT_RECEIPT_FIELDS or
+                    (not ticket and set(receipt) != common | specific) or
+                    (ticket and set(receipt) - (common | specific | {"branch_id", "turn_id"})) or
+                    receipt.get("request_key") != request_key or
+                    receipt.get("operation") != _SUPPORT_RECEIPT_OPERATIONS[tool] or
+                    ("branch_id" in receipt and receipt["branch_id"] != branch_id) or
+                    ("turn_id" in receipt and receipt["turn_id"] != turn_id) or
+                    error_code is not None):
+                raise ValueError("Недопустимые данные квитанции")
+            for field in ("operation_id", "ticket_id", "memory_id"):
+                if field in receipt and (not isinstance(receipt[field], str) or
+                                         re.fullmatch(r"[0-9a-f]{32}", receipt[field]) is None):
+                    raise ValueError("Недопустимые данные квитанции")
+            if tool == "support_profile_update" and (
+                not isinstance(receipt["changed_fields"], list) or not receipt["changed_fields"] or
+                any(not isinstance(field, str) or field not in _PROFILE_FIELDS
+                    for field in receipt["changed_fields"])
+            ):
+                raise ValueError("Недопустимые данные квитанции")
+            if (not isinstance(receipt["committed_at"], str) or
+                    len(receipt["committed_at"]) > 128):
+                raise ValueError("Недопустимые данные квитанции")
+            try:
+                timestamp = datetime.fromisoformat(receipt["committed_at"])
+            except ValueError as error:
+                raise ValueError("Недопустимые данные квитанции") from error
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError("Недопустимые данные квитанции")
+        elif receipt is not None:
+            raise ValueError("Квитанция допустима только для подтверждённого действия")
+        if error_code is not None and (not isinstance(error_code, str) or len(error_code) > 64):
+            raise ValueError("Некорректная ошибка")
+        now = datetime.now(timezone.utc).isoformat(timespec="microseconds")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            self._require_support_context(db, user_id, branch_id, turn_id)
+            previous = db.execute("SELECT turn_id,tool,status,receipt,error_code,recorded_at "
+                                  "FROM support_action_journal "
+                                  "WHERE user_id=? AND branch_id=? AND request_key=?",
+                                  (user_id, branch_id, request_key)).fetchone()
+            if previous is not None:
+                if previous["tool"] != tool or previous["turn_id"] != turn_id:
+                    raise SupportIdempotencyConflict("Ключ запроса уже использован для другой операции")
+                if previous["status"] == "confirmed":
+                    if status == "confirmed" and receipt != _read(previous["receipt"]):
+                        raise SupportIdempotencyConflict("Подтверждённая квитанция уже записана")
+                    status, receipt, error_code, now = (previous["status"],
+                                                        _read(previous["receipt"]) if previous["receipt"] else None,
+                                                        previous["error_code"], previous["recorded_at"])
+            db.execute("INSERT INTO support_action_journal(user_id,branch_id,turn_id,request_key,tool,"
+                       "status,receipt,error_code,recorded_at) VALUES(?,?,?,?,?,?,?,?,?) "
+                       "ON CONFLICT(user_id,branch_id,request_key) DO UPDATE SET status=excluded.status,"
+                       "receipt=excluded.receipt,error_code=excluded.error_code,recorded_at=excluded.recorded_at",
+                       (user_id, branch_id, turn_id, request_key, tool, status,
+                        _json(receipt) if receipt is not None else None, error_code, now))
+        return {"branch_id": branch_id, "turn_id": turn_id, "request_key": request_key,
+                "tool": tool, "status": status, "receipt": receipt, "error_code": error_code,
+                "recorded_at": now}
+
+    def support_actions(self, user_id: int, branch_id: str,
+                        turn_id: str | None = None) -> list[dict]:
+        with self._connect() as db:
+            self._require_support_context(db, user_id, branch_id, turn_id)
+            sql = "SELECT branch_id,turn_id,request_key,tool,status,receipt,error_code,recorded_at "
+            sql += "FROM support_action_journal WHERE user_id=? AND branch_id=?"
+            args = [user_id, branch_id]
+            if turn_id is not None:
+                sql += " AND turn_id=?"
+                args.append(turn_id)
+            rows = db.execute(sql + " ORDER BY recorded_at,rowid", args).fetchall()
+        return [{**dict(row), "receipt": _read(row["receipt"]) if row["receipt"] else None}
+                for row in rows]
+
     def create_chat(self, user_id: int, title: str = "Новый разговор") -> dict:
         if not isinstance(title, str) or not title.strip():
             raise ValueError("Название чата пустое")
@@ -289,7 +543,7 @@ class Store:
             db.execute("BEGIN IMMEDIATE")
             row = self._require_branch(db, user_id, branch_id)
             active = db.execute("SELECT id FROM turns WHERE branch_id=? AND user_id=? AND status NOT IN "
-                                "('input_rejected','needs_clarification','rejected','error','accepted','compressed')",
+                                "('input_rejected','needs_clarification','rejected','error','accepted','compressed','support_control')",
                                 (branch_id, user_id)).fetchone()
             if active is not None and turn_id is None:
                 raise RuntimeError("Ветка занята текущим ответом")
@@ -416,6 +670,63 @@ class Store:
                 raise RuntimeError("В этой ветке уже готовится ответ") from exc
         return {"id": turn_id, "status": "new"}
 
+    def begin_support_turn(self, user_id: int, branch_id: str, question: str,
+                           request_id: str) -> dict:
+        """Claim a browser request before a turn or an external side effect exists."""
+        if (not isinstance(question, str) or not question.strip() or
+                not isinstance(request_id, str) or
+                re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", request_id) is None):
+            raise ValueError("Некорректный запрос поддержки")
+        fingerprint = hashlib.sha256(question.strip().encode("utf-8")).hexdigest()
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            self._require_branch(db, user_id, branch_id)
+            previous = db.execute(
+                "SELECT fingerprint,turn_id FROM support_requests "
+                "WHERE user_id=? AND branch_id=? AND request_id=?",
+                (user_id, branch_id, request_id)).fetchone()
+            if previous is not None:
+                if previous["fingerprint"] != fingerprint:
+                    raise SupportIdempotencyConflict("Идентификатор запроса уже использован с другим текстом")
+                return {"id": previous["turn_id"], "replay": True}
+            turn_id = _id()
+            try:
+                db.execute("INSERT INTO turns(id,branch_id,user_id,question,status,details,events) "
+                           "VALUES(?,?,?,?,?,?,?)", (turn_id, branch_id, user_id,
+                           question.strip(), "new", _json({}), _json(["new"])))
+            except sqlite3.IntegrityError as exc:
+                raise RuntimeError("В этой ветке уже готовится ответ") from exc
+            db.execute("INSERT INTO support_requests(user_id,branch_id,request_id,fingerprint,turn_id) "
+                       "VALUES(?,?,?,?,?)", (user_id, branch_id, request_id, fingerprint, turn_id))
+        return {"id": turn_id, "replay": False}
+
+    def publish_support_control(self, user_id: int, branch_id: str, turn_id: str,
+                                notice: str) -> dict:
+        """Persist a deterministic notice and unlock the branch in one commit."""
+        if not isinstance(notice, str) or not notice.strip() or len(notice.encode("utf-8")) > 2000:
+            raise ValueError("Некорректное уведомление поддержки")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            branch = self._require_branch(db, user_id, branch_id)
+            turn = db.execute("SELECT * FROM turns WHERE id=? AND user_id=? AND branch_id=?",
+                              (turn_id, user_id, branch_id)).fetchone()
+            if turn is None:
+                raise PermissionError("Доступ запрещён")
+            if turn["status"] != "input_check":
+                raise ValueError("Команда уже завершена или перешла к генерации")
+            snapshot = {"title": branch["title"], "summary": branch["summary"],
+                        "summary_through": branch["summary_through"],
+                        "working_state": _read(branch["working_state"]),
+                        "conditions": _read(branch["conditions"])}
+            count = db.execute("SELECT COUNT(*) FROM messages WHERE branch_id=?", (branch_id,)).fetchone()[0]
+            db.execute("INSERT INTO messages(id,branch_id,user_id,ordinal,role,content,sources,snapshot,turn_id) "
+                       "VALUES(?,?,?,?,?,?,?,?,?)", (_id(), branch_id, user_id, count,
+                       "assistant", notice.strip(), _json([]), _json(snapshot), turn_id))
+            db.execute("UPDATE turns SET status='support_control',events=?,accepted_snapshot=? WHERE id=?",
+                       (_json(_read(turn["events"]) + ["support_control"]), _json(snapshot), turn_id))
+            db.execute("UPDATE branches SET revision=revision+1 WHERE id=?", (branch_id,))
+        return {"id": turn_id, "status": "support_control"}
+
     def _turn(self, db, turn_id):
         row = db.execute("SELECT * FROM turns WHERE id=?", (turn_id,)).fetchone()
         if row is None:
@@ -438,8 +749,8 @@ class Store:
     def end_turn(self, turn_id: str, state: str, error: str | None = None) -> dict:
         if state not in _TERMINAL:
             raise ValueError("Нужен терминальный исход")
-        if state == "accepted":
-            raise ValueError("Принятие требует атомарной публикации ответа")
+        if state in {"accepted", "support_control"}:
+            raise ValueError("Публикация требует атомарной записи уведомления или ответа")
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             old = self._turn(db, turn_id)

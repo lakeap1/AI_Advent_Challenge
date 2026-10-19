@@ -1,0 +1,8 @@
+.venv/
+demo/
+.recording-tmp/
+*.sqlite3*
+*.db*
+.env*
+__pycache__/
+*.pyc

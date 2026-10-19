@@ -3,7 +3,8 @@
 const $ = (id) => document.getElementById(id);
 const state = { csrf: "", chats: [], chat: null, branch: null, profile: {}, memories: [],
   branches: [], busy: false, navigating: false, navigationVersion: 0, forkPending: false, explicitRefreshing: false,
-  drawer: null, source: null, previousFocus: null, authGeneration: 0 };
+  drawer: null, source: null, previousFocus: null, authGeneration: 0,
+  supportMode: false, pendingRequest: null };
 const ACTIVE_KEY = "grani.activeBranch";
 
 class StaleSessionError extends Error {}
@@ -16,11 +17,14 @@ function resetSession(csrf = "") {
   state.navigationVersion++;
   Object.assign(state, { csrf, chats: [], chat: null, branch: null, branches: [],
     profile: {}, memories: [], source: null, previousFocus: null,
-    busy: false, navigating: false, forkPending: false, explicitRefreshing: false });
+    busy: false, navigating: false, forkPending: false, explicitRefreshing: false,
+    supportMode: false, pendingRequest: null });
+  $("support-mode").setAttribute("aria-pressed", "false");
   closeDrawer();
   for (const id of ["conversation", "chat-list", "drawer-body"]) $(id).replaceChildren();
   $("chat-title").textContent = "";
   $("question").value = "";
+  $("question").placeholder = "Спросите о графике…";
   try { localStorage.removeItem(ACTIVE_KEY); } catch (_) { /* Storage may be unavailable. */ }
   $("login-form").querySelector("button").disabled = false;
   notice("");
@@ -198,9 +202,23 @@ async function selectBranch(id, options = {}) {
   }
 }
 function renderMessages() {
+  const operationLabels = new Map([
+    ["support_profile_update", "профиль обновлён"],
+    ["support_memory_set", "сведения сохранены в памяти"],
+    ["support_memory_delete", "сведения удалены из памяти"],
+    ["create", "обращение создано"],
+    ["append", "сообщение добавлено в обращение"],
+    ["close", "обращение закрыто вами"],
+  ]);
+  const fieldLabels = new Map([
+    ["role", "роль"], ["level", "уровень знаний"], ["goal", "цель"],
+    ["depth", "подробность"], ["memory", "память"],
+  ]);
   const box = $("conversation");
   box.replaceChildren();
   const messages = state.branch?.messages || [];
+  const confirmations = state.branch?.support_confirmations || [];
+  const outcomes = state.branch?.support_outcomes || [];
   $("empty-state").hidden = messages.length > 0;
   box.hidden = messages.length === 0;
   for (const message of messages) {
@@ -214,6 +232,19 @@ function renderMessages() {
     }
     article.append(actions);
     box.append(article);
+    if (message.role === "user") {
+      for (const confirmation of confirmations.filter(item => item.turn_id === message.turn_id)) {
+        const card = node("div", "support-confirmation", "Действие поддержки подтверждено: " +
+          (operationLabels.get(confirmation.receipt.operation) || "подтверждённое изменение"));
+        if (confirmation.receipt.ticket_id) card.append(node("small", "", "Обращение: " + confirmation.receipt.ticket_id));
+        if (confirmation.receipt.changed_fields) card.append(node("small", "", "Поля: " + confirmation.receipt.changed_fields.map(field => fieldLabels.get(field) || "сведения").join(", ")));
+        box.append(card);
+      }
+      for (const outcome of outcomes.filter(item => item.turn_id === message.turn_id)) {
+        if (outcome.status === "unknown") box.append(node("div", "support-confirmation",
+          "Исход операции поддержки неизвестен. Проверьте обращение или профиль перед новой попыткой."));
+      }
+    }
   }
   box.scrollTop = box.scrollHeight;
 }
@@ -259,13 +290,23 @@ async function forkAt(messageId) {
 async function sendQuestion(event) {
   event.preventDefault();
   const generation = state.authGeneration;
-  const question = $("question").value.trim();
+  const typed = $("question").value.trim();
+  const question = state.supportMode && !typed.startsWith("/support") ? `/support ${typed}` : typed;
   if (!question || state.busy || state.navigating || state.forkPending) return;
   if (!state.branch) { if (!await createChat()) return; }
   if (!currentSession(generation)) return;
   const branchId = state.branch.id;
+  const chatId = state.chat.id;
+  const version = state.navigationVersion;
+  const existing = state.pendingRequest;
+  const requestId = existing?.branchId === branchId && existing?.question === question
+    ? existing.id : crypto.randomUUID();
+  state.pendingRequest = { branchId, question, id: requestId };
+  const stillHere = () => currentSession(generation) && version === state.navigationVersion &&
+    state.branch?.id === branchId && state.chat?.id === chatId;
   setBusy(true);
-  if (/^\/(remember|forget|profile)(?:\s|$)/.test(question)) {
+  if (/^\/(remember|forget|profile)(?:\s|$)/.test(question) ||
+      /^\/support \/(remember|forget|profile)(?:\s|$)/.test(question)) {
     state.explicitRefreshing = true;
     if (["profile", "memory"].includes(state.drawer)) renderDrawer();
   }
@@ -278,24 +319,30 @@ async function sendQuestion(event) {
   $("conversation").append(pending);
   try {
     const result = await api(`/api/branches/${encodeURIComponent(branchId)}/ask`,
-      { method: "POST", data: { question } });
-    if (!currentSession(generation)) return;
-    $("question").value = "";
+      { method: "POST", data: { question, request_id: requestId } });
+    if (!stillHere()) return;
+    if (["accepted", "support_control", "updated"].includes(result.status)) {
+      $("question").value = "";
+      state.pendingRequest = null;
+    }
     if (result.status === "updated" || state.explicitRefreshing) {
       state.explicitRefreshing = true;
       if (["profile", "memory"].includes(state.drawer)) renderDrawer();
       const bootstrap = await api("/api/bootstrap");
-      if (!currentSession(generation)) return;
+      if (!stillHere()) return;
       state.profile = bootstrap.profile;
       state.memories = bootstrap.memories;
       state.explicitRefreshing = false;
       if (["profile", "memory"].includes(state.drawer)) renderDrawer();
     }
+    if (!stillHere()) return;
     await selectBranch(branchId, { allowBusy: true });
     if (!currentSession(generation)) return;
-    if (result.status !== "accepted") notice(result.message || "Ответ не появился. Уточните вопрос.", result.status !== "updated");
+    if (state.branch?.id !== branchId || state.chat?.id !== chatId) return;
+    if (result.status !== "accepted") notice(result.support_confirmation?.message || result.message || "Ответ не появился. Уточните вопрос.",
+      !["updated", "support_control"].includes(result.status) && !result.support_confirmation);
   } catch (error) {
-    if (!currentSession(generation)) return;
+    if (!stillHere()) return;
     pending.remove();
     notice(error.message, true);
   } finally { if (currentSession(generation)) { setBusy(false); $("question").focus(); } }
@@ -466,7 +513,8 @@ function renderSources(body) {
     card.append(node("small", "", [source.section, source.version, source.pipeline].filter(Boolean).join(" · ")));
     if (source.text) card.append(node("pre", "", source.text));
     const local = { "README.md": "readme", "docs/usage.md": "usage", "docs/architecture.md": "architecture",
-      "docs/api.md": "api", "corpus/glossary.md": "glossary" }[source.path];
+      "docs/api.md": "api", "corpus/glossary.md": "glossary",
+      "corpus/support-faq.md": "support-faq" }[source.path];
     if (local) { const link = node("a", "", "Открыть текст ↗"); link.href = `/reference/${local}`;
       link.target = "_blank"; link.rel = "noopener noreferrer"; card.append(link); }
     else { const url = safeUrl(source.url); if (url) { const link = node("a", "", "Открыть источник ↗");
@@ -561,6 +609,12 @@ $("logout").addEventListener("click", async () => {
 });
 $("new-chat").addEventListener("click", createChat);
 $("composer").addEventListener("submit", sendQuestion);
+$("support-mode").addEventListener("click", () => {
+  state.supportMode = !state.supportMode;
+  $("support-mode").setAttribute("aria-pressed", String(state.supportMode));
+  $("question").placeholder = state.supportMode ? "Спросите о сервисе или введите /ticket…" : "Спросите о графике…";
+  $("question").focus();
+});
 $("question").addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
     event.preventDefault(); $("composer").requestSubmit();

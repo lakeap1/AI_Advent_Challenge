@@ -679,6 +679,18 @@
       "path": "docs/api.md"
     },
     {
+      "id": "support-faq",
+      "title": "Support and service FAQ",
+      "url": "/reference/support-faq",
+      "domain": "service",
+      "version": "Day33 integrated support 2026-10-19",
+      "pipeline": "service",
+      "language": "ru",
+      "license": "Project-authored documentation",
+      "attribution": "Graphics learning service",
+      "path": "corpus/support-faq.md"
+    },
+    {
       "id": "glossary",
       "title": "Russian English graphics glossary",
       "url": "/reference/glossary",

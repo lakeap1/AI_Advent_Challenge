@@ -1,0 +1,7 @@
+# Private runtime data for learning-file workspaces.
+data/
+demo/
+__pycache__/
+# Private recording automation for this Windows workstation.
+scripts/record-day34.cjs
+scripts/quality-capture.cjs

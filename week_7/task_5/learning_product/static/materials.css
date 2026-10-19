@@ -1,0 +1,4 @@
+.message-actions .download-material{color:var(--blue);font-size:13px;padding:4px 0;text-decoration:none}
+.message-actions .download-material:hover{text-decoration:underline}
+.files-list .file-download{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid #596476;border-radius:8px;color:#f1f2f3;text-decoration:none}
+.files-list .file-download:hover{border-color:#8facd5}

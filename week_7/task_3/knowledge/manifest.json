@@ -1,0 +1,17 @@
+{
+  "kind": "support_faq_source_manifest",
+  "status": "canonical_source_in_task_1",
+  "integration_status": "local_integration_implemented_live_unverified",
+  "auto_indexed": false,
+  "pointer": "week_7/task_3/knowledge/faq.md",
+  "canonical_source": {
+    "path": "week_7/task_1/corpus/support-faq.md",
+    "sha256": "e89a9417eb9cf6e3c43d62f6045aa10dcdda7add87473bd83c159422fd566510",
+    "role": "indexed_service_faq",
+    "version": "day33 integration source 2026-10-19",
+    "provenance": "local product documentation and implemented support contract"
+  },
+  "captured_on": "2026-10-19",
+  "capture_kind": "canonical_source_pointer",
+  "private_user_data": false
+}

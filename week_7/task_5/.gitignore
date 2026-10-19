@@ -1,0 +1,17 @@
+.venv/
+data/
+demo/
+docs/
+notes/
+private/
+.recording-tmp/
+__pycache__/
+*.pyc
+*.sqlite3*
+*.db*
+.env*
+*.zip
+*.tar.gz
+# Private recording automation stays local.
+scripts/record-day35.cjs
+scripts/quality-capture.cjs

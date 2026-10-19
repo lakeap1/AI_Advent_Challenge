@@ -1,0 +1,3 @@
+mcp==1.26.0
+jsonschema==4.26.0
+# The integrated website additionally uses the pinned task_1/requirements.txt.
