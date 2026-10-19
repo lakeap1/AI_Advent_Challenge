@@ -24,7 +24,7 @@ def snapshot(text=TEXT, head=HEAD, complete=True):
             "merge_base": BASE, "changed_files": [{"status": "M", "path": "code.py",
                                                      "old_path": None, "patch": "+    return 1\n"}],
             "sources": [{"source_id": source_id, "revision": head, "path": "code.py",
-                         "blob_oid": blob, "start_line": 1, "end_line": len(text.splitlines()),
+                         "blob_oid": blob, "start_line": 1, "end_line": text.count("\n") + bool(text and not text.endswith("\n")),
                          "text": text, "content_sha256": hashlib.sha256(raw).hexdigest(),
                          "side": "head"}],
             "coverage": {"complete": complete, "omissions": [] if complete else [
@@ -113,6 +113,9 @@ class PipelineTests(unittest.TestCase):
         self.line_aware = False
         self.wrong_line = False
         self.malformed_finding = False
+        self.anchor_override = None
+        self.keep_all = False
+        self.location_end = None
         self.index_factory = FakeIndex
         self.sent_messages = []
         self.embedded_queries = []
@@ -139,21 +142,20 @@ class PipelineTests(unittest.TestCase):
             if stage == "filter":
                 selected = (data["allowed_chunk_ids"][-1] if self.drop_control else
                             data["allowed_chunk_ids"][0])
-                body = {"keep": ["unknown" if self.bad_filter else selected],
+                body = {"keep": data["allowed_chunk_ids"] if self.keep_all else ["unknown" if self.bad_filter else selected],
                         "reason": "relevant"}
             elif stage == "generator":
                 source = snap["sources"][0]
                 citation = "X9" if self.unknown_label else (
-                    data["sources"][0]["source_id"] if self.labelled else source["source_id"])
+                    data["sources"][0]["source_id"])
                 findings = [{"id": "F1", "title": "Неверное значение", "severity": "high",
                              "kind": "defect", "problem": "Функция возвращает 1", "conditions": "При вызове",
                              "consequence": "Возвращает 1", "recommendation": "Исправить результат",
                              "location": {"revision": "B" if self.base_location else
                                           ("H" if self.labelled else source["revision"]), "path": "code.py",
                                           "start_line": 2, "end_line": 2},
-                             "evidence": [{"source_id": citation,
-                                           "quote": "not present" if self.invalid_citation else "return 1"}] +
-                                         ([{"source_id": citation, "quote": "return 2"}]
+                             "evidence": [{"source_id": citation, "start_line": 2, "end_line": 2}] +
+                                         ([{"source_id": citation, "start_line": 3, "end_line": 3}]
                                           if self.extra_unseen else [])}] if self.finding else []
                 if findings and self.line_aware:
                     visible = data["sources"][0]["lines"]
@@ -161,7 +163,13 @@ class PipelineTests(unittest.TestCase):
                                             if "return 1" in original)
                     findings[0]["location"]["start_line"] = 1 if self.wrong_line else number
                     findings[0]["location"]["end_line"] = 1 if self.wrong_line else number
-                    findings[0]["evidence"][0]["quote"] = "return 1"
+                    findings[0]["evidence"][0].update(start_line=number, end_line=number)
+                if findings and self.invalid_citation:
+                    findings[0]["evidence"][0] = {"source_id": citation, "quote": "not present"}
+                if findings and self.anchor_override is not None:
+                    findings[0]["evidence"][0] = self.anchor_override
+                if findings and self.location_end is not None:
+                    findings[0]["location"]["end_line"] = self.location_end
                 if findings and self.malformed_finding:
                     findings[0]["title"] = ""
                 body = {"schema_version": 1, "base_revision": "B" if self.labelled else BASE,
@@ -280,7 +288,7 @@ class PipelineTests(unittest.TestCase):
         for mode, flag, expected in (
             ("shape", "malformed_finding", "report.findings[0].title:invalid"),
             ("source", "unknown_label", "report.findings[0].evidence[0].source_id:unknown"),
-            ("quote", "invalid_citation", "report.findings[0].evidence[0].quote:not_in_source"),
+            ("quote", "invalid_citation", "report.findings[0].evidence[0].anchor:invalid_shape"),
         ):
             with self.subTest(mode=mode):
                 self.finding = True
@@ -308,6 +316,158 @@ class PipelineTests(unittest.TestCase):
                        if json.loads(messages[-1]["content"])["stage"] == "generator")
         self.assertEqual(payload["sources"][0]["lines"],
                          [[1, "def answer():\r\n"], [2, "    return 1  # а\u2028б\r\n"]])
+
+    def test_anchor_copies_exact_difficult_lf_text_and_judge_sees_both_forms(self):
+        self.finding = True
+        line = '    return 1  # "quoted" \\path\\ а\u2028б\r\n'
+        result = self.run_review("exact-anchor", snapshot(text="def answer():\r\n" + line))
+        self.assertEqual(result["status"], "accepted")
+        evidence = result["findings"][0]["evidence"][0]
+        self.assertEqual(evidence, {"source_id": self.current_snapshot["sources"][0]["source_id"],
+                                    "quote": line})
+        judge = next(json.loads(messages[-1]["content"]) for messages in self.sent_messages
+                     if json.loads(messages[-1]["content"])["stage"] == "validator")
+        self.assertEqual(judge["validated_findings"], result["findings"])
+        self.assertEqual(judge["generator_evidence_anchors"],
+                         [[{"source_id": "S1", "start_line": 2, "end_line": 2}]])
+        self.assertEqual(result["findings"][0]["location"],
+                         {"revision": HEAD, "path": "code.py", "start_line": 2, "end_line": 2})
+        self.assertEqual(self.stages.count("validator"), 1)
+
+    def test_invalid_anchors_are_withheld_before_semantic_with_safe_codes(self):
+        self.finding = True
+        cases = [
+            ({"source_id": "S1", "quote": "return 1"}, "anchor:invalid_shape"),
+            ({"source_id": "S1", "start_line": 2, "end_line": 2, "quote": "return 1"}, "anchor:invalid_shape"),
+            ({"source_id": "S1", "start_line": True, "end_line": 2}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 2, "end_line": True}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 2}, "anchor:invalid_shape"),
+            ({"source_id": "S1", "start_line": "2", "end_line": 2}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 2.0, "end_line": 2}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 2, "end_line": 1}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 0, "end_line": 2}, "anchor:invalid_lines"),
+            ({"source_id": "S1", "start_line": 2, "end_line": 3}, "anchor:outside_shown_chunk"),
+            ({"source_id": "S999", "start_line": 2, "end_line": 2}, "source_id:unknown"),
+            ("nonsense", "anchor:invalid_shape"),
+        ]
+        for index, (anchor, expected) in enumerate(cases):
+            with self.subTest(anchor=anchor):
+                self.anchor_override = anchor
+                self.stages.clear()
+                result = self.run_review("invalid-anchor-" + str(index))
+                self.assertEqual(result["status"], "rejected")
+                self.assertEqual(result["findings"], [])
+                self.assertEqual(result["semantic_validation"], "not_run")
+                self.assertEqual(self.stages, ["filter", "generator"])
+                self.assertIn("report.findings[0].evidence[0]." + expected,
+                              result["program_validation"]["errors"])
+                policy = next(call["output_policy"] for call in result["ledger"]["calls"]
+                              if call["stage"] == "generator")
+                self.assertFalse(policy["ok"])
+
+    def test_anchor_blank_is_rejected_and_long_visible_line_is_not_truncated(self):
+        self.finding = True
+        line = "x" * 1001 + "\n"
+        result = self.run_review("anchor-long", snapshot(text="def answer():\n" + line))
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(result["findings"][0]["evidence"][0]["quote"], line)
+        self.stages.clear()
+        result = self.run_review("anchor-blank", snapshot(text="def answer():\n \t\r\n"))
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("report.findings[0].evidence[0].anchor:blank_quote",
+                      result["program_validation"]["errors"])
+        self.assertEqual(self.stages, ["filter", "generator"])
+
+    def test_unsupported_resolved_quote_still_requires_single_semantic_gate_and_usage(self):
+        self.finding = True
+        self.semantic_reject = True
+        result = self.run_review("unsupported-anchor")
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "semantic_rejected")
+        self.assertEqual(result["program_validation"]["status"], "passed")
+        self.assertEqual(result["findings"], [])
+        calls = [c for c in result["ledger"]["calls"] if c["stage"] == "validator"]
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["usage"]["total_tokens"], 15)
+        self.assertGreater(result["ledger"]["cost_estimated_usd"], 0)
+
+    def test_anchor_coordinates_cannot_borrow_identical_text_from_other_location(self):
+        self.finding = True
+        self.anchor_override = {"source_id": "S1", "start_line": 3, "end_line": 3}
+        result = self.run_review("duplicate-line-anchor", snapshot(text=TEXT + "    return 1\n"))
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("report.findings[0].location:no_quoted_evidence",
+                      result["program_validation"]["errors"])
+        self.assertEqual(self.stages, ["filter", "generator"])
+
+    def test_anchor_cannot_span_chunks_even_when_both_are_selected(self):
+        class SplitIndex(FakeIndex):
+            def search(inner, query, limit=8):
+                inner.embed([query], query=True)
+                source = inner.snap["sources"][0]
+                return {"candidates": [{"chunk_id": "split-" + str(number),
+                    "source_id": source["source_id"], "revision": source["revision"],
+                    "path": source["path"], "start_line": number, "end_line": number,
+                    "text": line, "origin": "pr_head"}
+                    for number, line in enumerate(["def answer():\n", "    return 1\n"], 1)]}
+        self.index_factory = SplitIndex
+        self.keep_all = True
+        self.finding = True
+        self.anchor_override = {"source_id": "S1", "start_line": 1, "end_line": 2}
+        result = self.run_review("cross-chunk-anchor")
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("report.findings[0].evidence[0].anchor:outside_shown_chunk",
+                      result["program_validation"]["errors"])
+        self.assertEqual(self.stages, ["filter", "generator"])
+        self.keep_all = False
+        self.anchor_override = {"source_id": "S1", "start_line": 2, "end_line": 2}
+        self.stages.clear()
+        hidden = self.run_review("unselected-chunk-anchor")
+        self.assertEqual(hidden["status"], "rejected")
+        self.assertEqual(self.stages, ["filter", "generator"])
+
+    def test_nonzero_chunk_offset_resolves_full_multiline_range_exactly(self):
+        class OffsetIndex(FakeIndex):
+            def search(inner, query, limit=8):
+                inner.embed([query], query=True)
+                source = inner.snap["sources"][0]
+                return {"candidates": [{"chunk_id": "offset", "source_id": source["source_id"],
+                    "revision": source["revision"], "path": source["path"],
+                    "start_line": 2, "end_line": 3, "text": "    return 1\r\n# tail",
+                    "origin": "pr_head"}]}
+        self.index_factory = OffsetIndex
+        self.finding = True
+        self.anchor_override = {"source_id": "S1", "start_line": 2, "end_line": 3}
+        self.line_aware = True
+        self.location_end = 3
+        result = self.run_review("offset-anchor", snapshot(text="def answer():\r\n    return 1\r\n# tail"))
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(result["findings"][0]["evidence"][0]["quote"], "    return 1\r\n# tail")
+
+    def test_filtered_out_source_and_frozen_id_are_not_generator_anchor_labels(self):
+        class TwoSourceIndex(FakeIndex):
+            def search(inner, query, limit=8):
+                inner.embed([query], query=True)
+                return {"candidates": [{"chunk_id": "source-" + str(index),
+                    "source_id": source["source_id"], "revision": source["revision"],
+                    "path": source["path"], "start_line": 1, "end_line": source["end_line"],
+                    "text": source["text"], "origin": "pr_head"}
+                    for index, source in enumerate(inner.snap["sources"])]}
+        self.index_factory = TwoSourceIndex
+        self.finding = True
+        # Both sources reach the filter; only S1 reaches generator and judge.
+        changed = usage_snapshot()
+        changed["changed_files"] = snapshot()["changed_files"]
+        changed["snapshot_sha256"] = snapshot_digest(changed)
+        for index, label in enumerate(["S2", changed["sources"][0]["source_id"]]):
+            with self.subTest(label=label):
+                self.stages.clear()
+                self.anchor_override = {"source_id": label, "start_line": 2, "end_line": 2}
+                result = self.run_review("unshown-source-" + str(index), changed)
+                self.assertEqual(result["status"], "rejected")
+                self.assertIn("report.findings[0].evidence[0].source_id:unknown",
+                              result["program_validation"]["errors"])
+                self.assertEqual(self.stages, ["filter", "generator"])
 
     def test_base_tip_only_retry_reuses_last_terminal_index_without_new_build_receipts(self):
         original = snapshot()

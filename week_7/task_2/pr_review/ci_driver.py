@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from .cli import _MAX_INPUT_BYTES, _emit, _read_json, _write_html
@@ -86,8 +87,8 @@ def _validate_worker_result(result, payload, returncode):
     return result
 
 
-def _fetch_pr(repository, token, number):
-    request = Request(f"https://api.github.com/repos/{repository}/pulls/{number}",
+def _github_json(url, token):
+    request = Request(url,
                       headers={"Authorization": "Bearer " + token,
                                "Accept": "application/vnd.github+json",
                                "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "grani-review"})
@@ -96,6 +97,49 @@ def _fetch_pr(repository, token, number):
     if len(raw) > 1024 * 1024:
         raise ValueError("github_response_too_large")
     return json.loads(raw)
+
+
+def _valid_branch_ref(ref):
+    if not isinstance(ref, str) or not 1 <= len(ref) <= 255 or ref == "@":
+        return False
+    if (".." in ref or "@{" in ref or "//" in ref or ref.startswith("/")
+            or ref.endswith("/") or any(char.isspace() or ord(char) < 32
+                                       or 127 <= ord(char) <= 159 or char in "~^:?*[\\"
+                                       for char in ref)):
+        return False
+    return all(part and not part.startswith((".", "-")) and not part.endswith((".", ".lock"))
+               for part in ref.split("/"))
+
+
+def _fetch_pr(repository, token, number):
+    if (not isinstance(repository, str)
+            or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository)
+            or type(number) is not int or number < 1):
+        raise ValueError("invalid_pull_request_lookup")
+    current = _github_json(f"https://api.github.com/repos/{repository}/pulls/{number}", token)
+    if not isinstance(current, dict) or not isinstance(current.get("base"), dict):
+        raise ValueError("invalid_pull_request_metadata")
+    base = current["base"]
+    if not isinstance(base.get("repo"), dict) or base["repo"].get("full_name") != repository:
+        raise ValueError("repository_mismatch")
+    # These PRs cannot reach the worker; preserve their skip path without a ref lookup.
+    head = current.get("head")
+    if (current.get("state") != "open" or current.get("draft") is True
+            or not isinstance(head, dict) or not isinstance(head.get("repo"), dict)
+            or head["repo"].get("full_name") != repository):
+        return current.copy()
+    ref = base.get("ref")
+    if not _valid_branch_ref(ref):
+        raise ValueError("invalid_base_ref")
+    url = f"https://api.github.com/repos/{repository}/git/ref/heads/{quote(ref, safe='')}"
+    branch = _github_json(url, token)
+    if (not isinstance(branch, dict) or branch.get("ref") != "refs/heads/" + ref
+            or not isinstance(branch.get("object"), dict)
+            or branch["object"].get("type") != "commit"
+            or not isinstance(branch["object"].get("sha"), str)
+            or not _OID.fullmatch(branch["object"]["sha"])):
+        raise ValueError("invalid_branch_response")
+    return {**current, "base": {**base, "sha": branch["object"]["sha"]}}
 
 
 def _remote(payload, host, key, known_hosts):
@@ -165,7 +209,9 @@ def main(argv=None):
                       "worker_output_too_large", "worker_response_unavailable", "invalid_worker_response",
                       "worker_status_mismatch", "worker_revision_mismatch", "untrusted_workflow_event",
                       "worker_status_or_identity_mismatch",
-                      "invalid_pull_request_number", "invalid_pull_request_revisions", "repository_mismatch"}
+                      "invalid_pull_request_number", "invalid_pull_request_revisions", "repository_mismatch",
+                      "invalid_pull_request_lookup", "invalid_pull_request_metadata", "invalid_base_ref",
+                      "invalid_branch_response"}
         reason = str(exc) if type(exc) is ValueError and str(exc) in safe_codes else "ci_execution_failed"
         result.update(status="error", review_accepted=False, findings=[], reason=reason)
     _emit(result, output / "review.json")
