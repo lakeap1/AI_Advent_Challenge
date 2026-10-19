@@ -66,8 +66,7 @@ EXACT = {
                "scripts/calibrate_context.py"},
     "task_3": {"scripts/package_delivery.py", "scripts/live_check.py"},
     "task_4": {"scripts/package_deployment.py"},
-    "task_5": {"scripts/package_delivery.py", "scripts/record-day35.cjs",
-               "scripts/quality-capture.cjs"},
+    "task_5": {"scripts/package_delivery.py"},
 }
 FORBIDDEN = {"data", "notes", "demo", "private", ".recording-tmp", ".venv",
              "__pycache__", ".git", "secrets", "snapshots"}

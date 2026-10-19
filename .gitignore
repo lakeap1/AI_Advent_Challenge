@@ -130,3 +130,10 @@ demo/
 /.github/workflows/*
 !/.github/workflows/day32-review-request.yml
 !/.github/workflows/day32-ai-review.yml
+
+# Local capture tools and superseded CI template.
+/week_7/task_3/scripts/record*.cjs
+/week_7/task_3/scripts/quality-capture.cjs
+/week_7/task_5/scripts/record*.cjs
+/week_7/task_5/scripts/quality-capture.cjs
+/week_7/task_2/ci/pull-request-preparation.yml

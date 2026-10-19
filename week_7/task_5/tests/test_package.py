@@ -121,6 +121,10 @@ class PackageTests(unittest.TestCase):
             "week_7/task_4/docs/report.md", "week_7/task_4/examples/private/secret.md",
             "week_7/task_5/demo/recording.mp4", "week_7/task_5/notes/private.md",
             "week_7/task_5/tests/__pycache__/secret.py", "week_7/task_5/scripts/other.py",
+            "week_7/task_3/scripts/record-day33-demo.cjs",
+            "week_7/task_3/scripts/quality-capture.cjs",
+            "week_7/task_5/scripts/record-day35.cjs",
+            "week_7/task_5/scripts/quality-capture.cjs",
         )
         for name in forbidden:
             self.put(name, "SECRET SENTINEL")

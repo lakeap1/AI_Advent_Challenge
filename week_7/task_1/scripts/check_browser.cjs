@@ -1,9 +1,6 @@
 /* Browser smoke for a running private site. Credentials only via environment. */
 const assert = require('node:assert/strict');
-const path = require('node:path');
-
-const playwrightPath = process.env.PLAYWRIGHT_MODULE_PATH || 'E:/Soft/Node/playwright-recording/node_modules/playwright';
-const { chromium } = require(path.resolve(playwrightPath));
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE_PATH || 'playwright');
 const base = process.env.BROWSER_BASE_URL;
 const username = process.env.BROWSER_USERNAME;
 const password = process.env.BROWSER_PASSWORD;
