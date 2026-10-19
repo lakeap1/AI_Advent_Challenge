@@ -30,6 +30,34 @@ def snapshot():
     return data
 
 
+def long_snapshot():
+    data = snapshot()
+    for source, first in zip(data["sources"], (0, 9)):
+        lines = [f"fragment {number:02d} " + "x" * 3000 + "\n"
+                 for number in range(first, first + 9)]
+        source["text"] = "".join(lines)
+        source["end_line"] = len(lines)
+        source["content_sha256"] = hashlib.sha256(source["text"].encode("utf-8")).hexdigest()
+    return data
+
+
+class StrictCpuEmbed:
+    """Simulate a CPU request budget that accepts one source fragment at a time."""
+
+    def __init__(self, fail_on=None):
+        self.calls = []
+        self.fail_on = fail_on
+
+    def __call__(self, texts, *, query):
+        self.calls.append((tuple(texts), query))
+        if query or len(texts) != 1:
+            raise AssertionError("CPU embedding request exceeded its budget")
+        if len(self.calls) == self.fail_on:
+            raise TimeoutError("CPU embedding failed")
+        return [[1.0, 0.0]], {"model": "qwen-test", "model_digest": "sha256:digest",
+                              "dimensions": 2, "prompt_eval_count": 3}
+
+
 class Embed:
     def __init__(self):
         self.model = "qwen-test"
@@ -58,6 +86,39 @@ class SnapshotIndexTests(unittest.TestCase):
         self.settings = SimpleNamespace(data_dir=self.production, embedding_model="qwen-test", embedding_dimensions=2)
         self.embed = Embed()
         self.index = SnapshotIndex(self.settings, self.embed, self.root / "review")
+
+    def test_cpu_embedding_covers_all_chunks_in_order_with_provenance_and_usage(self):
+        data = long_snapshot()
+        expected = [line for source in data["sources"] for line in source["text"].splitlines(keepends=True)]
+        cpu = StrictCpuEmbed()
+        self.index.embed = cpu
+
+        metadata = self.index.build(data)
+        stored = json.loads(self.index.index_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(metadata["chunks"], 18)
+        self.assertEqual(metadata["prompt_eval_count"], 54)
+        self.assertEqual([call[0][0] for call in cpu.calls], expected)
+        self.assertTrue(all(not query for _, query in cpu.calls))
+        self.assertEqual([chunk["text"] for chunk in stored["chunks"]], expected)
+        self.assertEqual([(chunk["source_id"], chunk["revision"], chunk["origin"],
+                           chunk["start_line"], chunk["end_line"])
+                          for chunk in stored["chunks"]],
+                         [("base-shape", BASE, "repo_base", line, line) for line in range(1, 10)] +
+                         [("head-shape", HEAD, "pr_head", line, line) for line in range(1, 10)])
+        self.assertTrue(all(chunk["sha256"] == hashlib.sha256(chunk["text"].encode("utf-8")).hexdigest()
+                            for chunk in stored["chunks"]))
+
+    def test_cpu_embedding_failure_stops_without_retry_or_successful_index(self):
+        cpu = StrictCpuEmbed(fail_on=7)
+        self.index.embed = cpu
+
+        with self.assertRaisesRegex(TimeoutError, "CPU embedding failed"):
+            self.index.build(long_snapshot())
+
+        self.assertEqual(len(cpu.calls), 7)
+        self.assertFalse(self.index.index_path.exists())
+        self.assertIsNone(self.index._index)
 
     def test_same_path_has_distinct_revision_identity_and_exact_lf_quote(self):
         data = snapshot()

@@ -97,7 +97,25 @@ def render_report(report: dict) -> str:
             call.get("stage"), call.get("status"), usage.get("input_tokens"), usage.get("output_tokens"),
             usage.get("total_tokens"), f'{usage.get("cached_input_tokens")} / {usage.get("reasoning_tokens")}',
             call.get("cost_estimated_usd"))) + '</tr>')
-    parts.extend(['</tbody></table></section>',
+    parts.append('</tbody></table></section>')
+    instance = ledger.get("instance_accounting")
+    if isinstance(instance, dict):
+        parts.extend(['<section><h2>Учёт всего контура</h2>',
+                      f'<p>Известная часть API, USD: {_text(instance.get("known_cost_estimated_usd"))}<br>'
+                      f'Полная оценка API, USD: {_text(instance.get("cost_estimated_usd"))}<br>'
+                      f'Общий лимит, USD: {_text(instance.get("budget_usd"))}<br>'
+                      f'Полнота учёта: {"полный" if instance.get("complete") is True else "неполный"}</p>',
+                      '<p>Вызовы с неизвестным расходом: ' +
+                      ', '.join(_text(call_id) for call_id in instance.get("unknown_call_ids", [])) + '</p>',
+                      '<h3>Ручные решения оператора</h3>'])
+        resolutions = instance.get("operator_resolutions", [])
+        if isinstance(resolutions, list):
+            for resolution in resolutions:
+                if isinstance(resolution, dict):
+                    parts.append('<p>' + ' · '.join(_text(resolution.get(key)) for key in
+                                                    ("call_id", "resolution", "resolved_at_utc")) + '</p>')
+        parts.append('</section>')
+    parts.extend([
                   f'<section><h2>Путь выполнения</h2><pre>{_json(report.get("events", []))}</pre></section>',
                   '</main></html>'])
     return '\n'.join(parts)

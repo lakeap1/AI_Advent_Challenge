@@ -26,6 +26,25 @@ class DeliveryTests(unittest.TestCase):
         self.assertIn("0.012", html)
         self.assertIn("неизвест", html.lower())
 
+    def test_accepted_report_displays_incomplete_instance_and_operator_ack(self):
+        report = {"status": "accepted", "review_accepted": True, "findings": [],
+                  "ledger": {"complete": True, "cost_estimated_usd": 0.01,
+                             "known_cost_estimated_usd": 0.01, "calls": [],
+                             "instance_accounting": {
+                                 "complete": False, "cost_estimated_usd": None,
+                                 "known_cost_estimated_usd": 0.01210035,
+                                 "budget_usd": 0.15, "unknown_call_ids": ["lost-call-1"],
+                                 "operator_resolutions": [{"call_id": "lost-call-1",
+                                                           "resolution": "ack_local_embedding_usage_loss",
+                                                           "resolved_at_utc": "2026-10-19T07:00:00+00:00"}]}}}
+        html = render_report(report)
+        self.assertIn("0.01210035", html)
+        self.assertIn("0.15", html)
+        self.assertIn("lost-call-1", html)
+        self.assertIn("ack_local_embedding_usage_loss", html)
+        self.assertIn("Учёт всего контура", html)
+        self.assertIn("неполный", html)
+
     def test_rejected_report_never_renders_draft_findings(self):
         html = render_report({"status": "rejected", "review_accepted": False,
                               "findings": [{"title": "REJECTED_DRAFT_SENTINEL"}]})
@@ -37,6 +56,15 @@ class DeliveryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             execute_request({"schema_version": 1, "run_key": "demo", "snapshot": {},
                              "service_root": "/tmp/evil"}, lambda *args: calls.append(args))
+        self.assertEqual(calls, [])
+
+    def test_worker_rejects_operator_resolution_fields(self):
+        calls = []
+        with self.assertRaises(ValueError):
+            execute_request({"schema_version": 1, "run_key": "demo", "snapshot": {},
+                             "operator_resolution": {"call_id": "lost-call-1",
+                                                     "authorization_ref": "FORGED-REF"}},
+                            lambda *args: calls.append(args))
         self.assertEqual(calls, [])
 
     def test_worker_passes_data_and_identity_without_interpreting_commands(self):
