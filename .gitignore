@@ -109,3 +109,24 @@ demo/
 /week_5/task_[4-5]/tests/quality-capture.test.cjs
 /week_5/task_[4-5]/scripts/check-chat-evaluation-browser.cjs
 /week_5/task_[4-5]/scripts/check-rag-browser.cjs
+
+# Day 31 persistent state, private corpus/index and local evidence.
+/week_7/task_1/data/
+/week_7/task_1/.test*/
+/week_7/task_1/scripts/record*.cjs
+/week_7/task_1/scripts/quality-capture.cjs
+
+# Public product documentation only; other docs remain local.
+!/week_7/task_1/docs/
+/week_7/task_1/docs/*
+!/week_7/task_1/docs/usage.md
+!/week_7/task_1/docs/architecture.md
+!/week_7/task_1/docs/api.md
+
+# Only the Day32 PR request and trusted review workflows are public.
+!/.github/
+/.github/*
+!/.github/workflows/
+/.github/workflows/*
+!/.github/workflows/day32-review-request.yml
+!/.github/workflows/day32-ai-review.yml

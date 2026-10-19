@@ -1,0 +1,5 @@
+# Review receipts, isolated indexes and deployment intermediates stay private.
+/data/
+/.runtime/
+# TemporaryDirectory fixtures may survive an interrupted Windows test run.
+/tests/tmp*/

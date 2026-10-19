@@ -1,0 +1,14 @@
+name: Day32 review request
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+permissions:
+  contents: read
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request trusted review without secrets or checkout
+        shell: bash
+        run: printf '%s\n' 'Review request received. The trusted workflow produces the review report.' >> "$GITHUB_STEP_SUMMARY"

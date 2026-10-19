@@ -1,0 +1,2 @@
+# Explicit shared runtime dependency; preparation/render use only the standard library.
+-r ../task_1/requirements.txt

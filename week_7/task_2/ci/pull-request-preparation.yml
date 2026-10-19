@@ -1,0 +1,88 @@
+# Inactive template: install only after pr_review exists in the trusted base.
+# This prepares context. It does not perform or approve an AI review.
+name: Day 32 - prepare review context (AI integration pending)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: day32-preparation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  fork-status:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Record unsupported fork preparation
+        shell: bash
+        run: |
+          printf '%s\n' 'Preparation skipped for this fork PR. AI review: NOT RUN.' >> "$GITHUB_STEP_SUMMARY"
+
+  prepare:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out trusted base, retain head only as Git objects
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+          lfs: false
+
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Prepare pinned base and head context with trusted code
+        working-directory: week_7/task_2
+        run: |
+          set -euo pipefail
+          python -B -m pr_review prepare \
+            --repo "$GITHUB_WORKSPACE" \
+            --base "$PR_BASE_SHA" \
+            --head "$PR_HEAD_SHA" \
+            --output "$RUNNER_TEMP/day32-preparation.json"
+
+      - name: Publish preparation status without source contents
+        run: |
+          python -B - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          result = json.loads((Path(os.environ['RUNNER_TEMP']) / 'day32-preparation.json').read_text(encoding='utf-8'))
+          assert result['status'] == 'prepared'
+          assert result['review_status'] == 'integration_required'
+          assert result['review_accepted'] is False
+          commits = [result[key] for key in ('base_revision', 'head_revision', 'merge_base')]
+          assert all(isinstance(value, str) and re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', value) for value in commits)
+          lines = [
+              'Review context prepared. AI review and semantic validation: NOT RUN.',
+              f'Base: {commits[0]}',
+              f'Head: {commits[1]}',
+              f'Merge base: {commits[2]}',
+              f'Changed files: {len(result["changed_files"])}',
+              f'Supplied sources: {len(result["sources"])}',
+              f'Context omissions: {len(result["coverage"]["omissions"])}',
+              'Full preparation remains temporary; source text is not uploaded as an artifact.',
+          ]
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as stream:
+              stream.write('\n\n'.join(lines) + '\n')
+          PY

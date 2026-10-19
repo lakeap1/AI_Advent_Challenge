@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11151b">
+  <title>Грани — понимать компьютерную графику</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">К разговору</a>
+  <div id="login-view" class="login-view" hidden>
+    <div class="login-card">
+      <div class="identity">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 10h32v28H8zM8 10l16 15 16-15M8 38l16-13 16 13"/></svg>
+        <div><strong>Грани</strong><span>Понимать компьютерную графику</span></div>
+      </div>
+      <p class="eyebrow">Личное пространство</p>
+      <h1>Сложное становится яснее.</h1>
+      <p class="login-copy">Разбирайте материалы, свет и визуальные эффекты шаг за шагом. Войдите с выданной учётной записью.</p>
+      <form id="login-form">
+        <label for="username">Имя пользователя</label><input id="username" name="username" autocomplete="username" required maxlength="80">
+        <label for="password">Пароль</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="primary wide" type="submit">Войти</button>
+      </form>
+      <p id="login-error" class="form-error" role="alert"></p>
+    </div>
+    <div class="login-aside" aria-hidden="true"><span>Материал</span><span>Свет</span><span>Форма</span></div>
+  </div>
+
+  <div id="app-view" class="app-shell" hidden>
+    <aside id="sidebar" class="sidebar" aria-label="Навигация по чатам">
+      <div class="identity sidebar-brand">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 10h32v28H8zM8 10l16 15 16-15M8 38l16-13 16 13"/></svg>
+        <div><strong>Грани</strong><span>Понимать компьютерную графику</span></div>
+      </div>
+      <button id="new-chat" class="new-chat" type="button"><span aria-hidden="true">＋</span> Новый разговор</button>
+      <nav class="chat-nav" aria-label="Разговоры"><p class="nav-caption">Разговоры</p><div id="chat-list"></div></nav>
+      <div class="sidebar-bottom">
+        <button type="button" data-drawer="profile">Профиль</button>
+        <button type="button" data-drawer="memory">Память</button>
+        <button type="button" data-drawer="usage">Учёт</button>
+        <button id="logout" type="button">Выйти</button>
+      </div>
+    </aside>
+    <div id="mobile-scrim" class="scrim" hidden></div>
+
+    <main id="main" class="main">
+      <header class="topbar">
+        <button id="menu-toggle" class="icon-button mobile-menu" type="button" aria-label="Открыть список разговоров" aria-expanded="false">☰</button>
+        <div class="topbar-title"><span class="topbar-kicker">Ваш разговор</span><h1 id="chat-title">Новый разговор</h1></div>
+        <div class="topbar-actions">
+          <button type="button" data-drawer="conditions">Условия</button>
+          <button type="button" data-drawer="branches">Ветки</button>
+          <button id="compress" type="button" title="Сжать старую часть контекста">Сжать</button>
+        </div>
+      </header>
+      <div id="notice" class="notice" role="status" aria-live="polite"></div>
+      <section id="conversation" class="conversation" aria-label="Сообщения" aria-live="polite"></section>
+      <div id="empty-state" class="empty-state" hidden>
+        <span class="eyebrow">Место для понимания</span>
+        <h2>С чего начнём?</h2>
+        <p>Задайте вопрос о графике. Можно начать с простого определения и уточнять по ходу разговора.</p>
+        <div class="suggestions">
+          <button type="button" data-prompt="Чем материал отличается от шейдера в Unity?">Материал и шейдер <span aria-hidden="true">↗</span></button>
+          <button type="button" data-prompt="Что хранит normal map и как она влияет на освещение?">Как работает normal map <span aria-hidden="true">↗</span></button>
+          <button type="button" data-prompt="Почему поверхность выглядит плоской при правильной текстуре?">Разобрать проблему <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+      <div class="composer-wrap">
+        <form id="composer" class="composer">
+          <label class="visually-hidden" for="question">Ваш вопрос</label>
+          <textarea id="question" rows="2" placeholder="Спросите о графике…" maxlength="8000" required></textarea>
+          <div class="composer-foot"><span>Enter — отправить · Shift+Enter — новая строка</span><button id="send" class="primary" type="submit">Отправить <span aria-hidden="true">↗</span></button></div>
+        </form>
+        <p class="composer-note">Источники и ограничения ответа доступны рядом с сообщением.</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="drawer-scrim" class="drawer-scrim" hidden></div>
+  <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <header class="drawer-header"><div><span class="eyebrow" id="drawer-kicker">Настройки</span><h2 id="drawer-title">Панель</h2></div><button id="drawer-close" class="icon-button" aria-label="Закрыть панель" type="button">×</button></header>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
+</body>
+</html>

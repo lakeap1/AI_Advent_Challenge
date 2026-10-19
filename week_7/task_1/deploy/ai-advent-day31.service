@@ -1,0 +1,19 @@
+[Unit]
+Description=Graphics learning private web service
+After=network-online.target ai-advent-day31-embedding.service
+Wants=ai-advent-day31-embedding.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ai-advent-day31/repo/week_7/task_1
+EnvironmentFile=%h/.config/ai-advent-day31/service.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/ai-advent-day31/.venv/bin/gunicorn --bind 127.0.0.1:5031 --workers 1 --threads 4 --timeout 300 --access-logfile /dev/null server:app
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target
